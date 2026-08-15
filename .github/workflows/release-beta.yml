@@ -60,10 +60,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # global.json pins the SDK to 8.x. Without it MSBuild picks the newest SDK
-      # pre-installed on the runner image (10.x), whose Microsoft\VisualStudio\v18.0
-      # layout the Windows App SDK 1.5 PRI targets can't resolve, failing the publish
-      # with MSB4062 on Microsoft.Build.Packaging.Pri.Tasks.dll.
+      # global.json pins the SDK to the 8.x band the project targets, so the build
+      # doesn't silently drift onto whatever newer SDK the runner image ships.
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -72,19 +70,68 @@ jobs:
       - name: Show resolved SDK
         run: dotnet --version
 
+      # Windows App SDK 1.5's MrtCore.PriGen.targets resolves its PRI MSBuild tasks from
+      # $(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\AppxPackage\,
+      # which only exists in a Visual Studio MSBuild install — never in the standalone .NET
+      # SDK that `dotnet publish` runs on, hence MSB4062. Rather than hard-code a VS path
+      # (the version folder differs per runner image), find the assembly on this machine and
+      # point the targets at it via their documented override properties.
+      - name: Locate Windows App SDK PRI MSBuild tooling
+        id: pritools
+        shell: pwsh
+        run: |
+          $roots = @(
+            'C:\Program Files\Microsoft Visual Studio',
+            'C:\Program Files (x86)\Microsoft Visual Studio'
+          ) | Where-Object { Test-Path $_ }
+
+          $dll = $null
+          if ($roots) {
+            $dll = Get-ChildItem -Path $roots -Recurse -Filter 'Microsoft.Build.Packaging.Pri.Tasks.dll' `
+                     -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+
+          if ($dll) {
+            $dir = $dll.Directory.FullName
+            Write-Host "Found PRI MSBuild tasks in: $dir"
+            "dir=$dir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            Write-Host "::warning::PRI MSBuild tasks not found; falling back to AppxGeneratePriEnabled=false"
+            "dir=" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
       - name: Restore
         run: dotnet restore src/RemoveInstallerApp/RemoveInstallerApp.csproj -p:Platform=${{ matrix.platform }}
 
       - name: Publish (${{ matrix.rid }}, self-contained)
-        run: >
-          dotnet publish src/RemoveInstallerApp/RemoveInstallerApp.csproj
-          -c Release
-          -r ${{ matrix.rid }}
-          -p:Platform=${{ matrix.platform }}
-          --self-contained true
-          -p:WindowsAppSDKSelfContained=true
-          -p:Version=${{ needs.version.outputs.version }}
-          -o publish/${{ matrix.rid }}
+        shell: pwsh
+        run: |
+          $publishArgs = @(
+            'publish', 'src/RemoveInstallerApp/RemoveInstallerApp.csproj',
+            '-c', 'Release',
+            '-r', '${{ matrix.rid }}',
+            '-p:Platform=${{ matrix.platform }}',
+            '--self-contained', 'true',
+            '-p:WindowsAppSDKSelfContained=true',
+            '-p:Version=${{ needs.version.outputs.version }}',
+            '-o', 'publish/${{ matrix.rid }}'
+          )
+
+          $priDir = '${{ steps.pritools.outputs.dir }}'
+          if ($priDir) {
+            # Both properties are declared with Condition="'$(X)' == ''" in the SDK's
+            # targets, so setting them here wins over the VS-relative default.
+            $publishArgs += "-p:PriProjTaskAssembly=$priDir\Microsoft.Build.Packaging.Pri.Tasks.dll"
+            $publishArgs += "-p:AppxMSBuildTaskAssembly=$priDir\Microsoft.Build.AppxPackage.dll"
+          } else {
+            # No PRI tooling anywhere on this machine: skip PRI generation entirely so the
+            # build still produces a binary. Safe here because the app ships no .resw
+            # resources — all its strings live in Strings/AppStrings.cs.
+            $publishArgs += '-p:AppxGeneratePriEnabled=false'
+          }
+
+          Write-Host "dotnet $($publishArgs -join ' ')"
+          dotnet @publishArgs
 
       - name: Zip artifact
         shell: pwsh
