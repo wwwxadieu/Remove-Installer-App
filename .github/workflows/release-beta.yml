@@ -43,11 +43,15 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
+        # win-arm64 is intentionally excluded: as of this writing, GitHub's hosted
+        # windows-latest runners fail MRT Core's PRI-generation MSBuild task for arm64
+        # (Microsoft.Build.Packaging.Pri.Tasks.dll can't be resolved) when multiple .NET
+        # SDKs are installed side by side on the image — an upstream Windows App SDK /
+        # runner-image tooling issue, not something in this project. arm64 still builds
+        # fine locally from real Visual Studio; re-add it here if/when that's fixed.
         include:
           - rid: win-x64
             platform: x64
-          - rid: win-arm64
-            platform: arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
