@@ -25,6 +25,14 @@
                            Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
             </StackPanel>
 
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="ContextMenuToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_ContextMenu}"
+                              Toggled="ContextMenuToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_ContextMenuDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
             <StackPanel Spacing="8">
                 <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_UpdateSection}" />
 
