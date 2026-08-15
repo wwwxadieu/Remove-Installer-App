@@ -12,4 +12,7 @@ public sealed class AppSettings
 
     /// <summary>Silently check GitHub Releases for a newer version each time the app launches.</summary>
     public bool AutoCheckForUpdates { get; set; } = true;
+
+    /// <summary>Show "Uninstall with Remove Installer App" on the right-click menu of .exe files and shortcuts.</summary>
+    public bool EnableContextMenuIntegration { get; set; }
 }

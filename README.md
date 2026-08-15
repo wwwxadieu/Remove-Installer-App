@@ -34,6 +34,14 @@ leftover files and registry entries.
   Checks GitHub Releases for a newer version — automatically on launch (toggle in
   Settings) or on demand — and shows an in-app banner with a download link when one is
   found.
+- Tuỳ chọn thêm mục **"Gỡ bằng Remove Installer App"** vào menu chuột phải của Windows
+  Explorer, trên bất kỳ file `.exe` hay shortcut (Start Menu, Desktop) nào — bật/tắt trong
+  Settings. Bấm vào đó sẽ mở app và tự động khớp file đã chọn với ứng dụng tương ứng trong
+  danh sách đã cài, rồi vào thẳng luồng xác nhận gỡ cài đặt.
+  Optional **"Uninstall with Remove Installer App"** entry on the right-click menu of any
+  `.exe` file or shortcut (Start menu, Desktop) — toggle in Settings. Clicking it opens the
+  app, matches the file to the corresponding installed app, and jumps straight into the
+  confirm-and-uninstall flow.
 
 ## Yêu cầu / Requirements
 
@@ -197,6 +205,18 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   AppData gốc, ổ đĩa gốc, v.v.) để giảm rủi ro xoá nhầm.
   `PathSafety` refuses to recursively delete critical system folders (Windows, Program
   Files, root of AppData, drive roots, etc.) to reduce the risk of accidental deletion.
+- Mục menu chuột phải (nếu bật) được ghi vào
+  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\RemoveInstallerAppUninstall` và
+  `...\lnkfile\shell\RemoveInstallerAppUninstall` — chỉ ảnh hưởng tài khoản Windows hiện
+  tại, không đụng đến HKLM. Tắt toggle trong Settings (hoặc gỡ hẳn app) sẽ xoá các khoá này;
+  nếu bạn xoá thủ công thư mục cài đặt mà quên tắt toggle trước, mục menu sẽ trỏ đến file
+  không còn tồn tại — xoá tay hai khoá trên trong `regedit` để dọn sạch.
+  The right-click menu entry (when enabled) is written to
+  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\RemoveInstallerAppUninstall` and
+  `...\lnkfile\shell\RemoveInstallerAppUninstall` — current Windows account only, never
+  HKLM. Turning the Settings toggle off (or uninstalling the app) removes these keys; if
+  you manually delete the install folder without turning the toggle off first, the menu
+  entry will point at a missing file — delete those two keys by hand in `regedit` to clean up.
 
 ## License
 

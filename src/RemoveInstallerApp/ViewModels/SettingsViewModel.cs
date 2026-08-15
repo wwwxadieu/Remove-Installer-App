@@ -13,6 +13,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly ILocalizationService _localizationService;
     private readonly ISettingsService _settingsService;
     private readonly IUpdateService _updateService;
+    private readonly IShellIntegrationService _shellIntegrationService;
 
     private string? _updateActionUrl;
 
@@ -34,19 +35,32 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isUpdateAvailable;
 
+    [ObservableProperty]
+    private bool _enableContextMenuIntegration;
+
     public string CurrentVersionText => AppVersionInfo.CurrentVersionText;
 
-    public SettingsViewModel(ILocalizationService localizationService, ISettingsService settingsService, IUpdateService updateService)
+    public SettingsViewModel(
+        ILocalizationService localizationService,
+        ISettingsService settingsService,
+        IUpdateService updateService,
+        IShellIntegrationService shellIntegrationService)
     {
         _localizationService = localizationService;
         _settingsService = settingsService;
         _updateService = updateService;
+        _shellIntegrationService = shellIntegrationService;
         _selectedLanguage = _localizationService.CurrentLanguage;
         _preferSilentUninstall = _settingsService.Current.PreferSilentUninstall;
         _autoCheckForUpdates = _settingsService.Current.AutoCheckForUpdates;
+        _enableContextMenuIntegration = _settingsService.Current.EnableContextMenuIntegration;
     }
 
-    partial void OnSelectedLanguageChanged(string value) => _localizationService.SetLanguage(value);
+    partial void OnSelectedLanguageChanged(string value)
+    {
+        _localizationService.SetLanguage(value);
+        _shellIntegrationService.RefreshMenuText();
+    }
 
     partial void OnPreferSilentUninstallChanged(bool value)
     {
@@ -58,6 +72,21 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         _settingsService.Current.AutoCheckForUpdates = value;
         _settingsService.Save();
+    }
+
+    partial void OnEnableContextMenuIntegrationChanged(bool value)
+    {
+        _settingsService.Current.EnableContextMenuIntegration = value;
+        _settingsService.Save();
+
+        if (value)
+        {
+            _shellIntegrationService.Register();
+        }
+        else
+        {
+            _shellIntegrationService.Unregister();
+        }
     }
 
     public AppSettings Settings => _settingsService.Current;

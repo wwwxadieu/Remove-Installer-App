@@ -19,6 +19,7 @@ public sealed partial class SettingsPage : Page
 
         LanguageRadioButtons.SelectedItem = ViewModel.SelectedLanguage == "vi-VN" ? VietnameseOption : EnglishOption;
         SilentUninstallToggle.IsOn = ViewModel.PreferSilentUninstall;
+        ContextMenuToggle.IsOn = ViewModel.EnableContextMenuIntegration;
         AutoCheckUpdateToggle.IsOn = ViewModel.AutoCheckForUpdates;
         CurrentVersionText.Text = AppStrings.Settings_CurrentVersion(ViewModel.CurrentVersionText);
         _initializing = false;
@@ -50,6 +51,16 @@ public sealed partial class SettingsPage : Page
         }
 
         ViewModel.PreferSilentUninstall = SilentUninstallToggle.IsOn;
+    }
+
+    private void ContextMenuToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        ViewModel.EnableContextMenuIntegration = ContextMenuToggle.IsOn;
     }
 
     private void AutoCheckUpdateToggle_Toggled(object sender, RoutedEventArgs e)

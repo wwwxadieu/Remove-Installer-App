@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
@@ -17,7 +18,11 @@ public sealed partial class AppListPage : Page
         ViewModel = App.Services.GetRequiredService<AppListViewModel>();
         AppsListView.ItemsSource = ViewModel.Apps;
         ViewModel.Apps.CollectionChanged += (_, _) => UpdateEmptyState();
-        Loaded += async (_, _) => await RefreshAsync();
+        Loaded += async (_, _) =>
+        {
+            await RefreshAsync();
+            await HandlePendingLaunchTargetAsync();
+        };
     }
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
@@ -36,6 +41,42 @@ public sealed partial class AppListPage : Page
         UpdateEmptyState();
     }
 
+    /// <summary>
+    /// If the app was launched via the Explorer "Uninstall with Remove Installer App" verb,
+    /// resolve the clicked file (a shortcut's target, or the .exe itself) to an installed app
+    /// and jump straight into the same confirm-and-uninstall flow as clicking its row button.
+    /// </summary>
+    private async Task HandlePendingLaunchTargetAsync()
+    {
+        var targetPath = App.LaunchUninstallTargetPath;
+        if (targetPath is null)
+        {
+            return;
+        }
+
+        App.ClearLaunchUninstallTarget();
+
+        var resolvedPath = targetPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)
+            ? ShortcutResolver.ResolveTarget(targetPath) ?? targetPath
+            : targetPath;
+
+        var app = ViewModel.FindByPath(resolvedPath);
+        if (app is null)
+        {
+            var notFoundDialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = AppStrings.AppList_ContextMenuNoMatchTitle,
+                Content = AppStrings.AppList_ContextMenuNoMatchMessage(System.IO.Path.GetFileName(resolvedPath)),
+                CloseButtonText = AppStrings.Common_Close,
+            };
+            await notFoundDialog.ShowAsync();
+            return;
+        }
+
+        await UninstallFlowAsync(app);
+    }
+
     private async void UninstallButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: InstalledAppInfo app })
@@ -43,6 +84,12 @@ public sealed partial class AppListPage : Page
             return;
         }
 
+        await UninstallFlowAsync(app);
+    }
+
+    /// <summary>Confirm → uninstall → result, shared by row buttons and the context-menu launch path.</summary>
+    private async Task UninstallFlowAsync(InstalledAppInfo app)
+    {
         var confirmDialog = new ContentDialog
         {
             XamlRoot = XamlRoot,

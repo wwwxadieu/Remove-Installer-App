@@ -35,6 +35,8 @@ public static class AppStrings
         ["AppList_ResultError"] = "An error occurred while uninstalling \"{0}\": {1}",
         ["AppList_ResidueFound"] = "Found {0} leftover item(s). Review them on the Leftover Cleaner page?",
         ["AppList_GoToResidue"] = "Review leftovers",
+        ["AppList_ContextMenuNoMatchTitle"] = "No matching app found",
+        ["AppList_ContextMenuNoMatchMessage"] = "\"{0}\" doesn't match any app in the installed list, so there's nothing to uninstall here.",
 
         ["Residue_Title"] = "Leftover Cleaner",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
@@ -63,6 +65,10 @@ public static class AppStrings
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
         ["Settings_SilentUninstall"] = "Prefer silent uninstall",
         ["Settings_SilentUninstallDescription"] = "Use each app's quiet/unattended uninstall option when available, to avoid extra prompts.",
+
+        ["Settings_ContextMenu"] = "Add \"Uninstall with Remove Installer App\" to the right-click menu",
+        ["Settings_ContextMenuDescription"] = "Adds this option to the right-click menu of .exe files and shortcuts (Start menu, Desktop), so you can start an uninstall straight from Explorer. Applies to your Windows user account only.",
+        ["ContextMenu_UninstallVerb"] = "Uninstall with Remove Installer App",
 
         ["Settings_UpdateSection"] = "Updates",
         ["Settings_CurrentVersion"] = "Current version: {0}",
@@ -108,6 +114,8 @@ public static class AppStrings
         ["AppList_ResultError"] = "Có lỗi xảy ra khi gỡ cài đặt \"{0}\": {1}",
         ["AppList_ResidueFound"] = "Tìm thấy {0} mục còn sót lại. Xem chi tiết ở trang Dọn dẹp file rác?",
         ["AppList_GoToResidue"] = "Xem file rác",
+        ["AppList_ContextMenuNoMatchTitle"] = "Không tìm thấy ứng dụng phù hợp",
+        ["AppList_ContextMenuNoMatchMessage"] = "\"{0}\" không khớp với ứng dụng nào trong danh sách đã cài, nên không có gì để gỡ ở đây.",
 
         ["Residue_Title"] = "Dọn dẹp file rác",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
@@ -136,6 +144,10 @@ public static class AppStrings
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
         ["Settings_SilentUninstall"] = "Ưu tiên gỡ cài đặt im lặng",
         ["Settings_SilentUninstallDescription"] = "Dùng chế độ gỡ cài đặt im lặng/tự động của từng ứng dụng khi có thể, để tránh hộp thoại phát sinh.",
+
+        ["Settings_ContextMenu"] = "Thêm \"Gỡ bằng Remove Installer App\" vào menu chuột phải",
+        ["Settings_ContextMenuDescription"] = "Thêm lựa chọn này vào menu chuột phải của file .exe và shortcut (Start Menu, Desktop), để gỡ cài đặt ngay từ File Explorer. Chỉ áp dụng cho tài khoản Windows hiện tại.",
+        ["ContextMenu_UninstallVerb"] = "Gỡ bằng Remove Installer App",
 
         ["Settings_UpdateSection"] = "Cập nhật",
         ["Settings_CurrentVersion"] = "Phiên bản hiện tại: {0}",
@@ -184,6 +196,8 @@ public static class AppStrings
     public static string AppList_ResultError(string appName, string error) => string.Format(Get("AppList_ResultError"), appName, error);
     public static string AppList_ResidueFound(int count) => string.Format(Get("AppList_ResidueFound"), count);
     public static string AppList_GoToResidue => Get("AppList_GoToResidue");
+    public static string AppList_ContextMenuNoMatchTitle => Get("AppList_ContextMenuNoMatchTitle");
+    public static string AppList_ContextMenuNoMatchMessage(string fileName) => string.Format(Get("AppList_ContextMenuNoMatchMessage"), fileName);
 
     public static string Residue_Title => Get("Residue_Title");
     public static string Residue_ScanOrphans => Get("Residue_ScanOrphans");
@@ -205,6 +219,10 @@ public static class AppStrings
     public static string Settings_LanguageVietnamese => Get("Settings_LanguageVietnamese");
     public static string Settings_SilentUninstall => Get("Settings_SilentUninstall");
     public static string Settings_SilentUninstallDescription => Get("Settings_SilentUninstallDescription");
+
+    public static string Settings_ContextMenu => Get("Settings_ContextMenu");
+    public static string Settings_ContextMenuDescription => Get("Settings_ContextMenuDescription");
+    public static string ContextMenu_UninstallVerb => Get("ContextMenu_UninstallVerb");
 
     public static string Settings_UpdateSection => Get("Settings_UpdateSection");
     public static string Settings_CurrentVersion(string version) => string.Format(Get("Settings_CurrentVersion"), version);
