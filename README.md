@@ -67,9 +67,17 @@ HKLM registry keys).
 
 ```powershell
 dotnet publish src/RemoveInstallerApp/RemoveInstallerApp.csproj `
-  -c Release -r win-x64 --self-contained true `
+  -c Release -r win-x64 -p:Platform=x64 --self-contained true `
   -p:WindowsAppSDKSelfContained=true
 ```
+
+> `-p:Platform=x64` là bắt buộc — thiếu tham số này MSBuild sẽ mặc định dùng `AnyCPU`, và
+> Windows App SDK từ chối build self-contained với `AnyCPU` (`error: The platform 'AnyCPU'
+> is not supported for Self Contained mode.`). Đổi thành `arm64` nếu build cho `win-arm64`.
+>
+> `-p:Platform=x64` is required — without it MSBuild defaults to `AnyCPU`, which the
+> Windows App SDK rejects for self-contained builds (`error: The platform 'AnyCPU' is not
+> supported for Self Contained mode.`). Use `arm64` when publishing for `win-arm64`.
 
 File thực thi (`RemoveInstallerApp.exe`) và toàn bộ dependency sẽ nằm trong thư mục
 `publish` — có thể copy sang máy khác chạy trực tiếp mà không cần cài .NET runtime.

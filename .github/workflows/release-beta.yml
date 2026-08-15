@@ -43,7 +43,11 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        rid: [win-x64, win-arm64]
+        include:
+          - rid: win-x64
+            platform: x64
+          - rid: win-arm64
+            platform: arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,13 +58,14 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Restore
-        run: dotnet restore src/RemoveInstallerApp/RemoveInstallerApp.csproj
+        run: dotnet restore src/RemoveInstallerApp/RemoveInstallerApp.csproj -p:Platform=${{ matrix.platform }}
 
       - name: Publish (${{ matrix.rid }}, self-contained)
         run: >
           dotnet publish src/RemoveInstallerApp/RemoveInstallerApp.csproj
           -c Release
           -r ${{ matrix.rid }}
+          -p:Platform=${{ matrix.platform }}
           --self-contained true
           -p:WindowsAppSDKSelfContained=true
           -p:Version=${{ needs.version.outputs.version }}
