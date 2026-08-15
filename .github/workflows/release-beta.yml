@@ -133,6 +133,25 @@ jobs:
           Write-Host "dotnet $($publishArgs -join ' ')"
           dotnet @publishArgs
 
+      # A WinUI app that ships without an app-level PRI fails at startup with no window,
+      # which is exactly how v1.0.0-beta1 behaved. Print what actually landed where so a
+      # regression here is visible in the log instead of only on a user's machine.
+      - name: Verify app PRI is present
+        shell: pwsh
+        run: |
+          Write-Host "--- .pri in publish output ---"
+          $published = Get-ChildItem -Path "publish/${{ matrix.rid }}" -Filter *.pri -Recurse -ErrorAction SilentlyContinue
+          $published | Select-Object Name, Length | Format-Table -AutoSize | Out-String | Write-Host
+
+          Write-Host "--- .pri in build output (bin) ---"
+          Get-ChildItem -Path "src/RemoveInstallerApp/bin" -Filter *.pri -Recurse -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Write-Host
+
+          if (-not ($published | Where-Object { $_.Name -eq 'resources.pri' })) {
+            Write-Host "::error::resources.pri missing from the publish output — the app will not start."
+            exit 1
+          }
+
       - name: Zip artifact
         shell: pwsh
         run: |

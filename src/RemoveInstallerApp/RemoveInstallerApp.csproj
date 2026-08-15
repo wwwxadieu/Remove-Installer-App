@@ -47,4 +47,24 @@
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
+  <!--
+    The Windows App SDK generates the app's PRI into $(TargetDir) as $(ProjectPriFileName),
+    but only adds it to the output items when AppxPackage=='true' (i.e. an MSIX build).
+    This app is unpackaged, so `dotnet publish` left the publish folder without any
+    app-level PRI and WinUI could not resolve ms-appx resources at startup.
+    Copy it across under both the generated name and the resources.pri name the
+    unpackaged loader looks for.
+  -->
+  <Target Name="CopyProjectPriToPublishOutput"
+          AfterTargets="Publish"
+          Condition="'$(ProjectPriFullPath)' != '' And Exists('$(ProjectPriFullPath)')">
+    <Copy SourceFiles="$(ProjectPriFullPath)"
+          DestinationFiles="$(PublishDir)resources.pri"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectPriFullPath)"
+          DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Copied app PRI '$(ProjectPriFullPath)' into $(PublishDir)" />
+  </Target>
+
 </Project>
