@@ -20,7 +20,16 @@
     <SelfContained>true</SelfContained>
     <PublishReadyToRun>false</PublishReadyToRun>
 
-    <EnableMsixTooling>false</EnableMsixTooling>
+    <!--
+      Deliberately NOT setting EnableMsixTooling. Leaving it unset makes
+      Microsoft.WinUI.props import Microsoft.Build.Msix.props, which sets
+      EnableCoreMrtTooling=false so the MrtCore PRI targets (which need MSBuild
+      task assemblies that only ship with Visual Studio, not the .NET SDK) are
+      never imported — that's what lets `dotnet publish` build this project.
+      Setting it to false instead skips that import and breaks the build with
+      MSB4062 on Microsoft.Build.Packaging.Pri.Tasks.dll. Packaging stays off
+      regardless via WindowsPackageType=None.
+    -->
     <UseRidGraph>true</UseRidGraph>
 
     <NeutralLanguage>en-US</NeutralLanguage>
