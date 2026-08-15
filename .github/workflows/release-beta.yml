@@ -42,24 +42,35 @@ jobs:
     needs: version
     runs-on: windows-latest
     strategy:
+      # Keep both legs running independently: a failure on the experimental arm64 leg
+      # must not cancel (or block the release of) the x64 build.
+      fail-fast: false
       matrix:
-        # win-arm64 is intentionally excluded: as of this writing, GitHub's hosted
-        # windows-latest runners fail MRT Core's PRI-generation MSBuild task for arm64
-        # (Microsoft.Build.Packaging.Pri.Tasks.dll can't be resolved) when multiple .NET
-        # SDKs are installed side by side on the image — an upstream Windows App SDK /
-        # runner-image tooling issue, not something in this project. arm64 still builds
-        # fine locally from real Visual Studio; re-add it here if/when that's fixed.
         include:
           - rid: win-x64
             platform: x64
+            experimental: false
+          - rid: win-arm64
+            platform: arm64
+            experimental: true
+    # arm64 has no hosted Windows runner and is cross-compiled here, so treat it as
+    # best-effort: if it breaks, the release still ships with the x64 asset.
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # global.json pins the SDK to 8.x. Without it MSBuild picks the newest SDK
+      # pre-installed on the runner image (10.x), whose Microsoft\VisualStudio\v18.0
+      # layout the Windows App SDK 1.5 PRI targets can't resolve, failing the publish
+      # with MSB4062 on Microsoft.Build.Packaging.Pri.Tasks.dll.
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+
+      - name: Show resolved SDK
+        run: dotnet --version
 
       - name: Restore
         run: dotnet restore src/RemoveInstallerApp/RemoveInstallerApp.csproj -p:Platform=${{ matrix.platform }}

@@ -128,14 +128,18 @@ in `Services/UpdateService.cs` accordingly.
 ## Build bản beta tự động / Automated beta releases
 
 Workflow `.github/workflows/release-beta.yml` build ứng dụng trên `windows-latest`
-(publish self-contained cho `win-x64`), đóng gói thành file `.zip`, rồi tự động tạo một
-**GitHub Release đánh dấu prerelease** kèm file đó. Có hai cách kích hoạt:
+(publish self-contained cho `win-x64`, kèm `win-arm64` dạng best-effort), đóng gói thành
+file `.zip`, rồi tự động tạo một **GitHub Release đánh dấu prerelease** kèm các file đó.
+Có hai cách kích hoạt:
 
-> **arm64 hiện chưa build trên CI**: runner Windows của GitHub gặp lỗi tương thích đã biết
-> khi generate PRI resources cho arm64 với Windows App SDK 1.5.x khi máy có nhiều .NET SDK
-> cài song song (`Microsoft.Build.Packaging.Pri.Tasks.dll` không load được) — lỗi thuộc về
-> tooling upstream, không phải code của dự án. Build arm64 vẫn hoạt động bình thường khi
-> build thủ công bằng Visual Studio thật trên Windows.
+> **Vì sao repo có `global.json`**: file này ghim .NET SDK về nhánh 8.x. Nếu không có nó,
+> MSBuild sẽ tự chọn SDK mới nhất có sẵn trên máy/runner (ví dụ 10.x), mà Windows App SDK
+> 1.5 không đọc được layout `Microsoft\VisualStudio\v18.0` của SDK đó — build sẽ chết với
+> lỗi `MSB4062 ... Microsoft.Build.Packaging.Pri.Tasks.dll`. Đừng xoá `global.json` trừ khi
+> đồng thời nâng Windows App SDK lên phiên bản hỗ trợ SDK mới.
+>
+> Nhánh `win-arm64` được đánh dấu `continue-on-error` (best-effort): nếu nó lỗi thì release
+> vẫn được tạo với file x64.
 
 - **Tự động**: push một tag khớp mẫu `v*-beta*`, ví dụ:
   ```bash
@@ -153,14 +157,19 @@ không tự động đề nghị người dùng lên bản beta, chỉ đề ngh
 thường.
 
 The `.github/workflows/release-beta.yml` workflow builds the app on `windows-latest`
-(self-contained publish for `win-x64`), zips the output, and automatically creates a
-**prerelease GitHub Release** with that file attached. Two ways to trigger it:
+(self-contained publish for `win-x64`, plus a best-effort `win-arm64`), zips the output,
+and automatically creates a **prerelease GitHub Release** with those files attached. Two
+ways to trigger it:
 
-> **arm64 isn't built on CI yet**: GitHub's hosted Windows runners hit a known
-> compatibility issue generating PRI resources for arm64 with Windows App SDK 1.5.x when
-> multiple .NET SDKs are installed side by side (`Microsoft.Build.Packaging.Pri.Tasks.dll`
-> fails to load) — an upstream tooling issue, not a bug in this project. arm64 still builds
-> fine from real Visual Studio on Windows.
+> **Why this repo has a `global.json`**: it pins the .NET SDK to the 8.x band. Without it,
+> MSBuild picks the newest SDK installed on the machine/runner (e.g. 10.x), whose
+> `Microsoft\VisualStudio\v18.0` layout the Windows App SDK 1.5 PRI targets cannot resolve
+> — the build then dies with `MSB4062 ... Microsoft.Build.Packaging.Pri.Tasks.dll`. Don't
+> delete `global.json` unless you also move to a Windows App SDK version that supports the
+> newer SDK.
+>
+> The `win-arm64` leg is marked `continue-on-error` (best-effort): if it breaks, the
+> release still ships with the x64 asset.
 
 - **Automatically**: push a tag matching `v*-beta*`, e.g. `git tag v1.1.0-beta1 && git push
   origin v1.1.0-beta1`.
