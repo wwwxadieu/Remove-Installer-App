@@ -117,6 +117,43 @@ Releases, hãy: (1) tăng `<Version>` trong csproj, (2) tạo tag/release tươn
 Windows `.exe`/`.zip` asset attached. If you fork the repo, update `RepoOwner`/`RepoName`
 in `Services/UpdateService.cs` accordingly.
 
+## Build bản beta tự động / Automated beta releases
+
+Workflow `.github/workflows/release-beta.yml` build ứng dụng trên `windows-latest`
+(publish self-contained cho cả `win-x64` và `win-arm64`), đóng gói thành file `.zip`, rồi
+tự động tạo một **GitHub Release đánh dấu prerelease** kèm các file đó. Có hai cách kích
+hoạt:
+
+- **Tự động**: push một tag khớp mẫu `v*-beta*`, ví dụ:
+  ```bash
+  git tag v1.1.0-beta1
+  git push origin v1.1.0-beta1
+  ```
+- **Thủ công**: vào tab **Actions** trên GitHub → chọn workflow **Build beta release** →
+  **Run workflow**. Có thể nhập version cụ thể (ví dụ `1.1.0-beta2`), hoặc để trống để
+  workflow tự sinh version dạng `0.0.0-beta.<số lần chạy>`.
+
+Vì release được tạo với `prerelease: true`, endpoint `releases/latest` của GitHub API sẽ
+**bỏ qua** các bản beta này — nghĩa là `UpdateService` (mục kiểm tra cập nhật trong app) sẽ
+không tự động đề nghị người dùng lên bản beta, chỉ đề nghị lên bản release chính thức
+(non-prerelease). Đây là hành vi có chủ đích, để tránh đẩy bản thử nghiệm cho người dùng
+thường.
+
+The `.github/workflows/release-beta.yml` workflow builds the app on `windows-latest`
+(self-contained publish for both `win-x64` and `win-arm64`), zips the output, and
+automatically creates a **prerelease GitHub Release** with those files attached. Two ways
+to trigger it:
+
+- **Automatically**: push a tag matching `v*-beta*`, e.g. `git tag v1.1.0-beta1 && git push
+  origin v1.1.0-beta1`.
+- **Manually**: GitHub → **Actions** tab → **Build beta release** → **Run workflow**.
+  Optionally specify a version (e.g. `1.1.0-beta2`), or leave it blank to auto-generate
+  `0.0.0-beta.<run number>`.
+
+Because the release is created with `prerelease: true`, GitHub's `releases/latest` API
+endpoint **excludes** it — so the in-app `UpdateService` will never prompt regular users to
+move to a beta build, only to an official (non-prerelease) release. That's intentional.
+
 ## Lưu ý quan trọng / Important notes
 
 - **Luôn xem lại danh sách trước khi xoá.** Việc dò tìm file/registry rác dựa trên so
