@@ -128,9 +128,14 @@ in `Services/UpdateService.cs` accordingly.
 ## Build bản beta tự động / Automated beta releases
 
 Workflow `.github/workflows/release-beta.yml` build ứng dụng trên `windows-latest`
-(publish self-contained cho cả `win-x64` và `win-arm64`), đóng gói thành file `.zip`, rồi
-tự động tạo một **GitHub Release đánh dấu prerelease** kèm các file đó. Có hai cách kích
-hoạt:
+(publish self-contained cho `win-x64`), đóng gói thành file `.zip`, rồi tự động tạo một
+**GitHub Release đánh dấu prerelease** kèm file đó. Có hai cách kích hoạt:
+
+> **arm64 hiện chưa build trên CI**: runner Windows của GitHub gặp lỗi tương thích đã biết
+> khi generate PRI resources cho arm64 với Windows App SDK 1.5.x khi máy có nhiều .NET SDK
+> cài song song (`Microsoft.Build.Packaging.Pri.Tasks.dll` không load được) — lỗi thuộc về
+> tooling upstream, không phải code của dự án. Build arm64 vẫn hoạt động bình thường khi
+> build thủ công bằng Visual Studio thật trên Windows.
 
 - **Tự động**: push một tag khớp mẫu `v*-beta*`, ví dụ:
   ```bash
@@ -148,9 +153,14 @@ không tự động đề nghị người dùng lên bản beta, chỉ đề ngh
 thường.
 
 The `.github/workflows/release-beta.yml` workflow builds the app on `windows-latest`
-(self-contained publish for both `win-x64` and `win-arm64`), zips the output, and
-automatically creates a **prerelease GitHub Release** with those files attached. Two ways
-to trigger it:
+(self-contained publish for `win-x64`), zips the output, and automatically creates a
+**prerelease GitHub Release** with that file attached. Two ways to trigger it:
+
+> **arm64 isn't built on CI yet**: GitHub's hosted Windows runners hit a known
+> compatibility issue generating PRI resources for arm64 with Windows App SDK 1.5.x when
+> multiple .NET SDKs are installed side by side (`Microsoft.Build.Packaging.Pri.Tasks.dll`
+> fails to load) — an upstream tooling issue, not a bug in this project. arm64 still builds
+> fine from real Visual Studio on Windows.
 
 - **Automatically**: push a tag matching `v*-beta*`, e.g. `git tag v1.1.0-beta1 && git push
   origin v1.1.0-beta1`.
