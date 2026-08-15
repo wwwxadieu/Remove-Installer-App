@@ -29,6 +29,11 @@ leftover files and registry entries.
   WinUI 3 UI (Fluent Design, follows system light/dark theme).
 - Hỗ trợ song ngữ Việt/Anh, chuyển đổi ngay trong Settings.
   Bilingual VN/EN, switchable from Settings.
+- Tự động (hoặc theo yêu cầu ở Settings) kiểm tra phiên bản mới trên GitHub Releases của
+  dự án; nếu có bản mới sẽ hiện thông báo trong app kèm nút mở link tải.
+  Checks GitHub Releases for a newer version — automatically on launch (toggle in
+  Settings) or on demand — and shows an in-app banner with a download link when one is
+  found.
 
 ## Yêu cầu / Requirements
 
@@ -80,6 +85,7 @@ src/RemoveInstallerApp/
 ├── Services/        InstalledAppsService (registry enumeration)
 │                     UninstallService (run uninstaller / force remove)
 │                     ResidueScanService (leftover file & registry scan)
+│                     UpdateService (GitHub Releases version check)
 │                     LocalizationService, SettingsService
 ├── ViewModels/      MVVM view models (CommunityToolkit.Mvvm)
 ├── Views/            AppListPage, ResidueScanPage, SettingsPage (WinUI 3 XAML)
@@ -94,6 +100,22 @@ ký trong `App.xaml.cs`. Không dùng MSIX — ứng dụng chạy dạng unpack
 Lightweight MVVM with DI (`Microsoft.Extensions.DependencyInjection`), wired up in
 `App.xaml.cs`. The app is unpackaged (`WindowsPackageType=None`, no MSIX) so it builds and
 runs without needing package-identity setup.
+
+### Cơ chế kiểm tra cập nhật / How update checking works
+
+`UpdateService` gọi `https://api.github.com/repos/<owner>/<repo>/releases/latest` (repo
+mặc định: `wwwxadieu/Remove-Installer-App`), so sánh `tag_name` (dạng `vX.Y.Z`) với
+`<Version>` khai báo trong `RemoveInstallerApp.csproj`. Khi phát hành bản mới trên GitHub
+Releases, hãy: (1) tăng `<Version>` trong csproj, (2) tạo tag/release tương ứng (ví dụ
+`v1.1.0`) kèm file `.exe`/`.zip` đính kèm cho Windows. Nếu bạn fork repo, đổi
+`RepoOwner`/`RepoName` trong `Services/UpdateService.cs` cho khớp.
+
+`UpdateService` calls `https://api.github.com/repos/<owner>/<repo>/releases/latest`
+(default repo: `wwwxadieu/Remove-Installer-App`) and compares the release's `tag_name`
+(`vX.Y.Z`) against `<Version>` in `RemoveInstallerApp.csproj`. When cutting a release:
+(1) bump `<Version>` in the csproj, (2) tag/publish a GitHub release (e.g. `v1.1.0`) with a
+Windows `.exe`/`.zip` asset attached. If you fork the repo, update `RepoOwner`/`RepoName`
+in `Services/UpdateService.cs` accordingly.
 
 ## Lưu ý quan trọng / Important notes
 

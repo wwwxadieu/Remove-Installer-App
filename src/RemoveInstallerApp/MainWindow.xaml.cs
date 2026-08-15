@@ -1,5 +1,8 @@
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.Views;
 
@@ -7,6 +10,8 @@ namespace RemoveInstallerApp;
 
 public sealed partial class MainWindow : Window
 {
+    private string? _updateActionUrl;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -18,6 +23,8 @@ public sealed partial class MainWindow : Window
         ApplyLocalizedLabels();
         RootNavigationView.SelectedItem = NavItemAppList;
         ContentFrame.Navigate(typeof(AppListPage));
+
+        _ = CheckForUpdateOnLaunchAsync();
     }
 
     /// <summary>Re-applied after a language switch so nav labels refresh without restarting.</summary>
@@ -51,6 +58,34 @@ public sealed partial class MainWindow : Window
                     ContentFrame.Navigate(typeof(ResidueScanPage));
                     break;
             }
+        }
+    }
+
+    private async Task CheckForUpdateOnLaunchAsync()
+    {
+        var settingsService = App.Services.GetRequiredService<ISettingsService>();
+        if (!settingsService.Current.AutoCheckForUpdates)
+        {
+            return;
+        }
+
+        var updateService = App.Services.GetRequiredService<IUpdateService>();
+        var result = await updateService.CheckForUpdateAsync();
+
+        if (result is { Success: true, IsUpdateAvailable: true })
+        {
+            _updateActionUrl = result.DownloadUrl ?? result.ReleaseUrl;
+            UpdateInfoBar.Title = AppStrings.Settings_UpdateAvailable(result.LatestVersionText ?? string.Empty);
+            UpdateActionButton.Content = AppStrings.Settings_DownloadUpdate;
+            UpdateInfoBar.IsOpen = true;
+        }
+    }
+
+    private void UpdateActionButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_updateActionUrl is not null)
+        {
+            Process.Start(new ProcessStartInfo { FileName = _updateActionUrl, UseShellExecute = true });
         }
     }
 }

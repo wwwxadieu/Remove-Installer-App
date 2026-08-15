@@ -32,6 +32,7 @@ public partial class App : Application
         collection.AddSingleton<IInstalledAppsService, InstalledAppsService>();
         collection.AddSingleton<IUninstallService, UninstallService>();
         collection.AddSingleton<IResidueScanService, ResidueScanService>();
+        collection.AddSingleton<IUpdateService, UpdateService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();

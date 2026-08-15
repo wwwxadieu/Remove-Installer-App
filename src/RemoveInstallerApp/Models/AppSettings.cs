@@ -9,4 +9,7 @@ public sealed class AppSettings
     public bool PreferSilentUninstall { get; set; } = true;
 
     public bool IsLightTheme { get; set; }
+
+    /// <summary>Silently check GitHub Releases for a newer version each time the app launches.</summary>
+    public bool AutoCheckForUpdates { get; set; } = true;
 }

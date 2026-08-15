@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 
 namespace RemoveInstallerApp.Views;
@@ -17,6 +19,8 @@ public sealed partial class SettingsPage : Page
 
         LanguageRadioButtons.SelectedItem = ViewModel.SelectedLanguage == "vi-VN" ? VietnameseOption : EnglishOption;
         SilentUninstallToggle.IsOn = ViewModel.PreferSilentUninstall;
+        AutoCheckUpdateToggle.IsOn = ViewModel.AutoCheckForUpdates;
+        CurrentVersionText.Text = AppStrings.Settings_CurrentVersion(ViewModel.CurrentVersionText);
         _initializing = false;
     }
 
@@ -38,7 +42,7 @@ public sealed partial class SettingsPage : Page
         Frame.Navigate(typeof(SettingsPage));
     }
 
-    private void SilentUninstallToggle_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void SilentUninstallToggle_Toggled(object sender, RoutedEventArgs e)
     {
         if (_initializing)
         {
@@ -47,4 +51,30 @@ public sealed partial class SettingsPage : Page
 
         ViewModel.PreferSilentUninstall = SilentUninstallToggle.IsOn;
     }
+
+    private void AutoCheckUpdateToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        ViewModel.AutoCheckForUpdates = AutoCheckUpdateToggle.IsOn;
+    }
+
+    private async void CheckForUpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        UpdateCheckRing.IsActive = true;
+        CheckForUpdateButton.IsEnabled = false;
+        DownloadUpdateButton.Visibility = Visibility.Collapsed;
+
+        await ViewModel.CheckForUpdateAsync();
+
+        UpdateCheckRing.IsActive = false;
+        CheckForUpdateButton.IsEnabled = true;
+        UpdateStatusText.Text = ViewModel.UpdateStatusMessage;
+        DownloadUpdateButton.Visibility = ViewModel.IsUpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void DownloadUpdateButton_Click(object sender, RoutedEventArgs e) => ViewModel.OpenUpdateLink();
 }

@@ -64,6 +64,18 @@ public static class AppStrings
         ["Settings_SilentUninstall"] = "Prefer silent uninstall",
         ["Settings_SilentUninstallDescription"] = "Use each app's quiet/unattended uninstall option when available, to avoid extra prompts.",
 
+        ["Settings_UpdateSection"] = "Updates",
+        ["Settings_CurrentVersion"] = "Current version: {0}",
+        ["Settings_CheckForUpdate"] = "Check for updates",
+        ["Settings_Checking"] = "Checking for updates...",
+        ["Settings_UpToDate"] = "You're on the latest version.",
+        ["Settings_UpdateAvailable"] = "A new version ({0}) is available.",
+        ["Settings_UpdateCheckFailed"] = "Couldn't check for updates: {0}",
+        ["Settings_DownloadUpdate"] = "Download update",
+        ["Settings_ViewRelease"] = "View release",
+        ["Settings_AutoCheckUpdate"] = "Automatically check for updates on launch",
+        ["Settings_AutoCheckUpdateDescription"] = "Silently checks GitHub for a newer version each time the app starts. No data is sent besides the request itself.",
+
         ["Common_Yes"] = "Yes",
         ["Common_No"] = "No",
         ["Common_Cancel"] = "Cancel",
@@ -125,6 +137,18 @@ public static class AppStrings
         ["Settings_SilentUninstall"] = "Ưu tiên gỡ cài đặt im lặng",
         ["Settings_SilentUninstallDescription"] = "Dùng chế độ gỡ cài đặt im lặng/tự động của từng ứng dụng khi có thể, để tránh hộp thoại phát sinh.",
 
+        ["Settings_UpdateSection"] = "Cập nhật",
+        ["Settings_CurrentVersion"] = "Phiên bản hiện tại: {0}",
+        ["Settings_CheckForUpdate"] = "Kiểm tra cập nhật",
+        ["Settings_Checking"] = "Đang kiểm tra cập nhật...",
+        ["Settings_UpToDate"] = "Bạn đang dùng phiên bản mới nhất.",
+        ["Settings_UpdateAvailable"] = "Đã có phiên bản mới ({0}).",
+        ["Settings_UpdateCheckFailed"] = "Không thể kiểm tra cập nhật: {0}",
+        ["Settings_DownloadUpdate"] = "Tải bản cập nhật",
+        ["Settings_ViewRelease"] = "Xem trang phát hành",
+        ["Settings_AutoCheckUpdate"] = "Tự động kiểm tra cập nhật khi khởi động",
+        ["Settings_AutoCheckUpdateDescription"] = "Âm thầm kiểm tra GitHub xem có phiên bản mới hơn mỗi khi mở ứng dụng. Không gửi dữ liệu nào khác ngoài yêu cầu kiểm tra.",
+
         ["Common_Yes"] = "Có",
         ["Common_No"] = "Không",
         ["Common_Cancel"] = "Huỷ",
@@ -181,6 +205,18 @@ public static class AppStrings
     public static string Settings_LanguageVietnamese => Get("Settings_LanguageVietnamese");
     public static string Settings_SilentUninstall => Get("Settings_SilentUninstall");
     public static string Settings_SilentUninstallDescription => Get("Settings_SilentUninstallDescription");
+
+    public static string Settings_UpdateSection => Get("Settings_UpdateSection");
+    public static string Settings_CurrentVersion(string version) => string.Format(Get("Settings_CurrentVersion"), version);
+    public static string Settings_CheckForUpdate => Get("Settings_CheckForUpdate");
+    public static string Settings_Checking => Get("Settings_Checking");
+    public static string Settings_UpToDate => Get("Settings_UpToDate");
+    public static string Settings_UpdateAvailable(string version) => string.Format(Get("Settings_UpdateAvailable"), version);
+    public static string Settings_UpdateCheckFailed(string error) => string.Format(Get("Settings_UpdateCheckFailed"), error);
+    public static string Settings_DownloadUpdate => Get("Settings_DownloadUpdate");
+    public static string Settings_ViewRelease => Get("Settings_ViewRelease");
+    public static string Settings_AutoCheckUpdate => Get("Settings_AutoCheckUpdate");
+    public static string Settings_AutoCheckUpdateDescription => Get("Settings_AutoCheckUpdateDescription");
 
     public static string Common_Yes => Get("Common_Yes");
     public static string Common_No => Get("Common_No");

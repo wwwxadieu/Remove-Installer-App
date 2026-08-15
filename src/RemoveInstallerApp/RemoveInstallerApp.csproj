@@ -24,6 +24,9 @@
     <UseRidGraph>true</UseRidGraph>
 
     <NeutralLanguage>en-US</NeutralLanguage>
+
+    <!-- Bumped on release; the update checker compares this against the latest GitHub release tag. -->
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
