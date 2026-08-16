@@ -224,19 +224,29 @@ runs without needing package-identity setup.
 
 ### Cơ chế kiểm tra cập nhật / How update checking works
 
-`UpdateService` gọi `https://api.github.com/repos/<owner>/<repo>/releases/latest` (repo
-mặc định: `wwwxadieu/Remove-Installer-App`), so sánh `tag_name` (dạng `vX.Y.Z`) với
-`<Version>` khai báo trong `RemoveInstallerApp.csproj`. Khi phát hành bản mới trên GitHub
-Releases, hãy: (1) tăng `<Version>` trong csproj, (2) tạo tag/release tương ứng (ví dụ
-`v1.1.0`) kèm file `.exe`/`.zip` đính kèm cho Windows. Nếu bạn fork repo, đổi
-`RepoOwner`/`RepoName` trong `Services/UpdateService.cs` cho khớp.
+`UpdateService` gọi `https://api.github.com/repos/<owner>/<repo>/releases` (danh sách đầy
+đủ, repo mặc định: `wwwxadieu/Remove-Installer-App`) — **không** dùng endpoint
+`/releases/latest`, vì endpoint đó luôn bỏ qua bản đánh dấu `prerelease` và mọi bản phát
+hành của dự án này hiện đều là beta (`prerelease: true`), nên trước đây update-check
+không bao giờ tìm thấy gì để so sánh. Trong danh sách lấy về, so từng `tag_name` (dạng
+`vX.Y.Z` hoặc `vX.Y.Z-betaN`) để tìm bản có version cao nhất — kể cả bản beta — rồi so với
+version của app đang chạy (`AssemblyInformationalVersionAttribute`, giữ nguyên hậu tố
+`-betaN`, không phải `<Version>` số nguyên trong csproj vốn không đổi qua các bản beta). Từ
+lúc có bản phát hành chính thức (không hậu tố beta) đầu tiên, bản đó sẽ tự động được ưu
+tiên hơn bất kỳ bản beta nào cùng version gốc. Nếu bạn fork repo, đổi `RepoOwner`/`RepoName`
+trong `Services/UpdateService.cs` cho khớp.
 
-`UpdateService` calls `https://api.github.com/repos/<owner>/<repo>/releases/latest`
-(default repo: `wwwxadieu/Remove-Installer-App`) and compares the release's `tag_name`
-(`vX.Y.Z`) against `<Version>` in `RemoveInstallerApp.csproj`. When cutting a release:
-(1) bump `<Version>` in the csproj, (2) tag/publish a GitHub release (e.g. `v1.1.0`) with a
-Windows `.exe`/`.zip` asset attached. If you fork the repo, update `RepoOwner`/`RepoName`
-in `Services/UpdateService.cs` accordingly.
+`UpdateService` calls `https://api.github.com/repos/<owner>/<repo>/releases` (the full
+list, default repo: `wwwxadieu/Remove-Installer-App`) — **not** the `/releases/latest`
+endpoint, since that always excludes anything marked `prerelease`, and every release this
+project has published so far is a beta (`prerelease: true`) — so the update check used to
+never find anything to compare against at all. It compares every `tag_name` in the fetched
+list (`vX.Y.Z` or `vX.Y.Z-betaN`) to find the highest version, betas included, then compares
+that against the running app's version (`AssemblyInformationalVersionAttribute`, which keeps
+the `-betaN` suffix — not the numeric `<Version>` in the csproj, which stays the same across
+every beta). Once a first real, non-beta release exists, it will automatically outrank any
+beta of the same core version. If you fork the repo, update `RepoOwner`/`RepoName` in
+`Services/UpdateService.cs` accordingly.
 
 ## Build bản beta tự động / Automated beta releases
 
