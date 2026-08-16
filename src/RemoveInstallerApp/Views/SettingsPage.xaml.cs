@@ -33,6 +33,16 @@ public sealed partial class SettingsPage : Page
             return;
         }
 
+        // The reload below re-enters this handler, so it must only run when the language really
+        // changed. RadioButtons applies its selection when the control realizes — after the
+        // constructor, i.e. after _initializing was already cleared — so this event also fires
+        // on a plain page load. Without this check that turned into an endless
+        // navigate-to-self loop that saturated the UI thread and trapped the user on Settings.
+        if (string.Equals(cultureCode, ViewModel.SelectedLanguage, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         ViewModel.SelectedLanguage = cultureCode;
 
         // Nav pane labels won't re-evaluate their static x:Bind on their own; refresh them,

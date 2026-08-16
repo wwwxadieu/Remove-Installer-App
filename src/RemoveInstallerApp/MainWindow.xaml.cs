@@ -22,8 +22,15 @@ public sealed partial class MainWindow : Window
     private void RootNavigationView_Loaded(object sender, RoutedEventArgs e)
     {
         ApplyLocalizedLabels();
+
+        // Setting SelectedItem raises SelectionChanged, which does the navigation. Navigating
+        // here as well would build AppListPage twice — two full registry scans, two Loaded
+        // handlers, and two attempts to open the same startup ContentDialog.
         RootNavigationView.SelectedItem = NavItemAppList;
-        ContentFrame.Navigate(typeof(AppListPage));
+        if (ContentFrame.Content is null)
+        {
+            NavigateTo(typeof(AppListPage));
+        }
 
         _ = CheckForUpdateOnLaunchAsync();
     }
@@ -46,27 +53,69 @@ public sealed partial class MainWindow : Window
     {
         if (args.IsSettingsSelected)
         {
-            ContentFrame.Navigate(typeof(SettingsPage));
+            NavigateTo(typeof(SettingsPage));
             return;
         }
 
-        if (args.SelectedItemContainer is NavigationViewItem { Tag: string tag })
+        // SelectedItemContainer is not guaranteed to be populated (it depends on whether the
+        // item has been realized, the pane display mode, and whether selection came from code
+        // or a click). Relying on it alone meant that when it came back null the whole handler
+        // fell through silently: no navigation, no error — the pane highlight moved but the
+        // content stayed put. Resolve from SelectedItem first and keep the container as a
+        // fallback, then log if neither yields a tag so the failure is never invisible again.
+        var tag = (args.SelectedItem as NavigationViewItem)?.Tag as string
+                  ?? (args.SelectedItemContainer as NavigationViewItem)?.Tag as string;
+
+        if (tag is null)
         {
-            switch (tag)
+            AppLog.Warn(
+                $"Navigation skipped: could not resolve a tag. " +
+                $"SelectedItem={args.SelectedItem?.GetType().Name ?? "null"}, " +
+                $"SelectedItemContainer={args.SelectedItemContainer?.GetType().Name ?? "null"}");
+            return;
+        }
+
+        Type? pageType = tag switch
+        {
+            "apps" => typeof(AppListPage),
+            "residue" => typeof(ResidueScanPage),
+            "forcedelete" => typeof(ForceDeletePage),
+            "diskcleanup" => typeof(DiskCleanupPage),
+            _ => null,
+        };
+
+        if (pageType is null)
+        {
+            AppLog.Warn($"Navigation skipped: unknown nav tag \"{tag}\".");
+            return;
+        }
+
+        NavigateTo(pageType);
+    }
+
+    /// <summary>
+    /// Single navigation entry point: skips redundant re-navigation to the page already
+    /// showing, and records failures. Frame.Navigate returning false, or throwing out of a
+    /// page constructor, both present to the user as "the tab didn't switch" with nothing in
+    /// the UI to explain it — so both are logged.
+    /// </summary>
+    private void NavigateTo(Type pageType)
+    {
+        if (ContentFrame.CurrentSourcePageType == pageType)
+        {
+            return;
+        }
+
+        try
+        {
+            if (!ContentFrame.Navigate(pageType))
             {
-                case "apps":
-                    ContentFrame.Navigate(typeof(AppListPage));
-                    break;
-                case "residue":
-                    ContentFrame.Navigate(typeof(ResidueScanPage));
-                    break;
-                case "forcedelete":
-                    ContentFrame.Navigate(typeof(ForceDeletePage));
-                    break;
-                case "diskcleanup":
-                    ContentFrame.Navigate(typeof(DiskCleanupPage));
-                    break;
+                AppLog.Warn($"Frame.Navigate returned false for {pageType.Name}.");
             }
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Navigation to {pageType.Name} threw.", ex);
         }
     }
 
