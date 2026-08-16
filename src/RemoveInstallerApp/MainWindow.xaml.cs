@@ -1,11 +1,13 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.Views;
+using WinRT.Interop;
 
 namespace RemoveInstallerApp;
 
@@ -17,11 +19,37 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         Title = AppStrings.AppTitle;
+        ApplyWindowIcon();
+    }
+
+    /// <summary>
+    /// Unpackaged apps get no icon from an MSIX manifest, so without this the taskbar/Alt-Tab
+    /// fall back to a generic default even though ApplicationIcon is set in the csproj (that
+    /// only stamps the .exe's own icon resource, not the running window's).
+    /// </summary>
+    private void ApplyWindowIcon()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
+            if (!File.Exists(iconPath))
+            {
+                return;
+            }
+
+            var windowId = Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(this));
+            AppWindow.GetFromWindowId(windowId).SetIcon(iconPath);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn($"Could not set window icon: {ex.Message}");
+        }
     }
 
     private void RootNavigationView_Loaded(object sender, RoutedEventArgs e)
     {
         ApplyLocalizedLabels();
+        ThemeHelper.Apply(App.Services.GetRequiredService<ISettingsService>().Current.Theme);
 
         // Setting SelectedItem raises SelectionChanged, which does the navigation. Navigating
         // here as well would build AppListPage twice — two full registry scans, two Loaded

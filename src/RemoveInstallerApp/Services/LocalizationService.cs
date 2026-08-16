@@ -31,8 +31,23 @@ public sealed class LocalizationService : ILocalizationService
 
     private static void ApplyCulture(string cultureCode)
     {
-        var culture = new CultureInfo(cultureCode);
+        CultureInfo culture;
+        try
+        {
+            culture = new CultureInfo(cultureCode);
+        }
+        catch (CultureNotFoundException)
+        {
+            // A hand-edited or corrupted settings file shouldn't stop the app from starting.
+            return;
+        }
+
+        // CurrentUICulture only covers the calling thread; the DefaultThread* pair is what
+        // makes the choice stick on every thread created afterwards. Culture (not just
+        // UICulture) is set too so dates and numbers follow the same language.
         CultureInfo.CurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
     }
 }

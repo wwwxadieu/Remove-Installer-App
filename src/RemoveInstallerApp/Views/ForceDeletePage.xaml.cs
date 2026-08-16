@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -7,8 +8,6 @@ using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using WinRT.Interop;
 
 namespace RemoveInstallerApp.Views;
@@ -28,32 +27,33 @@ public sealed partial class ForceDeletePage : Page
         QueueListView.ItemsSource = ViewModel.Queue;
         ViewModel.Queue.CollectionChanged += (_, _) => UpdateEmptyState();
         SecureDeleteCheckBox.IsChecked = ViewModel.SecureDelete;
+
+        // Windows blocks drag-and-drop from Explorer (not elevated) into this window
+        // (elevated) at the OS level — UIPI, not something the app can opt out of. Telling the
+        // user why up front beats a drop zone that silently does nothing and looks broken.
+        if (IsRunningElevated())
+        {
+            ElevatedDragDropNoticeText.Visibility = Visibility.Visible;
+        }
+
         UpdateEmptyState();
     }
 
-    private async void BrowseFileButton_Click(object sender, RoutedEventArgs e)
+    private void BrowseFileButton_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.ComputerFolder };
-        picker.FileTypeFilter.Add("*");
-        InitializeWithWindow.Initialize(picker, GetWindowHandle());
-
-        var file = await picker.PickSingleFileAsync();
-        if (file is not null)
+        var path = FileDialog.PickFile(GetWindowHandle());
+        if (path is not null)
         {
-            TryAddPath(file.Path);
+            TryAddPath(path);
         }
     }
 
-    private async void BrowseFolderButton_Click(object sender, RoutedEventArgs e)
+    private void BrowseFolderButton_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.ComputerFolder };
-        picker.FileTypeFilter.Add("*");
-        InitializeWithWindow.Initialize(picker, GetWindowHandle());
-
-        var folder = await picker.PickSingleFolderAsync();
-        if (folder is not null)
+        var path = FileDialog.PickFolder(GetWindowHandle());
+        if (path is not null)
         {
-            TryAddPath(folder.Path);
+            TryAddPath(path);
         }
     }
 
@@ -78,11 +78,25 @@ public sealed partial class ForceDeletePage : Page
         }
     }
 
+    private static bool IsRunningElevated()
+    {
+        try
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private void TryAddPath(string path)
     {
         var error = ViewModel.AddPath(path);
         if (error is not null)
         {
+            AppLog.Warn($"Force Delete: could not add \"{path}\": {error}");
             _ = ShowSimpleDialogAsync(AppStrings.ForceDelete_AddErrorTitle, error);
         }
         else

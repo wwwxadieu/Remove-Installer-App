@@ -109,6 +109,17 @@ public sealed partial class AppListPage : Page
         await UninstallFlowAsync(app);
     }
 
+    /// <summary>Double-clicking a row is a shortcut into the same flow as its Uninstall button.</summary>
+    private async void AppsListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        // The tapped element is whatever child was hit (a TextBlock, the row Grid, ...); its
+        // DataContext is the row's item either way.
+        if ((e.OriginalSource as FrameworkElement)?.DataContext is InstalledAppInfo app)
+        {
+            await UninstallFlowAsync(app);
+        }
+    }
+
     private async void UninstallButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: InstalledAppInfo app })

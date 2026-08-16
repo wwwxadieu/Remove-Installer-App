@@ -14,6 +14,14 @@ public enum ResidueKind
 
     /// <summary>A scheduled task referencing the removed install folder.</summary>
     ScheduledTask,
+
+    /// <summary>
+    /// A folder under AppData/ProgramData/Program Files that doesn't match any currently
+    /// installed app by name, publisher, or install location. Inferred purely by exclusion, so
+    /// it is the highest false-positive-risk kind in the app — see
+    /// <see cref="ResidueScanService.ScanOrphanedFolders"/>.
+    /// </summary>
+    OrphanedFolder,
 }
 
 public static class ResidueKindExtensions
@@ -25,5 +33,5 @@ public static class ResidueKindExtensions
     /// has to opt into each one; everything else is checked by default as before.
     /// </summary>
     public static bool IsHighRisk(this ResidueKind kind) =>
-        kind is ResidueKind.ServiceEntry or ResidueKind.ScheduledTask;
+        kind is ResidueKind.ServiceEntry or ResidueKind.ScheduledTask or ResidueKind.OrphanedFolder;
 }

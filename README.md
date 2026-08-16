@@ -21,14 +21,36 @@ leftover files and registry entries.
   After uninstalling, scans for leftover files (AppData, ProgramData, Program Files, Start
   Menu, Desktop) and registry junk (SOFTWARE keys, Run/RunOnce, orphaned Uninstall entries)
   and lets you review/select before deleting.
-- Trang "Dọn dẹp file rác" riêng để quét các mục mồ côi (orphaned) trên toàn máy bất cứ
-  lúc nào, không cần vừa gỡ ứng dụng.
-  A standalone "Leftover Cleaner" page to sweep the whole machine for orphaned entries at
-  any time.
-- Giao diện WinUI 3 (Fluent Design, hỗ trợ dark/light theo hệ thống).
-  WinUI 3 UI (Fluent Design, follows system light/dark theme).
-- Hỗ trợ song ngữ Việt/Anh, chuyển đổi ngay trong Settings.
-  Bilingual VN/EN, switchable from Settings.
+- Trang **"Dọn dẹp file rác" (Leftover Cleaner)** riêng để quét các mục mồ côi (orphaned)
+  trên toàn máy bất cứ lúc nào, không cần vừa gỡ ứng dụng: registry mồ côi (Add/Remove
+  Programs, Run/RunOnce) **và** thư mục dữ liệu mồ côi dưới AppData/ProgramData/Program
+  Files không khớp với ứng dụng đã cài nào. Nhóm thư mục mồ côi là suy luận theo kiểu loại
+  trừ nên rủi ro báo nhầm cao nhất — mặc định **không tick**, bỏ qua thư mục vừa sửa đổi
+  trong 90 ngày và các thư mục nhà cung cấp phổ biến đã biết (Microsoft, Google, NVIDIA...).
+  Đây là công cụ riêng cho rác **do một ứng dụng cụ thể** để lại; với rác chung của hệ điều
+  hành (file tạm, Thùng rác, cache Windows Update) hãy dùng trang **"Dọn ổ đĩa"**.
+  A standalone **"Leftover Cleaner"** page to sweep the whole machine for orphaned entries
+  at any time, not just right after an uninstall: orphaned registry entries (Add/Remove
+  Programs, Run/RunOnce) **and** orphaned data folders under AppData/ProgramData/Program
+  Files that don't match any installed app. The orphaned-folder group is inferred purely by
+  exclusion, so it's the highest false-positive risk in the app — unchecked by default,
+  skipping folders modified in the last 90 days and known common vendor folders (Microsoft,
+  Google, NVIDIA, ...). This tool is specifically for residue **a given app** left behind;
+  for general OS junk (temp files, Recycle Bin, Windows Update cache) use the **"Disk
+  Cleanup"** page instead.
+- Giao diện WinUI 3 (Fluent Design). Giao diện sáng/tối chọn được trong Settings (Theo hệ
+  thống / Sáng / Tối) — đổi áp dụng ngay, không cần khởi động lại.
+  WinUI 3 UI (Fluent Design). Light/dark appearance is selectable in Settings (Follow
+  Windows / Light / Dark) — applies immediately, no restart needed.
+- Hỗ trợ song ngữ Việt/Anh, chuyển đổi ngay trong Settings; ngôn ngữ đã chọn cũng được áp
+  dụng đúng ngay từ màn hình đầu tiên ở những lần mở app sau, không chỉ sau khi vào Settings.
+  Bilingual VN/EN, switchable from Settings; the saved language is also applied correctly
+  from the very first screen on later launches, not only after opening Settings.
+- Danh sách ứng dụng đã cài hiện icon riêng của từng ứng dụng (nạp nền, không làm chậm danh
+  sách), và có thể gỡ cài đặt bằng cách double-click vào dòng đó thay vì phải bấm nút.
+  The installed-apps list shows each app's own icon (loaded in the background, doesn't slow
+  the list down), and double-clicking a row is a shortcut into the same uninstall flow as
+  its button.
 - Tự động (hoặc theo yêu cầu ở Settings) kiểm tra phiên bản mới trên GitHub Releases của
   dự án; nếu có bản mới sẽ hiện thông báo trong app kèm nút mở link tải.
   Checks GitHub Releases for a newer version — automatically on launch (toggle in
@@ -51,10 +73,18 @@ leftover files and registry entries.
   fails (System Restore disabled), it reports why and asks whether to continue anyway.
 - Trang **"Xoá ép buộc" (Force Delete)** độc lập: chọn (duyệt hoặc kéo-thả) bất kỳ file/thư
   mục nào để ép buộc xoá (kể cả đang bị khoá bởi tiến trình khác, hoặc read-only) và/hoặc
-  xoá không thể khôi phục (ghi đè dữ liệu ngẫu nhiên trước khi xoá).
+  xoá không thể khôi phục (ghi đè dữ liệu ngẫu nhiên trước khi xoá). Nút "Chọn tệp/thư mục"
+  dùng hộp thoại shell cổ điển (`IFileOpenDialog`) nên vẫn mở được dù app đang chạy quyền
+  Administrator; kéo-thả từ Explorer thì **không** dùng được trong trường hợp đó — đây là
+  giới hạn UIPI của Windows, không phải lỗi app — nên trang sẽ hiện ghi chú giải thích khi
+  phát hiện đang chạy quyền admin.
   Standalone **"Force Delete"** page: browse or drag-and-drop any file/folder to force-delete
   it (even if locked by another process or read-only) and/or delete it unrecoverably
-  (overwrites the contents with random data first).
+  (overwrites the contents with random data first). The "Browse" buttons use the classic
+  shell dialog (`IFileOpenDialog`), so they still open while the app runs elevated;
+  drag-and-drop from Explorer does **not** work in that case — a Windows UIPI restriction,
+  not an app bug — so the page shows an explanatory note when it detects it's running as
+  Administrator.
 - Tuỳ chọn thêm mục **"Gỡ nhanh..."** vào menu chuột phải, song song với mục gỡ cài đặt
   hiện có — chạy toàn bộ luồng gỡ cài đặt (kèm hỏi backup) chỉ bằng hộp thoại hệ thống nhỏ,
   không mở giao diện chính của app.
@@ -79,6 +109,14 @@ leftover files and registry entries.
   From the second update onward, this screen automatically becomes a "what's new" screen —
   showing that version's actual release notes (pulled from GitHub Releases) instead of
   repeating the introduction.
+- App có icon/logo riêng (taskbar, Alt-Tab, file `.exe` trong Explorer) — bản gốc là vector
+  (`Assets/logo.svg`), sinh ra `Assets/app.ico` (đa kích thước 16–256px) bằng script Python
+  thuần `tools/generate_icon.py` (không cần ImageMagick/Inkscape); chạy lại script này sau
+  khi sửa `logo.svg` để đồng bộ.
+  The app has its own icon/logo (taskbar, Alt-Tab, the `.exe` in Explorer) — the vector
+  master is `Assets/logo.svg`, and `Assets/app.ico` (multi-size, 16–256px) is generated from
+  it by the pure-Python `tools/generate_icon.py` script (no ImageMagick/Inkscape needed); rerun
+  it after editing `logo.svg` to keep them in sync.
 - **[Thử nghiệm]** Một vài công cụ nâng cao (xoá không thể khôi phục trong Force Delete,
   nút Dọn dẹp của Disk Cleanup) hiện được đánh dấu là tính năng **Pro**, khoá lại phía sau
   một bản dùng thử cục bộ 30 ngày (Settings → Tính năng Pro) — đang trong giai đoạn thử
@@ -161,12 +199,19 @@ src/RemoveInstallerApp/
 ├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, DiskCleanupPage,
 │                     SettingsPage, WelcomeDialog (WinUI 3 XAML)
 ├── Strings/          AppStrings.cs — bảng chuỗi song ngữ EN/VI
+├── Assets/            logo.svg (bản gốc vector), app.ico (đa kích thước, sinh từ logo.svg)
 └── Helpers/          PathSafety — chặn xoá nhầm thư mục hệ thống
                        ForceDelete, SecureFileWiper — pipeline xoá ép buộc / không thể khôi phục
                        RecycleBinInterop — SHQueryRecycleBinW/SHEmptyRecycleBinW cho Dọn ổ đĩa
                        InstalledAppMatcher, UninstallResultFormatter, NativeMessageBox —
                        dùng chung giữa luồng có giao diện và luồng "Gỡ nhanh" headless
                        ProUpgradePrompt — hộp thoại mời dùng thử Pro dùng chung cho các gate
+                       FileDialog — IFileOpenDialog (shell cổ điển), dùng được dù app elevated
+                       AppIconExtractor — trích icon ứng dụng đã cài (ExtractIconEx + GDI+)
+                       ThemeHelper — áp ThemeMode (System/Light/Dark) lên cửa sổ chính
+
+tools/
+└── generate_icon.py  Script Python thuần sinh Assets/app.ico từ các hình khối trong logo.svg
 ```
 
 MVVM đơn giản với dependency injection (`Microsoft.Extensions.DependencyInjection`), đăng

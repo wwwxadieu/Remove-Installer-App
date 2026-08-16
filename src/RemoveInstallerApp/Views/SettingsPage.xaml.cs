@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Helpers;
+using RemoveInstallerApp.Models;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 
@@ -18,6 +20,12 @@ public sealed partial class SettingsPage : Page
         ViewModel = App.Services.GetRequiredService<SettingsViewModel>();
 
         LanguageRadioButtons.SelectedItem = ViewModel.SelectedLanguage == "vi-VN" ? VietnameseOption : EnglishOption;
+        ThemeRadioButtons.SelectedItem = ViewModel.Theme switch
+        {
+            ThemeMode.Light => ThemeLightOption,
+            ThemeMode.Dark => ThemeDarkOption,
+            _ => ThemeSystemOption,
+        };
         SilentUninstallToggle.IsOn = ViewModel.PreferSilentUninstall;
         AlwaysUseAppUninstallerToggle.IsOn = ViewModel.AlwaysUseAppUninstaller;
         PermanentlyDeleteToggle.IsOn = ViewModel.PermanentlyDelete;
@@ -64,6 +72,22 @@ public sealed partial class SettingsPage : Page
         }
 
         ViewModel.PreferSilentUninstall = SilentUninstallToggle.IsOn;
+    }
+
+    private void ThemeRadioButtons_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_initializing || ThemeRadioButtons.SelectedItem is not RadioButton { Tag: string tag })
+        {
+            return;
+        }
+
+        if (!Enum.TryParse<ThemeMode>(tag, out var mode) || mode == ViewModel.Theme)
+        {
+            return;
+        }
+
+        ViewModel.Theme = mode;
+        ThemeHelper.Apply(mode);
     }
 
     private void AlwaysUseAppUninstallerToggle_Toggled(object sender, RoutedEventArgs e)

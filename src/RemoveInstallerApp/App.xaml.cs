@@ -32,6 +32,12 @@ public partial class App : Application
         InitializeComponent();
         Services = ConfigureServices();
 
+        // Force the localization singleton into existence before any UI is built. Its
+        // constructor applies the saved language, but DI creates singletons lazily — nothing
+        // resolved it until the Settings page was opened, so on startup the app rendered in
+        // the OS language even though the setting said otherwise.
+        Services.GetRequiredService<ILocalizationService>();
+
         // Without these, a XAML/UI exception kills the app with no trace, and a faulted
         // background task vanishes entirely — leaving symptoms (a tab that won't switch, a
         // frozen window) that can only be guessed at, since this app can only run on Windows.
