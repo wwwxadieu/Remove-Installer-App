@@ -108,13 +108,13 @@ jobs:
           }
 
       - name: Restore
-        run: dotnet restore src/RemoveInstallerApp/RemoveInstallerApp.csproj -p:Platform=${{ matrix.platform }}
+        run: dotnet restore src/UnInstall/UnInstall.csproj -p:Platform=${{ matrix.platform }}
 
       - name: Publish (${{ matrix.rid }}, self-contained)
         shell: pwsh
         run: |
           $publishArgs = @(
-            'publish', 'src/RemoveInstallerApp/RemoveInstallerApp.csproj',
+            'publish', 'src/UnInstall/UnInstall.csproj',
             '-c', 'Release',
             '-r', '${{ matrix.rid }}',
             '-p:Platform=${{ matrix.platform }}',
@@ -151,7 +151,7 @@ jobs:
           $published | Select-Object Name, Length | Format-Table -AutoSize | Out-String | Write-Host
 
           Write-Host "--- .pri in build output (bin) ---"
-          Get-ChildItem -Path "src/RemoveInstallerApp/bin" -Filter *.pri -Recurse -ErrorAction SilentlyContinue |
+          Get-ChildItem -Path "src/UnInstall/bin" -Filter *.pri -Recurse -ErrorAction SilentlyContinue |
             Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Write-Host
 
           if (-not ($published | Where-Object { $_.Name -eq 'resources.pri' })) {
@@ -162,14 +162,14 @@ jobs:
       - name: Zip artifact
         shell: pwsh
         run: |
-          $zipName = "RemoveInstallerApp-${{ needs.version.outputs.version }}-${{ matrix.rid }}.zip"
+          $zipName = "UnInstall-${{ needs.version.outputs.version }}-${{ matrix.rid }}.zip"
           Compress-Archive -Path "publish/${{ matrix.rid }}/*" -DestinationPath $zipName
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RemoveInstallerApp-${{ matrix.rid }}
-          path: RemoveInstallerApp-${{ needs.version.outputs.version }}-${{ matrix.rid }}.zip
+          name: UnInstall-${{ matrix.rid }}
+          path: UnInstall-${{ needs.version.outputs.version }}-${{ matrix.rid }}.zip
           if-no-files-found: error
 
   release:

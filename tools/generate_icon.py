@@ -224,7 +224,7 @@ def main() -> None:
     png_by_size = {size: encode_png(render(size), size) for size in SIZES}
     ico_bytes = build_ico(png_by_size)
 
-    out_path = Path(__file__).resolve().parent.parent / "src" / "RemoveInstallerApp" / "Assets" / "app.ico"
+    out_path = Path(__file__).resolve().parent.parent / "src" / "UnInstall" / "Assets" / "app.ico"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(ico_bytes)
     print(f"Wrote {out_path} ({len(ico_bytes)} bytes, sizes {SIZES})")

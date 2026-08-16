@@ -1,4 +1,4 @@
-# Remove Installer App
+# UnInstall
 
 Ứng dụng Windows (WinUI 3) giúp gỡ cài đặt ứng dụng và dọn dẹp file/registry còn sót lại.
 A Windows desktop app (WinUI 3) for uninstalling applications and cleaning up their
@@ -56,11 +56,11 @@ leftover files and registry entries.
   Checks GitHub Releases for a newer version — automatically on launch (toggle in
   Settings) or on demand — and shows an in-app banner with a download link when one is
   found.
-- Tuỳ chọn thêm mục **"Gỡ bằng Remove Installer App"** vào menu chuột phải của Windows
+- Tuỳ chọn thêm mục **"Gỡ bằng UnInstall"** vào menu chuột phải của Windows
   Explorer, trên bất kỳ file `.exe` hay shortcut (Start Menu, Desktop) nào — bật/tắt trong
   Settings. Bấm vào đó sẽ mở app và tự động khớp file đã chọn với ứng dụng tương ứng trong
   danh sách đã cài, rồi vào thẳng luồng xác nhận gỡ cài đặt.
-  Optional **"Uninstall with Remove Installer App"** entry on the right-click menu of any
+  Optional **"Uninstall with UnInstall"** entry on the right-click menu of any
   `.exe` file or shortcut (Start menu, Desktop) — toggle in Settings. Clicking it opens the
   app, matches the file to the corresponding installed app, and jumps straight into the
   confirm-and-uninstall flow.
@@ -147,18 +147,18 @@ dotnet restore
 dotnet build -c Debug -p:Platform=x64
 ```
 
-Chạy trực tiếp bằng Visual Studio: mở `RemoveInstallerApp.sln`, chọn cấu hình
+Chạy trực tiếp bằng Visual Studio: mở `UnInstall.sln`, chọn cấu hình
 `Debug | x64`, nhấn F5. Ứng dụng sẽ yêu cầu quyền Administrator khi khởi động (cần thiết
 để gỡ ứng dụng và xoá khoá registry HKLM).
 
-Open `RemoveInstallerApp.sln` in Visual Studio, select `Debug | x64`, and press F5. The
+Open `UnInstall.sln` in Visual Studio, select `Debug | x64`, and press F5. The
 app requests Administrator privileges on launch (required to uninstall apps and delete
 HKLM registry keys).
 
 ### Đóng gói bản phát hành / Publishing a release build
 
 ```powershell
-dotnet publish src/RemoveInstallerApp/RemoveInstallerApp.csproj `
+dotnet publish src/UnInstall/UnInstall.csproj `
   -c Release -r win-x64 -p:Platform=x64 --self-contained true `
   -p:WindowsAppSDKSelfContained=true
 ```
@@ -171,16 +171,16 @@ dotnet publish src/RemoveInstallerApp/RemoveInstallerApp.csproj `
 > Windows App SDK rejects for self-contained builds (`error: The platform 'AnyCPU' is not
 > supported for Self Contained mode.`). Use `arm64` when publishing for `win-arm64`.
 
-File thực thi (`RemoveInstallerApp.exe`) và toàn bộ dependency sẽ nằm trong thư mục
+File thực thi (`UnInstall.exe`) và toàn bộ dependency sẽ nằm trong thư mục
 `publish` — có thể copy sang máy khác chạy trực tiếp mà không cần cài .NET runtime.
 
-The resulting `RemoveInstallerApp.exe` (in the `publish` folder) is self-contained and
+The resulting `UnInstall.exe` (in the `publish` folder) is self-contained and
 can be copied to another machine without installing the .NET runtime separately.
 
 ## Kiến trúc / Architecture
 
 ```
-src/RemoveInstallerApp/
+src/UnInstall/
 ├── Models/         InstalledAppInfo, ResidueItem, UninstallResult, AppSettings,
 │                     BackupResult, ForceDeleteOutcome, BulkForceDeleteResult,
 │                     ForceDeleteQueueItem, ReleaseNotesResult, LicenseTier
@@ -329,25 +329,25 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   `PathSafety` refuses to recursively delete critical system folders (Windows, Program
   Files, root of AppData, drive roots, etc.) to reduce the risk of accidental deletion.
 - Mục menu chuột phải (nếu bật) được ghi vào
-  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\RemoveInstallerAppUninstall` và
-  `...\lnkfile\shell\RemoveInstallerAppUninstall` — chỉ ảnh hưởng tài khoản Windows hiện
+  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\UnInstallUninstall` và
+  `...\lnkfile\shell\UnInstallUninstall` — chỉ ảnh hưởng tài khoản Windows hiện
   tại, không đụng đến HKLM. Tắt toggle trong Settings (hoặc gỡ hẳn app) sẽ xoá các khoá này;
   nếu bạn xoá thủ công thư mục cài đặt mà quên tắt toggle trước, mục menu sẽ trỏ đến file
   không còn tồn tại — xoá tay hai khoá trên trong `regedit` để dọn sạch.
   The right-click menu entry (when enabled) is written to
-  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\RemoveInstallerAppUninstall` and
-  `...\lnkfile\shell\RemoveInstallerAppUninstall` — current Windows account only, never
+  `HKEY_CURRENT_USER\Software\Classes\exefile\shell\UnInstallUninstall` and
+  `...\lnkfile\shell\UnInstallUninstall` — current Windows account only, never
   HKLM. Turning the Settings toggle off (or uninstalling the app) removes these keys; if
   you manually delete the install folder without turning the toggle off first, the menu
   entry will point at a missing file — delete those two keys by hand in `regedit` to clean up.
 - Cùng toggle menu chuột phải ở trên cũng ghi thêm mục **"Gỡ nhanh..."** vào
-  `...\shell\RemoveInstallerAppQuickUninstall` (cả `exefile` và `lnkfile`) — chạy
-  `RemoveInstallerApp.exe --quick-uninstall "<path>"`, không mở cửa sổ chính, chỉ dùng
+  `...\shell\UnInstallQuickUninstall` (cả `exefile` và `lnkfile`) — chạy
+  `UnInstall.exe --quick-uninstall "<path>"`, không mở cửa sổ chính, chỉ dùng
   `MessageBox` gốc của Windows. Đây là một verb registry riêng biệt, không phải chế độ khác
   của verb gỡ cài đặt hiện có.
   The same right-click toggle above also writes a **"Quick uninstall..."** entry at
-  `...\shell\RemoveInstallerAppQuickUninstall` (both `exefile` and `lnkfile`) — it runs
-  `RemoveInstallerApp.exe --quick-uninstall "<path>"`, never opens the main window, and uses
+  `...\shell\UnInstallQuickUninstall` (both `exefile` and `lnkfile`) — it runs
+  `UnInstall.exe --quick-uninstall "<path>"`, never opens the main window, and uses
   only native Windows `MessageBox` dialogs. It's a separate registry verb, not a mode of the
   existing uninstall verb.
 - **Sao lưu trước khi gỡ** tạo một **System Restore point** thật của Windows (qua
@@ -417,12 +417,12 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   both in Settings and directly in the upgrade dialog shown when a gated feature is clicked.
 
 - **File log lỗi**: app ghi mọi exception không bắt được (cả UI lẫn task nền), cùng
-  các lần điều hướng thất bại, vào `%LOCALAPPDATA%\RemoveInstallerApp\error.log`
+  các lần điều hướng thất bại, vào `%LOCALAPPDATA%\UnInstall\error.log`
   (cùng thư mục với `settings.json`). File tự xoá khi vượt 512 KB. Nếu gặp lỗi lạ —
   bấm tab mà không chuyển trang, app đơ — hãy gửi kèm file này: vì app chỉ chạy được
   trên Windows, đây là cách duy nhất để biết chính xác lỗi gì thay vì phỏng đoán.
   **Error log**: the app appends every unhandled exception (UI and background task
-  alike), plus any failed navigation, to `%LOCALAPPDATA%\RemoveInstallerApp\error.log`
+  alike), plus any failed navigation, to `%LOCALAPPDATA%\UnInstall\error.log`
   (same folder as `settings.json`), self-truncating past 512 KB. If you hit something
   odd — a tab that won't switch, a frozen window — send this file: since the app only
   runs on Windows, it's the only way to know what actually failed instead of guessing.
