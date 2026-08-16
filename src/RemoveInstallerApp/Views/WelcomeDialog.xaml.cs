@@ -13,6 +13,10 @@ public sealed partial class WelcomeDialog : ContentDialog
     public WelcomeDialog()
     {
         InitializeComponent();
+        // Set in code rather than via x:Bind on the XAML root element: every other x:Bind in
+        // this app targets a child element, and binding the root's own properties is a
+        // different (riskier) code path — not worth it for a one-off static string.
+        PrimaryButtonText = AppStrings.Common_OK;
     }
 
     public void ConfigureAsWelcome()
