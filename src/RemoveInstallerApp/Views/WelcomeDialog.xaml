@@ -1,0 +1,12 @@
+<ContentDialog
+    x:Class="RemoveInstallerApp.Views.WelcomeDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:strings="using:RemoveInstallerApp.Strings"
+    PrimaryButtonText="{x:Bind strings:AppStrings.Common_OK}"
+    DefaultButton="Primary">
+
+    <ScrollViewer MaxHeight="420" MaxWidth="440">
+        <TextBlock x:Name="BodyText" TextWrapping="Wrap" />
+    </ScrollViewer>
+</ContentDialog>
