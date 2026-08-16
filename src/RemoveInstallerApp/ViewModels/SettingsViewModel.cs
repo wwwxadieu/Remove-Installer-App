@@ -14,6 +14,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IUpdateService _updateService;
     private readonly IShellIntegrationService _shellIntegrationService;
+    private readonly ILicenseService _licenseService;
 
     private string? _updateActionUrl;
 
@@ -44,12 +45,14 @@ public sealed partial class SettingsViewModel : ObservableObject
         ILocalizationService localizationService,
         ISettingsService settingsService,
         IUpdateService updateService,
-        IShellIntegrationService shellIntegrationService)
+        IShellIntegrationService shellIntegrationService,
+        ILicenseService licenseService)
     {
         _localizationService = localizationService;
         _settingsService = settingsService;
         _updateService = updateService;
         _shellIntegrationService = shellIntegrationService;
+        _licenseService = licenseService;
         _selectedLanguage = _localizationService.CurrentLanguage;
         _preferSilentUninstall = _settingsService.Current.PreferSilentUninstall;
         _autoCheckForUpdates = _settingsService.Current.AutoCheckForUpdates;
@@ -127,4 +130,16 @@ public sealed partial class SettingsViewModel : ObservableObject
             Process.Start(new ProcessStartInfo { FileName = _updateActionUrl, UseShellExecute = true });
         }
     }
+
+    public bool IsPro => _licenseService.IsPro;
+
+    public string LicenseStatusText => _licenseService.IsPro
+        ? AppStrings.License_StatusTrial(_licenseService.TrialDaysRemaining ?? 0)
+        : _licenseService.TrialExpiresAtUtc is not null
+            ? AppStrings.License_StatusTrialExpired
+            : AppStrings.License_StatusFree;
+
+    public void StartTrial() => _licenseService.StartTrial();
+
+    public void EndTrial() => _licenseService.EndTrial();
 }

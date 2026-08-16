@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
+using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
@@ -15,10 +17,14 @@ public sealed partial class ForceDeletePage : Page
 {
     public ForceDeleteViewModel ViewModel { get; }
 
+    private readonly ILicenseService _licenseService;
+    private bool _suppressSecureDeleteEvent;
+
     public ForceDeletePage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<ForceDeleteViewModel>();
+        _licenseService = App.Services.GetRequiredService<ILicenseService>();
         QueueListView.ItemsSource = ViewModel.Queue;
         ViewModel.Queue.CollectionChanged += (_, _) => UpdateEmptyState();
         SecureDeleteCheckBox.IsChecked = ViewModel.SecureDelete;
@@ -93,9 +99,36 @@ public sealed partial class ForceDeletePage : Page
         }
     }
 
-    private void SecureDeleteCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    /// <summary>"Delete unrecoverably" is a Pro feature — checking it without a license reverts
+    /// the box and offers the upgrade dialog instead of silently enabling it.</summary>
+    private async void SecureDeleteCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
     {
-        ViewModel.SecureDelete = SecureDeleteCheckBox.IsChecked == true;
+        if (_suppressSecureDeleteEvent)
+        {
+            return;
+        }
+
+        var wantsOn = SecureDeleteCheckBox.IsChecked == true;
+        if (!wantsOn || _licenseService.IsPro)
+        {
+            ViewModel.SecureDelete = wantsOn;
+            return;
+        }
+
+        SetSecureDeleteCheckedSuppressed(false);
+        var started = await ProUpgradePrompt.ShowAsync(XamlRoot, _licenseService, AppStrings.ForceDelete_SecureDelete);
+        if (started)
+        {
+            SetSecureDeleteCheckedSuppressed(true);
+        }
+        ViewModel.SecureDelete = started;
+    }
+
+    private void SetSecureDeleteCheckedSuppressed(bool value)
+    {
+        _suppressSecureDeleteEvent = true;
+        SecureDeleteCheckBox.IsChecked = value;
+        _suppressSecureDeleteEvent = false;
     }
 
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)

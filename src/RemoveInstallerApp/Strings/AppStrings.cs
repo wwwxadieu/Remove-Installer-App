@@ -30,6 +30,16 @@ public static class AppStrings
         ["Welcome_UpdatedTitle"] = "Updated to version {0}",
         ["Welcome_UpdatedGenericMessage"] = "The app was updated to a new version. No release notes were available for it.",
 
+        ["License_SectionTitle"] = "Pro features",
+        ["License_SectionDescription"] = "A few advanced tools (secure delete, Disk Cleanup) are being trialed as possible paid features. This is a local, personal trial only — there's no purchase flow yet.",
+        ["License_StatusFree"] = "Free tier.",
+        ["License_StatusTrial"] = "Pro trial active — {0} day(s) left.",
+        ["License_StatusTrialExpired"] = "Your Pro trial has ended.",
+        ["License_StartTrialButton"] = "Start 30-day Pro trial",
+        ["License_EndTrialButton"] = "End trial / back to Free",
+        ["License_UpgradeTitle"] = "Pro feature",
+        ["License_UpgradeMessage"] = "\"{0}\" is a Pro feature. Start the 30-day Pro trial to unlock it?",
+
         ["AppList_SearchPlaceholder"] = "Search installed apps...",
         ["AppList_Refresh"] = "Refresh",
         ["AppList_ColumnName"] = "Name",
@@ -186,6 +196,16 @@ public static class AppStrings
         ["Welcome_UpdatedTitle"] = "Đã cập nhật lên phiên bản {0}",
         ["Welcome_UpdatedGenericMessage"] = "Ứng dụng đã được cập nhật lên phiên bản mới. Không có ghi chú phát hành nào cho phiên bản này.",
 
+        ["License_SectionTitle"] = "Tính năng Pro",
+        ["License_SectionDescription"] = "Một số công cụ nâng cao (xoá không thể khôi phục, Dọn ổ đĩa) đang được thử nghiệm để cân nhắc tính phí. Đây chỉ là bản dùng thử cục bộ cho cá nhân — chưa có luồng mua thực sự.",
+        ["License_StatusFree"] = "Đang dùng bản Miễn phí.",
+        ["License_StatusTrial"] = "Đang dùng thử Pro — còn {0} ngày.",
+        ["License_StatusTrialExpired"] = "Bản dùng thử Pro đã kết thúc.",
+        ["License_StartTrialButton"] = "Bắt đầu dùng thử Pro 30 ngày",
+        ["License_EndTrialButton"] = "Kết thúc dùng thử / về Miễn phí",
+        ["License_UpgradeTitle"] = "Tính năng Pro",
+        ["License_UpgradeMessage"] = "\"{0}\" là tính năng Pro. Bắt đầu dùng thử Pro 30 ngày để mở khoá?",
+
         ["AppList_SearchPlaceholder"] = "Tìm ứng dụng đã cài...",
         ["AppList_Refresh"] = "Làm mới",
         ["AppList_ColumnName"] = "Tên",
@@ -339,6 +359,16 @@ public static class AppStrings
     public static string Welcome_FeatureList => Get("Welcome_FeatureList");
     public static string Welcome_UpdatedTitle(string version) => string.Format(Get("Welcome_UpdatedTitle"), version);
     public static string Welcome_UpdatedGenericMessage => Get("Welcome_UpdatedGenericMessage");
+
+    public static string License_SectionTitle => Get("License_SectionTitle");
+    public static string License_SectionDescription => Get("License_SectionDescription");
+    public static string License_StatusFree => Get("License_StatusFree");
+    public static string License_StatusTrial(int daysLeft) => string.Format(Get("License_StatusTrial"), daysLeft);
+    public static string License_StatusTrialExpired => Get("License_StatusTrialExpired");
+    public static string License_StartTrialButton => Get("License_StartTrialButton");
+    public static string License_EndTrialButton => Get("License_EndTrialButton");
+    public static string License_UpgradeTitle => Get("License_UpgradeTitle");
+    public static string License_UpgradeMessage(string featureName) => string.Format(Get("License_UpgradeMessage"), featureName);
 
     public static string AppList_SearchPlaceholder => Get("AppList_SearchPlaceholder");
     public static string AppList_Refresh => Get("AppList_Refresh");

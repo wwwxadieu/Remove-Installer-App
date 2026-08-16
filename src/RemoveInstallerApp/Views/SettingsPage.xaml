@@ -58,6 +58,22 @@
                 <TextBlock Text="{x:Bind strings:AppStrings.Settings_AutoCheckUpdateDescription}"
                            Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
             </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.License_SectionTitle}" />
+                <TextBlock Text="{x:Bind strings:AppStrings.License_SectionDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+                <TextBlock x:Name="LicenseStatusText" Opacity="0.8" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="StartTrialButton"
+                            Content="{x:Bind strings:AppStrings.License_StartTrialButton}"
+                            Click="StartTrialButton_Click"
+                            Style="{StaticResource AccentButtonStyle}" />
+                    <Button x:Name="EndTrialButton"
+                            Content="{x:Bind strings:AppStrings.License_EndTrialButton}"
+                            Click="EndTrialButton_Click" />
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </Page>

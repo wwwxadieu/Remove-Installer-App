@@ -79,6 +79,15 @@ leftover files and registry entries.
   From the second update onward, this screen automatically becomes a "what's new" screen —
   showing that version's actual release notes (pulled from GitHub Releases) instead of
   repeating the introduction.
+- **[Thử nghiệm]** Một vài công cụ nâng cao (xoá không thể khôi phục trong Force Delete,
+  nút Dọn dẹp của Disk Cleanup) hiện được đánh dấu là tính năng **Pro**, khoá lại phía sau
+  một bản dùng thử cục bộ 30 ngày (Settings → Tính năng Pro) — đang trong giai đoạn thử
+  nghiệm cá nhân để cân nhắc mô hình tính phí, **chưa có** license key hay luồng thanh toán
+  thật. Xem mục "Lưu ý quan trọng" bên dưới.
+  **[Experimental]** A few advanced tools (Force Delete's "delete unrecoverably", Disk
+  Cleanup's clean action) are now marked as **Pro** features, gated behind a local 30-day
+  trial (Settings → Pro features) — this is a personal trial to evaluate a future paid tier,
+  **not** a real license key or payment flow yet. See "Important notes" below.
 
 ## Yêu cầu / Requirements
 
@@ -136,7 +145,7 @@ can be copied to another machine without installing the .NET runtime separately.
 src/RemoveInstallerApp/
 ├── Models/         InstalledAppInfo, ResidueItem, UninstallResult, AppSettings,
 │                     BackupResult, ForceDeleteOutcome, BulkForceDeleteResult,
-│                     ForceDeleteQueueItem, ReleaseNotesResult
+│                     ForceDeleteQueueItem, ReleaseNotesResult, LicenseTier
 ├── Services/        InstalledAppsService (registry enumeration)
 │                     UninstallService (run uninstaller / force remove)
 │                     ResidueScanService (leftover file & registry scan)
@@ -146,6 +155,7 @@ src/RemoveInstallerApp/
 │                     DiskCleanupService (Disk Cleanup-style temp/cache sweep)
 │                     UpdateService (GitHub Releases version check + per-version release notes)
 │                     ShellIntegrationService (both right-click verbs)
+│                     LicenseService (local Pro trial gate — see Important notes)
 │                     LocalizationService, SettingsService
 ├── ViewModels/      MVVM view models (CommunityToolkit.Mvvm)
 ├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, DiskCleanupPage,
@@ -156,6 +166,7 @@ src/RemoveInstallerApp/
                        RecycleBinInterop — SHQueryRecycleBinW/SHEmptyRecycleBinW cho Dọn ổ đĩa
                        InstalledAppMatcher, UninstallResultFormatter, NativeMessageBox —
                        dùng chung giữa luồng có giao diện và luồng "Gỡ nhanh" headless
+                       ProUpgradePrompt — hộp thoại mời dùng thử Pro dùng chung cho các gate
 ```
 
 MVVM đơn giản với dependency injection (`Microsoft.Extensions.DependencyInjection`), đăng
@@ -326,6 +337,21 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   lets the screen correctly change content between consecutive beta builds too. If release
   notes can't be fetched from GitHub (offline, or a local build with no matching release),
   the app shows a generic message instead of an error.
+- **`ILicenseService` / tính năng Pro là bản dùng thử cục bộ, KHÔNG phải hệ thống bản quyền
+  thật.** `StartTrial()` chỉ ghi một mốc thời gian (`LicenseTrialStartedAtUtc`) vào
+  `settings.json` trên máy — không có license key, không có máy chủ xác thực, không chống
+  crack (bất kỳ ai sửa file settings hoặc gọi `EndTrial()`/`StartTrial()` đều thay đổi được
+  trạng thái ngay). Mục đích hiện tại chỉ là thử nghiệm xem những tính năng nào đáng để phát
+  triển thành gói trả phí, trước khi đầu tư vào một luồng thanh toán + cấp key thật. Nút
+  "Bắt đầu dùng thử" xuất hiện cả trong Settings lẫn ngay tại hộp thoại mời nâng cấp khi bấm
+  vào một tính năng bị khoá.
+  **`ILicenseService` / the Pro tier is a local trial only, NOT a real licensing system.**
+  `StartTrial()` just writes a timestamp (`LicenseTrialStartedAtUtc`) to the local
+  `settings.json` — no license key, no verification server, no anti-tampering (editing the
+  settings file, or just calling `EndTrial()`/`StartTrial()`, changes the state immediately).
+  Its current purpose is purely to evaluate which features are worth turning into a paid tier
+  before investing in a real payment + key-issuance flow. The "start trial" action appears
+  both in Settings and directly in the upgrade dialog shown when a gated feature is clicked.
 
 ## License
 

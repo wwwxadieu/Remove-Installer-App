@@ -22,6 +22,7 @@ public sealed partial class SettingsPage : Page
         ContextMenuToggle.IsOn = ViewModel.EnableContextMenuIntegration;
         AutoCheckUpdateToggle.IsOn = ViewModel.AutoCheckForUpdates;
         CurrentVersionText.Text = AppStrings.Settings_CurrentVersion(ViewModel.CurrentVersionText);
+        RefreshLicenseSection();
         _initializing = false;
     }
 
@@ -88,4 +89,23 @@ public sealed partial class SettingsPage : Page
     }
 
     private void DownloadUpdateButton_Click(object sender, RoutedEventArgs e) => ViewModel.OpenUpdateLink();
+
+    private void StartTrialButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.StartTrial();
+        RefreshLicenseSection();
+    }
+
+    private void EndTrialButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.EndTrial();
+        RefreshLicenseSection();
+    }
+
+    private void RefreshLicenseSection()
+    {
+        LicenseStatusText.Text = ViewModel.LicenseStatusText;
+        StartTrialButton.Visibility = ViewModel.IsPro ? Visibility.Collapsed : Visibility.Visible;
+        EndTrialButton.Visibility = ViewModel.IsPro ? Visibility.Visible : Visibility.Collapsed;
+    }
 }
