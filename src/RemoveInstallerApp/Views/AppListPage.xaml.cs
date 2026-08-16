@@ -60,6 +60,53 @@ public sealed partial class AppListPage : Page
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
 
+    private void SelectAllButton_Click(object sender, RoutedEventArgs e) => ViewModel.SelectAll(true);
+
+    private void ClearSelectionButton_Click(object sender, RoutedEventArgs e) => ViewModel.SelectAll(false);
+
+    private async void UninstallSelectedButton_Click(object sender, RoutedEventArgs e) => await UninstallSelectedAsync();
+
+    /// <summary>Checking the same box twice fast enough to read as a double-tap must not also
+    /// launch the uninstall flow — it bubbles up to <see cref="AppsListView_DoubleTapped"/>
+    /// otherwise, since that's a routed event.</summary>
+    private void SelectionCheckBox_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => e.Handled = true;
+
+    /// <summary>
+    /// Right-clicking a row that's part of a multi-selection acts on the whole selection
+    /// (Explorer-style); right-clicking anything else — including an unrelated unchecked row —
+    /// acts on just that row.
+    /// </summary>
+    private async void ContextMenuUninstall_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem { Tag: InstalledAppInfo app })
+        {
+            return;
+        }
+
+        if (app.IsSelected && ViewModel.Apps.Count(a => a.IsSelected) > 1)
+        {
+            await UninstallSelectedAsync();
+        }
+        else
+        {
+            await UninstallFlowAsync(app);
+        }
+    }
+
+    /// <summary>
+    /// Each app still goes through the full confirm/backup/cleanup flow on its own — this app
+    /// never skips that per-uninstall backup prompt, whether triggered one row at a time or as a
+    /// batch — so a multi-uninstall is just that same flow repeated for each checked app in turn.
+    /// </summary>
+    private async Task UninstallSelectedAsync()
+    {
+        var selectedApps = ViewModel.Apps.Where(a => a.IsSelected).ToList();
+        foreach (var app in selectedApps)
+        {
+            await UninstallFlowAsync(app);
+        }
+    }
+
     private async Task RefreshAsync()
     {
         SetBusy(true, AppStrings.AppList_Loading);

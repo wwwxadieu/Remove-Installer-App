@@ -44,6 +44,12 @@ public sealed partial class InstalledAppInfo : ObservableObject
     [ObservableProperty]
     private BitmapImage? _iconSource;
 
+    /// <summary>Checkbox state for the installed-apps list's multi-select + right-click menu.
+    /// Unchecked by default — unlike the leftover-scan lists, nothing here is being proposed for
+    /// deletion, so there's no "opt out of a risky default" reason to pre-check anything.</summary>
+    [ObservableProperty]
+    private bool _isSelected;
+
     public string DisplaySize
     {
         get

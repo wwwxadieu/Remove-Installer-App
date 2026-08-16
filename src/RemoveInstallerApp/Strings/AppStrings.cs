@@ -47,6 +47,10 @@ public static class AppStrings
         ["AppList_ColumnVersion"] = "Version",
         ["AppList_ColumnSize"] = "Size",
         ["AppList_Uninstall"] = "Uninstall",
+        ["AppList_SelectAll"] = "Select all",
+        ["AppList_ClearSelection"] = "Clear selection",
+        ["AppList_UninstallSelected"] = "Uninstall selected",
+        ["AppList_ContextMenuUninstall"] = "Uninstall",
         ["AppList_Loading"] = "Loading installed apps...",
         ["AppList_Empty"] = "No apps found.",
         ["AppList_ConfirmTitle"] = "Uninstall app?",
@@ -251,6 +255,10 @@ public static class AppStrings
         ["AppList_ColumnVersion"] = "Phiên bản",
         ["AppList_ColumnSize"] = "Dung lượng",
         ["AppList_Uninstall"] = "Gỡ cài đặt",
+        ["AppList_SelectAll"] = "Chọn tất cả",
+        ["AppList_ClearSelection"] = "Bỏ chọn tất cả",
+        ["AppList_UninstallSelected"] = "Gỡ mục đã chọn",
+        ["AppList_ContextMenuUninstall"] = "Gỡ cài đặt",
         ["AppList_Loading"] = "Đang tải danh sách ứng dụng...",
         ["AppList_Empty"] = "Không tìm thấy ứng dụng nào.",
         ["AppList_ConfirmTitle"] = "Gỡ cài đặt ứng dụng?",
@@ -453,6 +461,10 @@ public static class AppStrings
     public static string AppList_ColumnVersion => Get("AppList_ColumnVersion");
     public static string AppList_ColumnSize => Get("AppList_ColumnSize");
     public static string AppList_Uninstall => Get("AppList_Uninstall");
+    public static string AppList_SelectAll => Get("AppList_SelectAll");
+    public static string AppList_ClearSelection => Get("AppList_ClearSelection");
+    public static string AppList_UninstallSelected => Get("AppList_UninstallSelected");
+    public static string AppList_ContextMenuUninstall => Get("AppList_ContextMenuUninstall");
     public static string AppList_Loading => Get("AppList_Loading");
     public static string AppList_Empty => Get("AppList_Empty");
     public static string AppList_ConfirmTitle => Get("AppList_ConfirmTitle");

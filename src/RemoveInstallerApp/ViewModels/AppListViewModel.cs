@@ -1,12 +1,10 @@
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices.WindowsRuntime;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
 using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
 using RemoveInstallerApp.Services;
-using Windows.Storage.Streams;
 
 namespace RemoveInstallerApp.ViewModels;
 
@@ -55,40 +53,40 @@ public sealed partial class AppListViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Icon extraction touches disk and GDI+ per app — synchronous for a few hundred apps would
-    /// stall the UI thread the same way the unfiltered registry scan used to (see the nav-tab
-    /// bug fix). Runs after the list is already visible; each icon is assigned to its row as
-    /// soon as it resolves rather than waiting for the whole batch.
+    /// Icon extraction touches disk and the WinRT thumbnail broker per app — synchronous for a
+    /// few hundred apps would stall the UI thread the same way the unfiltered registry scan used
+    /// to (see the nav-tab bug fix). Runs after the list is already visible; each icon is
+    /// assigned to its row as soon as it resolves rather than waiting for the whole batch.
     /// </summary>
     private void LoadIconsInBackground()
     {
         var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         var apps = _allApps;
 
-        _ = Task.Run(() =>
+        _ = Task.Run(async () =>
         {
             foreach (var app in apps)
             {
-                var pngBytes = AppIconExtractor.ExtractPngBytes(app.DisplayIcon, app.InstallLocation);
-                if (pngBytes is null)
+                var thumbnail = await AppIconExtractor.TryGetIconThumbnailAsync(app.DisplayIcon, app.InstallLocation);
+                if (thumbnail is null)
                 {
                     continue;
                 }
 
                 dispatcherQueue.TryEnqueue(async () =>
                 {
-                    try
+                    using (thumbnail)
                     {
-                        var bitmap = new BitmapImage();
-                        using var stream = new InMemoryRandomAccessStream();
-                        await stream.WriteAsync(pngBytes.AsBuffer());
-                        stream.Seek(0);
-                        await bitmap.SetSourceAsync(stream);
-                        app.IconSource = bitmap;
-                    }
-                    catch
-                    {
-                        // Best-effort: a bad icon just stays blank.
+                        try
+                        {
+                            var bitmap = new BitmapImage();
+                            await bitmap.SetSourceAsync(thumbnail);
+                            app.IconSource = bitmap;
+                        }
+                        catch
+                        {
+                            // Best-effort: a bad icon just stays blank.
+                        }
                     }
                 });
             }
@@ -129,6 +127,16 @@ public sealed partial class AppListViewModel : ObservableObject
     /// straight to the right app.
     /// </summary>
     public InstalledAppInfo? FindByPath(string filePath) => InstalledAppMatcher.FindByPath(_allApps, filePath);
+
+    /// <summary>Backs the "Select all"/"Clear selection" toolbar buttons — only touches the
+    /// currently filtered/visible apps, matching what the user can actually see.</summary>
+    public void SelectAll(bool selected)
+    {
+        foreach (var app in Apps)
+        {
+            app.IsSelected = selected;
+        }
+    }
 
     /// <summary>
     /// Raised once after <see cref="Apps"/> has been fully repopulated. Views should refresh
