@@ -1,0 +1,104 @@
+<Page
+    x:Class="UnInstall.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:strings="using:UnInstall.Strings">
+
+    <ScrollViewer>
+        <StackPanel Spacing="24" MaxWidth="560" HorizontalAlignment="Left">
+
+            <TextBlock FontSize="20" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_Title}" />
+
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_Language}" />
+                <RadioButtons x:Name="LanguageRadioButtons" SelectionChanged="LanguageRadioButtons_SelectionChanged">
+                    <RadioButton x:Name="EnglishOption" Content="{x:Bind strings:AppStrings.Settings_LanguageEnglish}" Tag="en-US" />
+                    <RadioButton x:Name="VietnameseOption" Content="{x:Bind strings:AppStrings.Settings_LanguageVietnamese}" Tag="vi-VN" />
+                </RadioButtons>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="SilentUninstallToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_SilentUninstall}"
+                              Toggled="SilentUninstallToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_SilentUninstallDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_Theme}" />
+                <RadioButtons x:Name="ThemeRadioButtons" SelectionChanged="ThemeRadioButtons_SelectionChanged">
+                    <RadioButton x:Name="ThemeSystemOption" Content="{x:Bind strings:AppStrings.Settings_ThemeSystem}" Tag="System" />
+                    <RadioButton x:Name="ThemeLightOption" Content="{x:Bind strings:AppStrings.Settings_ThemeLight}" Tag="Light" />
+                    <RadioButton x:Name="ThemeDarkOption" Content="{x:Bind strings:AppStrings.Settings_ThemeDark}" Tag="Dark" />
+                </RadioButtons>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="AlwaysUseAppUninstallerToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_AlwaysUseAppUninstaller}"
+                              Toggled="AlwaysUseAppUninstallerToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_AlwaysUseAppUninstallerDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="PermanentlyDeleteToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_PermanentlyDelete}"
+                              Toggled="PermanentlyDeleteToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_PermanentlyDeleteDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="ContextMenuToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_ContextMenu}"
+                              Toggled="ContextMenuToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_ContextMenuDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_UpdateSection}" />
+
+                <TextBlock x:Name="CurrentVersionText" Opacity="0.8" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="CheckForUpdateButton"
+                            Content="{x:Bind strings:AppStrings.Settings_CheckForUpdate}"
+                            Click="CheckForUpdateButton_Click" />
+                    <Button x:Name="DownloadUpdateButton"
+                            Content="{x:Bind strings:AppStrings.Settings_DownloadUpdate}"
+                            Click="DownloadUpdateButton_Click"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="Collapsed" />
+                    <ProgressRing x:Name="UpdateCheckRing" Width="20" Height="20" IsActive="False" />
+                </StackPanel>
+
+                <TextBlock x:Name="UpdateStatusText" Opacity="0.7" TextWrapping="Wrap" />
+
+                <ToggleSwitch x:Name="AutoCheckUpdateToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_AutoCheckUpdate}"
+                              Toggled="AutoCheckUpdateToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_AutoCheckUpdateDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.License_SectionTitle}" />
+                <TextBlock Text="{x:Bind strings:AppStrings.License_SectionDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+                <TextBlock x:Name="LicenseStatusText" Opacity="0.8" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="StartTrialButton"
+                            Content="{x:Bind strings:AppStrings.License_StartTrialButton}"
+                            Click="StartTrialButton_Click"
+                            Style="{StaticResource AccentButtonStyle}" />
+                    <Button x:Name="EndTrialButton"
+                            Content="{x:Bind strings:AppStrings.License_EndTrialButton}"
+                            Click="EndTrialButton_Click" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
