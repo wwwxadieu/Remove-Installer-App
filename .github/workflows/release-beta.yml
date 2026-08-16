@@ -1,10 +1,14 @@
 name: Build beta release
 
 # Builds a self-contained Windows package and publishes it as a prerelease
-# GitHub Release. Two ways to trigger:
+# GitHub Release. Three ways to trigger:
 #   1. Push a tag matching v*-beta* (e.g. `v1.1.0-beta1`) — fully automatic.
 #   2. Run manually from the Actions tab ("Run workflow"), optionally giving
 #      an explicit version; if left blank one is generated from the run number.
+#   3. Open a PR against main — build-only, no release published (see the
+#      `release` job's `if:`). This exists because the app can only be compiled
+#      on Windows: without it, a PR that doesn't compile merges cleanly and the
+#      breakage is only discovered on the next manual release run.
 on:
   workflow_dispatch:
     inputs:
@@ -15,6 +19,9 @@ on:
   push:
     tags:
       - "v*-beta*"
+  pull_request:
+    branches:
+      - main
 
 jobs:
   version:
@@ -167,6 +174,8 @@ jobs:
 
   release:
     needs: [version, build]
+    # PR runs are a compile check only — never publish a release from one.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write

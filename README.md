@@ -198,7 +198,7 @@ in `Services/UpdateService.cs` accordingly.
 Workflow `.github/workflows/release-beta.yml` build ứng dụng trên `windows-latest`
 (publish self-contained cho `win-x64`, kèm `win-arm64` dạng best-effort), đóng gói thành
 file `.zip`, rồi tự động tạo một **GitHub Release đánh dấu prerelease** kèm các file đó.
-Có hai cách kích hoạt:
+Có ba cách kích hoạt (cách thứ ba chỉ build kiểm tra, không tạo release):
 
 > **Vì sao repo có `global.json`**: file này ghim .NET SDK về nhánh 8.x. Nếu không có nó,
 > MSBuild sẽ tự chọn SDK mới nhất có sẵn trên máy/runner (ví dụ 10.x), mà Windows App SDK
@@ -217,6 +217,10 @@ Có hai cách kích hoạt:
 - **Thủ công**: vào tab **Actions** trên GitHub → chọn workflow **Build beta release** →
   **Run workflow**. Có thể nhập version cụ thể (ví dụ `1.1.0-beta2`), hoặc để trống để
   workflow tự sinh version dạng `0.0.0-beta.<số lần chạy>`.
+- **Tự động khi mở pull request vào `main`**: chỉ build kiểm tra (cả x64 lẫn arm64), job
+  `release` bị bỏ qua nên **không** tạo release. Đây là chốt chặn bắt buộc: app chỉ compile
+  được trên Windows, nên nếu không có bước này thì một PR không compile vẫn merge sạch sẽ và
+  chỉ lộ lỗi ở lần chạy release thủ công kế tiếp.
 
 Vì release được tạo với `prerelease: true`, endpoint `releases/latest` của GitHub API sẽ
 **bỏ qua** các bản beta này — nghĩa là `UpdateService` (mục kiểm tra cập nhật trong app) sẽ
@@ -226,8 +230,8 @@ thường.
 
 The `.github/workflows/release-beta.yml` workflow builds the app on `windows-latest`
 (self-contained publish for `win-x64`, plus a best-effort `win-arm64`), zips the output,
-and automatically creates a **prerelease GitHub Release** with those files attached. Two
-ways to trigger it:
+and automatically creates a **prerelease GitHub Release** with those files attached. Three
+ways to trigger it (the third is a build check only, and publishes nothing):
 
 > **Why this repo has a `global.json`**: it pins the .NET SDK to the 8.x band. Without it,
 > MSBuild picks the newest SDK installed on the machine/runner (e.g. 10.x), whose
@@ -244,6 +248,10 @@ ways to trigger it:
 - **Manually**: GitHub → **Actions** tab → **Build beta release** → **Run workflow**.
   Optionally specify a version (e.g. `1.1.0-beta2`), or leave it blank to auto-generate
   `0.0.0-beta.<run number>`.
+- **Automatically on any pull request targeting `main`**: compile check only (both x64 and
+  arm64); the `release` job is skipped so **nothing is published**. This gate is essential:
+  the app only compiles on Windows, so without it a PR that doesn't build merges cleanly and
+  the breakage only surfaces on the next manual release run.
 
 Because the release is created with `prerelease: true`, GitHub's `releases/latest` API
 endpoint **excludes** it — so the in-app `UpdateService` will never prompt regular users to

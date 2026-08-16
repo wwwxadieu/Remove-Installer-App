@@ -79,7 +79,7 @@ public sealed class UpdateService : IUpdateService, IDisposable
     {
         try
         {
-            var tag = version.StartsWith('v', StringComparison.OrdinalIgnoreCase) ? version : $"v{version}";
+            var tag = version.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? version : $"v{version}";
             var url = $"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases/tags/{tag}";
             using var response = await _httpClient.GetAsync(url, cancellationToken);
 
