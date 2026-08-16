@@ -8,6 +8,20 @@ public sealed class AppSettings
     /// <summary>Prefer QuietUninstallString / silent flags when running an app's own uninstaller.</summary>
     public bool PreferSilentUninstall { get; set; } = true;
 
+    /// <summary>
+    /// Only ever run the app's own uninstaller. When set, a missing or failing uninstaller is
+    /// reported instead of falling back to deleting the install folder/registry key manually.
+    /// </summary>
+    public bool AlwaysUseAppUninstaller { get; set; }
+
+    /// <summary>
+    /// Delete leftover files permanently instead of sending them to the Recycle Bin. Off by
+    /// default: leftover detection is heuristic name matching, so recoverable deletes are the
+    /// safer default. Registry keys have no Recycle Bin and are exported to a .reg backup
+    /// either way (see <c>Helpers/RegistryBackup</c>).
+    /// </summary>
+    public bool PermanentlyDelete { get; set; }
+
     public bool IsLightTheme { get; set; }
 
     /// <summary>Silently check GitHub Releases for a newer version each time the app launches.</summary>

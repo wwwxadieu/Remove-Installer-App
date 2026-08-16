@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using RemoveInstallerApp.Helpers;
+using RemoveInstallerApp.Models;
 using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
@@ -110,7 +111,16 @@ public partial class App : Application
             }
 
             var orchestrator = Services.GetRequiredService<IUninstallOrchestrator>();
-            var (result, residue) = await orchestrator.UninstallAsync(app);
+            var result = await orchestrator.UninstallAsync(app);
+
+            // The headless verb has no window to host a progress UI, so it scans without one
+            // and just reports the count alongside the result.
+            IReadOnlyList<ResidueItem> residue = Array.Empty<ResidueItem>();
+            if (result.IsSuccess)
+            {
+                var scanService = Services.GetRequiredService<IResidueScanService>();
+                residue = await scanService.ScanAfterUninstallAsync(app);
+            }
 
             NativeMessageBox.ShowInfo(
                 UninstallResultFormatter.Format(app.DisplayName, result, residue),

@@ -5,34 +5,33 @@ namespace RemoveInstallerApp.Services;
 public sealed class UninstallOrchestrator : IUninstallOrchestrator
 {
     private readonly IUninstallService _uninstallService;
-    private readonly IResidueScanService _residueScanService;
     private readonly ISettingsService _settingsService;
 
     public UninstallOrchestrator(
         IUninstallService uninstallService,
-        IResidueScanService residueScanService,
         ISettingsService settingsService)
     {
         _uninstallService = uninstallService;
-        _residueScanService = residueScanService;
         _settingsService = settingsService;
     }
 
-    public async Task<(UninstallResult Result, IReadOnlyList<ResidueItem> Residue)> UninstallAsync(InstalledAppInfo app, CancellationToken cancellationToken = default)
+    public async Task<UninstallResult> UninstallAsync(InstalledAppInfo app, CancellationToken cancellationToken = default)
     {
-        var result = await _uninstallService.RunUninstallerAsync(app, _settingsService.Current.PreferSilentUninstall, cancellationToken);
+        var settings = _settingsService.Current;
+        var result = await _uninstallService.RunUninstallerAsync(app, settings.PreferSilentUninstall, cancellationToken);
 
         if (result.Outcome is UninstallOutcome.NoUninstallerFound or UninstallOutcome.UninstallerFailed)
         {
+            // "Always use the app's own uninstaller" means exactly that: report what happened
+            // rather than quietly deleting the install folder and registry key ourselves.
+            if (settings.AlwaysUseAppUninstaller)
+            {
+                return result;
+            }
+
             result = await _uninstallService.ForceRemoveAsync(app, cancellationToken);
         }
 
-        IReadOnlyList<ResidueItem> residue = Array.Empty<ResidueItem>();
-        if (result.IsSuccess)
-        {
-            residue = await _residueScanService.ScanAfterUninstallAsync(app, cancellationToken);
-        }
-
-        return (result, residue);
+        return result;
     }
 }

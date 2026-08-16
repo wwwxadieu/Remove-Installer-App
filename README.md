@@ -372,6 +372,25 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   odd — a tab that won't switch, a frozen window — send this file: since the app only
   runs on Windows, it's the only way to know what actually failed instead of guessing.
 
+- **Sau khi gỡ cài đặt**: app chờ trình gỡ của ứng dụng chạy xong hẳn, rồi mới mở
+  **cửa sổ dọn dẹp** riêng — hiện tiến trình quét theo từng bước (thư mục cài đặt,
+  thư mục tạm, lối tắt, khởi động, SOFTWARE, HKCR, App Paths, Run, dịch vụ, tác vụ
+  theo lịch, mục Add/Remove Programs) kèm số mục tìm được, sau đó cho xem lại và
+  chọn xoá. Đây là cửa sổ riêng chứ không phải chuyển tab, nên không làm rối
+  điều hướng của cửa sổ chính.
+  **After an uninstall**: the app waits for the program's own uninstaller to finish,
+  then opens a dedicated **cleanup window** showing step-by-step scan progress
+  (install/temp folders, shortcuts, startup, SOFTWARE, HKCR, App Paths, Run keys,
+  services, scheduled tasks, Add/Remove Programs entry) with a running count, then
+  lets you review and delete. It's a separate window rather than a tab switch, so it
+  never disturbs the main window's navigation.
+- **Mục "Dịch vụ Windows" và "Tác vụ theo lịch"** được phát hiện qua đường dẫn chứ
+  không qua tên, nên **mặc định không được tick** — bạn phải tự chọn từng mục. Xoá
+  nhầm một dịch vụ có thể làm hỏng chương trình khác.
+  **"Windows service" and "Scheduled task" entries** are matched by path rather than
+  name, so they are **unchecked by default** — you have to opt into each one. Removing
+  the wrong service can break an unrelated program.
+
 ## License
 
 Chưa xác định / Not specified.

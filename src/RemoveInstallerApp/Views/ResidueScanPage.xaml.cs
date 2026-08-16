@@ -34,7 +34,12 @@ public sealed partial class ResidueScanPage : Page
     private async void ScanOrphansButton_Click(object sender, RoutedEventArgs e)
     {
         SetBusy(true, AppStrings.Residue_Scanning);
-        await ViewModel.ScanForOrphansAsync();
+
+        var progress = new Progress<ScanProgress>(p =>
+            StatusText.Text = AppStrings.ScanProgress_Status(p.StepName, p.ItemsFound));
+
+        await ViewModel.ScanForOrphansAsync(progress);
+
         SetBusy(false, null);
         UpdateEmptyState();
     }

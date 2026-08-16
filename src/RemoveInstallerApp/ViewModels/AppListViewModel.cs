@@ -53,13 +53,15 @@ public sealed partial class AppListViewModel : ObservableObject
     /// Runs the shared uninstall pipeline via <see cref="IUninstallOrchestrator"/> and removes
     /// the app from the list on success. The orchestrator itself is UI-agnostic and also backs
     /// the headless "Quick uninstall" context-menu verb (see <c>App.RunQuickUninstallAndExitAsync</c>).
+    /// Scanning for leftovers is a separate step so it can report progress — see
+    /// <c>Views/PostUninstallDialog</c>.
     /// </summary>
-    public async Task<(UninstallResult Result, IReadOnlyList<ResidueItem> Residue)> UninstallAppAsync(InstalledAppInfo app)
+    public async Task<UninstallResult> UninstallAppAsync(InstalledAppInfo app)
     {
         IsBusy = true;
         try
         {
-            var (result, residue) = await _uninstallOrchestrator.UninstallAsync(app);
+            var result = await _uninstallOrchestrator.UninstallAsync(app);
 
             if (result.IsSuccess)
             {
@@ -67,7 +69,7 @@ public sealed partial class AppListViewModel : ObservableObject
                 Apps.Remove(app);
             }
 
-            return (result, residue);
+            return result;
         }
         finally
         {
