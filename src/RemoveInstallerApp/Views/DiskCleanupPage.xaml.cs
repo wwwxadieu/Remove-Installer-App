@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Helpers;
+using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 
@@ -10,10 +12,13 @@ public sealed partial class DiskCleanupPage : Page
 {
     public DiskCleanupViewModel ViewModel { get; }
 
+    private readonly ILicenseService _licenseService;
+
     public DiskCleanupPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<DiskCleanupViewModel>();
+        _licenseService = App.Services.GetRequiredService<ILicenseService>();
         CategoryListView.ItemsSource = ViewModel.Categories;
         ViewModel.Categories.CollectionChanged += (_, _) => UpdateEmptyState();
         UpdateEmptyState();
@@ -37,6 +42,15 @@ public sealed partial class DiskCleanupPage : Page
         if (selected.Count == 0)
         {
             return;
+        }
+
+        if (!_licenseService.IsPro)
+        {
+            var started = await ProUpgradePrompt.ShowAsync(XamlRoot, _licenseService, AppStrings.DiskCleanup_Clean);
+            if (!started)
+            {
+                return;
+            }
         }
 
         var totalBytes = selected.Sum(c => c.SizeBytes);

@@ -21,4 +21,12 @@ public sealed class AppSettings
     /// welcome/what's-new dialog. Null means the dialog has never been shown (first run).
     /// </summary>
     public string? LastSeenVersion { get; set; }
+
+    /// <summary>
+    /// UTC timestamp when the local Pro trial was started (see <c>ILicenseService</c>). Null means
+    /// no trial has ever been started — the app is on the Free tier. This is a personal/local
+    /// trial gate for evaluating which features to eventually sell, not a real license — there is
+    /// no payment backend or key issuance yet.
+    /// </summary>
+    public DateTime? LicenseTrialStartedAtUtc { get; set; }
 }

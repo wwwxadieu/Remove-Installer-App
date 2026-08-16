@@ -125,6 +125,7 @@ public partial class App : Application
         collection.AddSingleton<IForceDeleteService, ForceDeleteService>();
         collection.AddSingleton<IUninstallOrchestrator, UninstallOrchestrator>();
         collection.AddSingleton<IDiskCleanupService, DiskCleanupService>();
+        collection.AddSingleton<ILicenseService, LicenseService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
