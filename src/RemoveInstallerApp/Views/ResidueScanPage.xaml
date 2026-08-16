@@ -3,7 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:models="using:RemoveInstallerApp.Models"
-    xmlns:strings="using:RemoveInstallerApp.Strings">
+    xmlns:strings="using:RemoveInstallerApp.Strings"
+    NavigationCacheMode="Enabled">
 
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 

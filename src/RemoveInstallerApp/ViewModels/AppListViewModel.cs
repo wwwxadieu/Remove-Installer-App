@@ -82,18 +82,38 @@ public sealed partial class AppListViewModel : ObservableObject
     /// </summary>
     public InstalledAppInfo? FindByPath(string filePath) => InstalledAppMatcher.FindByPath(_allApps, filePath);
 
+    /// <summary>
+    /// Raised once after <see cref="Apps"/> has been fully repopulated. Views should refresh
+    /// derived UI (empty-state, counts) from this instead of subscribing to
+    /// <c>Apps.CollectionChanged</c>: a machine with several hundred installed apps would
+    /// otherwise fire that handler — and a ListView layout pass — once per item, on the UI
+    /// thread, on every filter keystroke.
+    /// </summary>
+    public event EventHandler? AppsRefreshed;
+
     private void ApplyFilter()
     {
-        Apps.Clear();
         var query = string.IsNullOrWhiteSpace(SearchText)
             ? _allApps
             : _allApps.Where(a =>
                 a.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 (a.Publisher?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false));
 
-        foreach (var app in query)
+        var filtered = query.ToList();
+
+        // Nothing changed (common while typing a search that matches everything): skip the
+        // rebuild entirely rather than clearing and refilling an identical list.
+        if (filtered.Count == Apps.Count && filtered.SequenceEqual(Apps))
+        {
+            return;
+        }
+
+        Apps.Clear();
+        foreach (var app in filtered)
         {
             Apps.Add(app);
         }
+
+        AppsRefreshed?.Invoke(this, EventArgs.Empty);
     }
 }

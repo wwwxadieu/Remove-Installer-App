@@ -361,6 +361,17 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   before investing in a real payment + key-issuance flow. The "start trial" action appears
   both in Settings and directly in the upgrade dialog shown when a gated feature is clicked.
 
+- **File log lỗi**: app ghi mọi exception không bắt được (cả UI lẫn task nền), cùng
+  các lần điều hướng thất bại, vào `%LOCALAPPDATA%\RemoveInstallerApp\error.log`
+  (cùng thư mục với `settings.json`). File tự xoá khi vượt 512 KB. Nếu gặp lỗi lạ —
+  bấm tab mà không chuyển trang, app đơ — hãy gửi kèm file này: vì app chỉ chạy được
+  trên Windows, đây là cách duy nhất để biết chính xác lỗi gì thay vì phỏng đoán.
+  **Error log**: the app appends every unhandled exception (UI and background task
+  alike), plus any failed navigation, to `%LOCALAPPDATA%\RemoveInstallerApp\error.log`
+  (same folder as `settings.json`), self-truncating past 512 KB. If you hit something
+  odd — a tab that won't switch, a frozen window — send this file: since the app only
+  runs on Windows, it's the only way to know what actually failed instead of guessing.
+
 ## License
 
 Chưa xác định / Not specified.

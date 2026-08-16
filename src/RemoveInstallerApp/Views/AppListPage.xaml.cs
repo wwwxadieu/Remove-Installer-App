@@ -15,22 +15,46 @@ public sealed partial class AppListPage : Page
 
     private readonly IBackupService _backupService;
 
+    /// <summary>Startup-only work belongs to the process, not the page instance, so it survives
+    /// page caching and any repeat Loaded event.</summary>
+    private static bool _startupFlowCompleted;
+
+    private bool _hasLoadedApps;
+
     public AppListPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<AppListViewModel>();
         _backupService = App.Services.GetRequiredService<IBackupService>();
         AppsListView.ItemsSource = ViewModel.Apps;
-        ViewModel.Apps.CollectionChanged += (_, _) => UpdateEmptyState();
-        Loaded += async (_, _) =>
+        // Deliberately NOT Apps.CollectionChanged: that fired once per item while the list was
+        // being populated. Every place that mutates Apps already refreshes the empty state.
+        ViewModel.AppsRefreshed += (_, _) => UpdateEmptyState();
+        Loaded += AppListPage_Loaded;
+    }
+
+    private async void AppListPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Loaded fires again every time the user navigates back here. Scanning the whole
+        // registry on each visit is what made the app feel slow, so only do it once.
+        if (!_hasLoadedApps)
         {
+            _hasLoadedApps = true;
             await RefreshAsync();
-            if (App.MainAppWindow is MainWindow mainWindow)
-            {
-                await mainWindow.ShowWelcomeOrWhatsNewIfNeededAsync();
-            }
-            await HandlePendingLaunchTargetAsync();
-        };
+        }
+
+        if (_startupFlowCompleted)
+        {
+            return;
+        }
+        _startupFlowCompleted = true;
+
+        if (App.MainAppWindow is MainWindow mainWindow)
+        {
+            await mainWindow.ShowWelcomeOrWhatsNewIfNeededAsync();
+        }
+
+        await HandlePendingLaunchTargetAsync();
     }
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();

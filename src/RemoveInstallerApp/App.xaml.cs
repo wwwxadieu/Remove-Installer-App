@@ -30,6 +30,22 @@ public partial class App : Application
     {
         InitializeComponent();
         Services = ConfigureServices();
+
+        // Without these, a XAML/UI exception kills the app with no trace, and a faulted
+        // background task vanishes entirely — leaving symptoms (a tab that won't switch, a
+        // frozen window) that can only be guessed at, since this app can only run on Windows.
+        UnhandledException += (_, e) =>
+        {
+            AppLog.Error("Unhandled UI exception.", e.Exception);
+            e.Handled = true;
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            AppLog.Error("Unobserved task exception.", e.Exception);
+            e.SetObserved();
+        };
+
         var args = Environment.GetCommandLineArgs();
         LaunchUninstallTargetPath = ParseArgument(args, "--uninstall");
         LaunchQuickUninstallTargetPath = ParseArgument(args, "--quick-uninstall");
