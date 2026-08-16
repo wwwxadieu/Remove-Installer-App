@@ -130,6 +130,16 @@ public sealed partial class AppListViewModel : ObservableObject
     /// </summary>
     public InstalledAppInfo? FindByPath(string filePath) => InstalledAppMatcher.FindByPath(_allApps, filePath);
 
+    /// <summary>Backs the "Select all"/"Clear selection" toolbar buttons — only touches the
+    /// currently filtered/visible apps, matching what the user can actually see.</summary>
+    public void SelectAll(bool selected)
+    {
+        foreach (var app in Apps)
+        {
+            app.IsSelected = selected;
+        }
+    }
+
     /// <summary>
     /// Raised once after <see cref="Apps"/> has been fully repopulated. Views should refresh
     /// derived UI (empty-state, counts) from this instead of subscribing to
