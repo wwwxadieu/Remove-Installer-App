@@ -15,6 +15,7 @@ public static class AppStrings
         ["AppTitle"] = "Remove Installer App",
         ["NavInstalledApps"] = "Installed Apps",
         ["NavLeftoverCleaner"] = "Leftover Cleaner",
+        ["NavForceDelete"] = "Force Delete",
         ["NavSettings"] = "Settings",
 
         ["AppList_SearchPlaceholder"] = "Search installed apps...",
@@ -38,6 +39,13 @@ public static class AppStrings
         ["AppList_ContextMenuNoMatchTitle"] = "No matching app found",
         ["AppList_ContextMenuNoMatchMessage"] = "\"{0}\" doesn't match any app in the installed list, so there's nothing to uninstall here.",
 
+        ["Backup_ConfirmTitle"] = "Create a restore point?",
+        ["Backup_ConfirmMessage"] = "Create a System Restore point before uninstalling \"{0}\"? This lets you undo the uninstall from Windows if something goes wrong.",
+        ["Backup_RestorePointDescription"] = "Before uninstalling {0} (Remove Installer App)",
+        ["Backup_Creating"] = "Creating restore point...",
+        ["Backup_Failed"] = "Couldn't create a restore point: {0}",
+        ["Backup_ContinueAnyway"] = "Continue with the uninstall anyway?",
+
         ["Residue_Title"] = "Leftover Cleaner",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
         ["Residue_Scanning"] = "Scanning...",
@@ -51,6 +59,28 @@ public static class AppStrings
         ["Residue_ConfirmDeleteTitle"] = "Delete selected items?",
         ["Residue_ConfirmDeleteMessage"] = "This will permanently delete {0} selected item(s). This cannot be undone.",
         ["Residue_DeleteErrorsTitle"] = "Some items could not be deleted",
+
+        ["ForceDelete_Title"] = "Force Delete",
+        ["ForceDelete_BrowseFile"] = "Browse file...",
+        ["ForceDelete_BrowseFolder"] = "Browse folder...",
+        ["ForceDelete_SecureDelete"] = "Delete unrecoverably",
+        ["ForceDelete_SecureDeleteDescription"] = "Overwrites file contents with random data before deleting. Note: on SSDs, wear-leveling/TRIM means this does not guarantee the original data can never be recovered.",
+        ["ForceDelete_DeleteButton"] = "Delete",
+        ["ForceDelete_Empty"] = "Nothing queued. Browse for a file/folder, or drag and drop one here.",
+        ["ForceDelete_ColumnType"] = "Type",
+        ["ForceDelete_ColumnPath"] = "Location",
+        ["ForceDelete_ColumnSize"] = "Size",
+        ["ForceDelete_RemoveFromQueue"] = "Remove",
+        ["ForceDelete_ConfirmTitle"] = "Delete queued items?",
+        ["ForceDelete_ConfirmMessage"] = "This will force-delete {0} selected item(s). This cannot be undone.",
+        ["ForceDelete_ConfirmMessageSecure"] = "This will overwrite and force-delete {0} selected item(s) unrecoverably. This cannot be undone.",
+        ["ForceDelete_ResultTitle"] = "Delete result",
+        ["ForceDelete_ResultSummary"] = "{0} item(s) deleted, {1} scheduled for deletion.",
+        ["ForceDelete_RebootRequiredNotice"] = "{0} item(s) are still locked by another process and will be deleted automatically the next time you restart your computer.",
+        ["ForceDelete_ErrorsTitle"] = "Some items could not be deleted",
+        ["ForceDelete_AddErrorTitle"] = "Couldn't add item",
+        ["ForceDelete_PathNotFound"] = "\"{0}\" no longer exists.",
+        ["ForceDelete_UnsafePath"] = "\"{0}\" is a protected system location and can't be added here.",
 
         ["Kind_Folder"] = "Folder",
         ["Kind_File"] = "File",
@@ -69,6 +99,12 @@ public static class AppStrings
         ["Settings_ContextMenu"] = "Add \"Uninstall with Remove Installer App\" to the right-click menu",
         ["Settings_ContextMenuDescription"] = "Adds this option to the right-click menu of .exe files and shortcuts (Start menu, Desktop), so you can start an uninstall straight from Explorer. Applies to your Windows user account only.",
         ["ContextMenu_UninstallVerb"] = "Uninstall with Remove Installer App",
+        ["ContextMenu_QuickUninstallVerb"] = "Quick uninstall...",
+
+        ["QuickUninstall_ConfirmUninstall"] = "Uninstall \"{0}\"?",
+        ["QuickUninstall_ConfirmBackup"] = "Create a System Restore point before uninstalling \"{0}\"?",
+        ["QuickUninstall_AppNotFound"] = "\"{0}\" doesn't match any installed app, so there's nothing to uninstall.",
+        ["QuickUninstall_ResultTitle"] = "Remove Installer App",
 
         ["Settings_UpdateSection"] = "Updates",
         ["Settings_CurrentVersion"] = "Current version: {0}",
@@ -94,6 +130,7 @@ public static class AppStrings
         ["AppTitle"] = "Remove Installer App",
         ["NavInstalledApps"] = "Ứng dụng đã cài",
         ["NavLeftoverCleaner"] = "Dọn dẹp file rác",
+        ["NavForceDelete"] = "Xoá ép buộc",
         ["NavSettings"] = "Cài đặt",
 
         ["AppList_SearchPlaceholder"] = "Tìm ứng dụng đã cài...",
@@ -117,6 +154,13 @@ public static class AppStrings
         ["AppList_ContextMenuNoMatchTitle"] = "Không tìm thấy ứng dụng phù hợp",
         ["AppList_ContextMenuNoMatchMessage"] = "\"{0}\" không khớp với ứng dụng nào trong danh sách đã cài, nên không có gì để gỡ ở đây.",
 
+        ["Backup_ConfirmTitle"] = "Tạo điểm khôi phục?",
+        ["Backup_ConfirmMessage"] = "Tạo điểm khôi phục hệ thống (System Restore) trước khi gỡ cài đặt \"{0}\"? Nhờ đó bạn có thể hoàn tác việc gỡ cài đặt từ Windows nếu có sự cố.",
+        ["Backup_RestorePointDescription"] = "Trước khi gỡ {0} (Remove Installer App)",
+        ["Backup_Creating"] = "Đang tạo điểm khôi phục...",
+        ["Backup_Failed"] = "Không thể tạo điểm khôi phục: {0}",
+        ["Backup_ContinueAnyway"] = "Vẫn tiếp tục gỡ cài đặt?",
+
         ["Residue_Title"] = "Dọn dẹp file rác",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
         ["Residue_Scanning"] = "Đang quét...",
@@ -130,6 +174,28 @@ public static class AppStrings
         ["Residue_ConfirmDeleteTitle"] = "Xoá các mục đã chọn?",
         ["Residue_ConfirmDeleteMessage"] = "Thao tác này sẽ xoá vĩnh viễn {0} mục đã chọn. Không thể hoàn tác.",
         ["Residue_DeleteErrorsTitle"] = "Một số mục không thể xoá",
+
+        ["ForceDelete_Title"] = "Xoá ép buộc",
+        ["ForceDelete_BrowseFile"] = "Chọn tệp tin...",
+        ["ForceDelete_BrowseFolder"] = "Chọn thư mục...",
+        ["ForceDelete_SecureDelete"] = "Xoá không thể khôi phục",
+        ["ForceDelete_SecureDeleteDescription"] = "Ghi đè nội dung file bằng dữ liệu ngẫu nhiên trước khi xoá. Lưu ý: với ổ SSD, cơ chế wear-leveling/TRIM khiến việc này không đảm bảo dữ liệu gốc không thể khôi phục tuyệt đối.",
+        ["ForceDelete_DeleteButton"] = "Xoá",
+        ["ForceDelete_Empty"] = "Chưa có mục nào. Hãy chọn file/thư mục, hoặc kéo-thả vào đây.",
+        ["ForceDelete_ColumnType"] = "Loại",
+        ["ForceDelete_ColumnPath"] = "Vị trí",
+        ["ForceDelete_ColumnSize"] = "Dung lượng",
+        ["ForceDelete_RemoveFromQueue"] = "Bỏ khỏi hàng đợi",
+        ["ForceDelete_ConfirmTitle"] = "Xoá các mục đã chọn?",
+        ["ForceDelete_ConfirmMessage"] = "Thao tác này sẽ ép buộc xoá {0} mục đã chọn. Không thể hoàn tác.",
+        ["ForceDelete_ConfirmMessageSecure"] = "Thao tác này sẽ ghi đè và ép buộc xoá không thể khôi phục {0} mục đã chọn. Không thể hoàn tác.",
+        ["ForceDelete_ResultTitle"] = "Kết quả xoá",
+        ["ForceDelete_ResultSummary"] = "Đã xoá {0} mục, {1} mục đã lên lịch xoá.",
+        ["ForceDelete_RebootRequiredNotice"] = "{0} mục vẫn đang bị khoá bởi tiến trình khác và sẽ được tự động xoá vào lần khởi động lại máy tiếp theo.",
+        ["ForceDelete_ErrorsTitle"] = "Một số mục không thể xoá",
+        ["ForceDelete_AddErrorTitle"] = "Không thể thêm mục",
+        ["ForceDelete_PathNotFound"] = "\"{0}\" không còn tồn tại.",
+        ["ForceDelete_UnsafePath"] = "\"{0}\" là vị trí hệ thống được bảo vệ, không thể thêm vào đây.",
 
         ["Kind_Folder"] = "Thư mục",
         ["Kind_File"] = "Tệp tin",
@@ -148,6 +214,12 @@ public static class AppStrings
         ["Settings_ContextMenu"] = "Thêm \"Gỡ bằng Remove Installer App\" vào menu chuột phải",
         ["Settings_ContextMenuDescription"] = "Thêm lựa chọn này vào menu chuột phải của file .exe và shortcut (Start Menu, Desktop), để gỡ cài đặt ngay từ File Explorer. Chỉ áp dụng cho tài khoản Windows hiện tại.",
         ["ContextMenu_UninstallVerb"] = "Gỡ bằng Remove Installer App",
+        ["ContextMenu_QuickUninstallVerb"] = "Gỡ nhanh...",
+
+        ["QuickUninstall_ConfirmUninstall"] = "Gỡ cài đặt \"{0}\"?",
+        ["QuickUninstall_ConfirmBackup"] = "Tạo điểm khôi phục hệ thống trước khi gỡ \"{0}\"?",
+        ["QuickUninstall_AppNotFound"] = "\"{0}\" không khớp với ứng dụng nào đã cài, nên không có gì để gỡ.",
+        ["QuickUninstall_ResultTitle"] = "Remove Installer App",
 
         ["Settings_UpdateSection"] = "Cập nhật",
         ["Settings_CurrentVersion"] = "Phiên bản hiện tại: {0}",
@@ -176,6 +248,7 @@ public static class AppStrings
     public static string AppTitle => Get("AppTitle");
     public static string NavInstalledApps => Get("NavInstalledApps");
     public static string NavLeftoverCleaner => Get("NavLeftoverCleaner");
+    public static string NavForceDelete => Get("NavForceDelete");
     public static string NavSettings => Get("NavSettings");
 
     public static string AppList_SearchPlaceholder => Get("AppList_SearchPlaceholder");
@@ -199,6 +272,13 @@ public static class AppStrings
     public static string AppList_ContextMenuNoMatchTitle => Get("AppList_ContextMenuNoMatchTitle");
     public static string AppList_ContextMenuNoMatchMessage(string fileName) => string.Format(Get("AppList_ContextMenuNoMatchMessage"), fileName);
 
+    public static string Backup_ConfirmTitle => Get("Backup_ConfirmTitle");
+    public static string Backup_ConfirmMessage(string appName) => string.Format(Get("Backup_ConfirmMessage"), appName);
+    public static string Backup_RestorePointDescription(string appName) => string.Format(Get("Backup_RestorePointDescription"), appName);
+    public static string Backup_Creating => Get("Backup_Creating");
+    public static string Backup_Failed(string reason) => string.Format(Get("Backup_Failed"), reason);
+    public static string Backup_ContinueAnyway => Get("Backup_ContinueAnyway");
+
     public static string Residue_Title => Get("Residue_Title");
     public static string Residue_ScanOrphans => Get("Residue_ScanOrphans");
     public static string Residue_Scanning => Get("Residue_Scanning");
@@ -213,6 +293,28 @@ public static class AppStrings
     public static string Residue_ConfirmDeleteMessage(int count) => string.Format(Get("Residue_ConfirmDeleteMessage"), count);
     public static string Residue_DeleteErrorsTitle => Get("Residue_DeleteErrorsTitle");
 
+    public static string ForceDelete_Title => Get("ForceDelete_Title");
+    public static string ForceDelete_BrowseFile => Get("ForceDelete_BrowseFile");
+    public static string ForceDelete_BrowseFolder => Get("ForceDelete_BrowseFolder");
+    public static string ForceDelete_SecureDelete => Get("ForceDelete_SecureDelete");
+    public static string ForceDelete_SecureDeleteDescription => Get("ForceDelete_SecureDeleteDescription");
+    public static string ForceDelete_DeleteButton => Get("ForceDelete_DeleteButton");
+    public static string ForceDelete_Empty => Get("ForceDelete_Empty");
+    public static string ForceDelete_ColumnType => Get("ForceDelete_ColumnType");
+    public static string ForceDelete_ColumnPath => Get("ForceDelete_ColumnPath");
+    public static string ForceDelete_ColumnSize => Get("ForceDelete_ColumnSize");
+    public static string ForceDelete_RemoveFromQueue => Get("ForceDelete_RemoveFromQueue");
+    public static string ForceDelete_ConfirmTitle => Get("ForceDelete_ConfirmTitle");
+    public static string ForceDelete_ConfirmMessage(int count) => string.Format(Get("ForceDelete_ConfirmMessage"), count);
+    public static string ForceDelete_ConfirmMessageSecure(int count) => string.Format(Get("ForceDelete_ConfirmMessageSecure"), count);
+    public static string ForceDelete_ResultTitle => Get("ForceDelete_ResultTitle");
+    public static string ForceDelete_ResultSummary(int deleted, int scheduled) => string.Format(Get("ForceDelete_ResultSummary"), deleted, scheduled);
+    public static string ForceDelete_RebootRequiredNotice(int count) => string.Format(Get("ForceDelete_RebootRequiredNotice"), count);
+    public static string ForceDelete_ErrorsTitle => Get("ForceDelete_ErrorsTitle");
+    public static string ForceDelete_AddErrorTitle => Get("ForceDelete_AddErrorTitle");
+    public static string ForceDelete_PathNotFound(string path) => string.Format(Get("ForceDelete_PathNotFound"), path);
+    public static string ForceDelete_UnsafePath(string path) => string.Format(Get("ForceDelete_UnsafePath"), path);
+
     public static string Settings_Title => Get("Settings_Title");
     public static string Settings_Language => Get("Settings_Language");
     public static string Settings_LanguageEnglish => Get("Settings_LanguageEnglish");
@@ -223,6 +325,12 @@ public static class AppStrings
     public static string Settings_ContextMenu => Get("Settings_ContextMenu");
     public static string Settings_ContextMenuDescription => Get("Settings_ContextMenuDescription");
     public static string ContextMenu_UninstallVerb => Get("ContextMenu_UninstallVerb");
+    public static string ContextMenu_QuickUninstallVerb => Get("ContextMenu_QuickUninstallVerb");
+
+    public static string QuickUninstall_ConfirmUninstall(string appName) => string.Format(Get("QuickUninstall_ConfirmUninstall"), appName);
+    public static string QuickUninstall_ConfirmBackup(string appName) => string.Format(Get("QuickUninstall_ConfirmBackup"), appName);
+    public static string QuickUninstall_AppNotFound(string fileName) => string.Format(Get("QuickUninstall_AppNotFound"), fileName);
+    public static string QuickUninstall_ResultTitle => Get("QuickUninstall_ResultTitle");
 
     public static string Settings_UpdateSection => Get("Settings_UpdateSection");
     public static string Settings_CurrentVersion(string version) => string.Format(Get("Settings_CurrentVersion"), version);

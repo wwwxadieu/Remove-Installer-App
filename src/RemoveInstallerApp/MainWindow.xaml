@@ -25,6 +25,11 @@
                         <FontIcon Glyph="&#xEA99;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Name="NavItemForceDelete" Tag="forcedelete">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE74D;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <Grid Margin="16" RowDefinitions="Auto,*">

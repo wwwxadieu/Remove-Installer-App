@@ -43,6 +43,42 @@ public static class PathSafety
         return true;
     }
 
+    /// <summary>
+    /// Stronger guard for the Force Delete tool, which (unlike every other delete path in this
+    /// app) lets the user point at an arbitrary file/folder rather than one the app itself found.
+    /// Builds on <see cref="IsSafeToDeleteRecursively"/> (drive roots, exact protected folders)
+    /// and additionally refuses anything anywhere under the Windows folder, not just its root —
+    /// a single stray file deleted under System32 can be catastrophic. Subfolders/files inside
+    /// Program Files, AppData, Desktop, etc. remain allowed: that's this tool's actual purpose
+    /// (leftover app folders that won't delete normally).
+    /// </summary>
+    public static bool IsSafeToForceDelete(string? path)
+    {
+        if (!IsSafeToDeleteRecursively(path))
+        {
+            return false;
+        }
+
+        string full;
+        try
+        {
+            full = Path.GetFullPath(path!).TrimEnd('\\', '/');
+        }
+        catch
+        {
+            return false;
+        }
+
+        var windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows).TrimEnd('\\', '/');
+        if (string.Equals(full, windowsFolder, StringComparison.OrdinalIgnoreCase) ||
+            full.StartsWith(windowsFolder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private static string[] BuildProtectedFolders()
     {
         var list = new List<string>

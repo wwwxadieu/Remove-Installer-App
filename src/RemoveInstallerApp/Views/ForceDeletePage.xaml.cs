@@ -1,0 +1,171 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Models;
+using RemoveInstallerApp.Strings;
+using RemoveInstallerApp.ViewModels;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
+
+namespace RemoveInstallerApp.Views;
+
+public sealed partial class ForceDeletePage : Page
+{
+    public ForceDeleteViewModel ViewModel { get; }
+
+    public ForceDeletePage()
+    {
+        InitializeComponent();
+        ViewModel = App.Services.GetRequiredService<ForceDeleteViewModel>();
+        QueueListView.ItemsSource = ViewModel.Queue;
+        ViewModel.Queue.CollectionChanged += (_, _) => UpdateEmptyState();
+        SecureDeleteCheckBox.IsChecked = ViewModel.SecureDelete;
+        UpdateEmptyState();
+    }
+
+    private async void BrowseFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.ComputerFolder };
+        picker.FileTypeFilter.Add("*");
+        InitializeWithWindow.Initialize(picker, GetWindowHandle());
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is not null)
+        {
+            TryAddPath(file.Path);
+        }
+    }
+
+    private async void BrowseFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.ComputerFolder };
+        picker.FileTypeFilter.Add("*");
+        InitializeWithWindow.Initialize(picker, GetWindowHandle());
+
+        var folder = await picker.PickSingleFolderAsync();
+        if (folder is not null)
+        {
+            TryAddPath(folder.Path);
+        }
+    }
+
+    private void DropZone_DragOver(object sender, DragEventArgs e)
+    {
+        e.AcceptedOperation = e.DataView.Contains(StandardDataFormats.StorageItems)
+            ? DataPackageOperation.Copy
+            : DataPackageOperation.None;
+    }
+
+    private async void DropZone_Drop(object sender, DragEventArgs e)
+    {
+        if (!e.DataView.Contains(StandardDataFormats.StorageItems))
+        {
+            return;
+        }
+
+        var items = await e.DataView.GetStorageItemsAsync();
+        foreach (var item in items)
+        {
+            TryAddPath(item.Path);
+        }
+    }
+
+    private void TryAddPath(string path)
+    {
+        var error = ViewModel.AddPath(path);
+        if (error is not null)
+        {
+            _ = ShowSimpleDialogAsync(AppStrings.ForceDelete_AddErrorTitle, error);
+        }
+        else
+        {
+            UpdateEmptyState();
+        }
+    }
+
+    private void RemoveQueueItemButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: ForceDeleteQueueItem item })
+        {
+            ViewModel.Queue.Remove(item);
+        }
+    }
+
+    private void SecureDeleteCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SecureDelete = SecureDeleteCheckBox.IsChecked == true;
+    }
+
+    private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        var selectedCount = ViewModel.Queue.Count(i => i.IsSelected);
+        if (selectedCount == 0)
+        {
+            return;
+        }
+
+        var confirmDialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = AppStrings.ForceDelete_ConfirmTitle,
+            Content = ViewModel.SecureDelete
+                ? AppStrings.ForceDelete_ConfirmMessageSecure(selectedCount)
+                : AppStrings.ForceDelete_ConfirmMessage(selectedCount),
+            PrimaryButtonText = AppStrings.Common_Yes,
+            CloseButtonText = AppStrings.Common_No,
+            DefaultButton = ContentDialogButton.Close,
+        };
+
+        if (await confirmDialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        SetBusy(true, null);
+        var result = await ViewModel.DeleteQueuedAsync();
+        SetBusy(false, null);
+        UpdateEmptyState();
+
+        var message = AppStrings.ForceDelete_ResultSummary(result.DeletedCount, result.ScheduledForRebootCount);
+        if (result.ScheduledForRebootCount > 0)
+        {
+            message += "\n\n" + AppStrings.ForceDelete_RebootRequiredNotice(result.ScheduledForRebootCount);
+        }
+
+        await ShowSimpleDialogAsync(AppStrings.ForceDelete_ResultTitle, message);
+
+        if (result.Errors.Count > 0)
+        {
+            await ShowSimpleDialogAsync(AppStrings.ForceDelete_ErrorsTitle, string.Join("\n", result.Errors));
+        }
+    }
+
+    private async Task ShowSimpleDialogAsync(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = title,
+            Content = message,
+            CloseButtonText = AppStrings.Common_Close,
+        };
+        await dialog.ShowAsync();
+    }
+
+    private void SetBusy(bool isBusy, string? status)
+    {
+        BusyRing.IsActive = isBusy;
+        StatusText.Text = status ?? string.Empty;
+    }
+
+    private void UpdateEmptyState()
+    {
+        var isEmpty = ViewModel.Queue.Count == 0;
+        QueueListView.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        EmptyStateText.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private static nint GetWindowHandle() => WindowNative.GetWindowHandle(App.MainAppWindow);
+}

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Services;
+using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 
 namespace RemoveInstallerApp;
@@ -17,21 +19,96 @@ public partial class App : Application
     /// </summary>
     public static string? LaunchUninstallTargetPath { get; private set; }
 
+    /// <summary>
+    /// Set when launched via the Explorer "Quick uninstall..." context-menu verb. When set, the
+    /// app never creates <see cref="MainAppWindow"/> — it runs the uninstall flow with native
+    /// MessageBox dialogs only and exits. Null on a normal launch.
+    /// </summary>
+    public static string? LaunchQuickUninstallTargetPath { get; private set; }
+
     public App()
     {
         InitializeComponent();
         Services = ConfigureServices();
-        LaunchUninstallTargetPath = ParseUninstallTargetArgument(Environment.GetCommandLineArgs());
+        var args = Environment.GetCommandLineArgs();
+        LaunchUninstallTargetPath = ParseArgument(args, "--uninstall");
+        LaunchQuickUninstallTargetPath = ParseArgument(args, "--quick-uninstall");
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        if (LaunchQuickUninstallTargetPath is { } quickUninstallPath)
+        {
+            _ = RunQuickUninstallAndExitAsync(quickUninstallPath);
+            return;
+        }
+
         MainAppWindow = new MainWindow();
         MainAppWindow.Activate();
     }
 
     /// <summary>Consumes the pending launch target so it only triggers the uninstall flow once.</summary>
     public static void ClearLaunchUninstallTarget() => LaunchUninstallTargetPath = null;
+
+    /// <summary>
+    /// The headless counterpart of <c>AppListPage.HandlePendingLaunchTargetAsync</c> /
+    /// <c>UninstallFlowAsync</c>: same confirm → (offer backup) → uninstall → result pipeline,
+    /// but driven entirely by native MessageBox dialogs since there's no Window/XamlRoot here.
+    /// </summary>
+    private static async Task RunQuickUninstallAndExitAsync(string targetPath)
+    {
+        try
+        {
+            var resolvedPath = targetPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)
+                ? ShortcutResolver.ResolveTarget(targetPath) ?? targetPath
+                : targetPath;
+
+            var installedAppsService = Services.GetRequiredService<IInstalledAppsService>();
+            var apps = await installedAppsService.GetInstalledAppsAsync();
+            var app = InstalledAppMatcher.FindByPath(apps, resolvedPath);
+
+            if (app is null)
+            {
+                NativeMessageBox.ShowInfo(
+                    AppStrings.QuickUninstall_AppNotFound(System.IO.Path.GetFileName(resolvedPath)),
+                    AppStrings.QuickUninstall_ResultTitle);
+                return;
+            }
+
+            if (!NativeMessageBox.Confirm(AppStrings.QuickUninstall_ConfirmUninstall(app.DisplayName), AppStrings.QuickUninstall_ResultTitle))
+            {
+                return;
+            }
+
+            if (NativeMessageBox.Confirm(AppStrings.QuickUninstall_ConfirmBackup(app.DisplayName), AppStrings.QuickUninstall_ResultTitle))
+            {
+                var backupService = Services.GetRequiredService<IBackupService>();
+                var backupResult = await backupService.CreateRestorePointAsync(AppStrings.Backup_RestorePointDescription(app.DisplayName));
+                if (!backupResult.Success)
+                {
+                    // Headless flow keeps this to a single extra dialog rather than asking
+                    // "continue anyway?" again — the uninstall proceeds regardless, same as
+                    // choosing "Yes" in the windowed flow's "continue anyway" prompt.
+                    NativeMessageBox.ShowInfo(AppStrings.Backup_Failed(backupResult.ErrorMessage ?? string.Empty), AppStrings.QuickUninstall_ResultTitle);
+                }
+            }
+
+            var orchestrator = Services.GetRequiredService<IUninstallOrchestrator>();
+            var (result, residue) = await orchestrator.UninstallAsync(app);
+
+            NativeMessageBox.ShowInfo(
+                UninstallResultFormatter.Format(app.DisplayName, result, residue),
+                AppStrings.QuickUninstall_ResultTitle);
+        }
+        finally
+        {
+            // Application.Exit() alone can leave the process alive if some WinUI resource is
+            // still holding it open (there's no window to tie the process lifetime to here);
+            // Environment.Exit is the guaranteed fallback.
+            Application.Current.Exit();
+            Environment.Exit(0);
+        }
+    }
 
     private static IServiceProvider ConfigureServices()
     {
@@ -44,20 +121,24 @@ public partial class App : Application
         collection.AddSingleton<IResidueScanService, ResidueScanService>();
         collection.AddSingleton<IUpdateService, UpdateService>();
         collection.AddSingleton<IShellIntegrationService, ShellIntegrationService>();
+        collection.AddSingleton<IBackupService, SystemRestoreBackupService>();
+        collection.AddSingleton<IForceDeleteService, ForceDeleteService>();
+        collection.AddSingleton<IUninstallOrchestrator, UninstallOrchestrator>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
+        collection.AddTransient<ForceDeleteViewModel>();
         collection.AddTransient<SettingsViewModel>();
 
         return collection.BuildServiceProvider();
     }
 
-    /// <summary>Looks for "--uninstall &lt;path&gt;" in the process's real argv (index 0 is the exe itself).</summary>
-    private static string? ParseUninstallTargetArgument(string[] args)
+    /// <summary>Looks for "&lt;flag&gt; &lt;path&gt;" in the process's real argv (index 0 is the exe itself).</summary>
+    private static string? ParseArgument(string[] args, string flag)
     {
         for (var i = 1; i < args.Length - 1; i++)
         {
-            if (string.Equals(args[i], "--uninstall", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(args[i], flag, StringComparison.OrdinalIgnoreCase))
             {
                 return args[i + 1];
             }

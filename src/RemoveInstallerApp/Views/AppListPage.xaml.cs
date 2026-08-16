@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
+using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
 
@@ -12,10 +13,13 @@ public sealed partial class AppListPage : Page
 {
     public AppListViewModel ViewModel { get; }
 
+    private readonly IBackupService _backupService;
+
     public AppListPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<AppListViewModel>();
+        _backupService = App.Services.GetRequiredService<IBackupService>();
         AppsListView.ItemsSource = ViewModel.Apps;
         ViewModel.Apps.CollectionChanged += (_, _) => UpdateEmptyState();
         Loaded += async (_, _) =>
@@ -105,24 +109,17 @@ public sealed partial class AppListPage : Page
             return;
         }
 
+        if (!await OfferBackupAsync(app))
+        {
+            return;
+        }
+
         SetBusy(true, AppStrings.AppList_Loading);
         var (result, residue) = await ViewModel.UninstallAppAsync(app);
         SetBusy(false, null);
         UpdateEmptyState();
 
-        var message = result.Outcome switch
-        {
-            UninstallOutcome.UninstallerSucceeded => AppStrings.AppList_ResultSucceeded(app.DisplayName),
-            UninstallOutcome.ForceRemoved => AppStrings.AppList_ResultForceRemoved(app.DisplayName),
-            UninstallOutcome.UninstallerFailed => AppStrings.AppList_ResultFailed(app.DisplayName, result.ExitCode),
-            UninstallOutcome.Error => AppStrings.AppList_ResultError(app.DisplayName, result.Message ?? string.Empty),
-            _ => AppStrings.AppList_ResultFailed(app.DisplayName, result.ExitCode),
-        };
-
-        if (residue.Count > 0)
-        {
-            message += "\n\n" + AppStrings.AppList_ResidueFound(residue.Count);
-        }
+        var message = UninstallResultFormatter.Format(app.DisplayName, result, residue);
 
         var resultDialog = new ContentDialog
         {
@@ -137,6 +134,52 @@ public sealed partial class AppListPage : Page
         {
             Frame.Navigate(typeof(ResidueScanPage), residue);
         }
+    }
+
+    /// <summary>
+    /// Mandatory before every uninstall (per the app's design, not a Settings toggle): asks the
+    /// user whether to create a System Restore point first. Returns false only if the user chose
+    /// not to proceed with the uninstall at all.
+    /// </summary>
+    private async Task<bool> OfferBackupAsync(InstalledAppInfo app)
+    {
+        var backupDialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = AppStrings.Backup_ConfirmTitle,
+            Content = AppStrings.Backup_ConfirmMessage(app.DisplayName),
+            PrimaryButtonText = AppStrings.Common_Yes,
+            CloseButtonText = AppStrings.Common_No,
+            // Unlike the destructive-action dialogs elsewhere in this app (DefaultButton = Close),
+            // "Yes" here is the safe/recommended choice, so it's the default on Enter.
+            DefaultButton = ContentDialogButton.Primary,
+        };
+
+        if (await backupDialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return true;
+        }
+
+        SetBusy(true, AppStrings.Backup_Creating);
+        var backupResult = await _backupService.CreateRestorePointAsync(AppStrings.Backup_RestorePointDescription(app.DisplayName));
+        SetBusy(false, null);
+
+        if (backupResult.Success)
+        {
+            return true;
+        }
+
+        var failureDialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = AppStrings.Backup_ConfirmTitle,
+            Content = AppStrings.Backup_Failed(backupResult.ErrorMessage ?? string.Empty) + "\n\n" + AppStrings.Backup_ContinueAnyway,
+            PrimaryButtonText = AppStrings.Common_Yes,
+            CloseButtonText = AppStrings.Common_No,
+            DefaultButton = ContentDialogButton.Close,
+        };
+
+        return await failureDialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
     private void SetBusy(bool isBusy, string? status)

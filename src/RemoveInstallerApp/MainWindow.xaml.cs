@@ -32,6 +32,7 @@ public sealed partial class MainWindow : Window
     {
         NavItemAppList.Content = AppStrings.NavInstalledApps;
         NavItemResidue.Content = AppStrings.NavLeftoverCleaner;
+        NavItemForceDelete.Content = AppStrings.NavForceDelete;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -56,6 +57,9 @@ public sealed partial class MainWindow : Window
                     break;
                 case "residue":
                     ContentFrame.Navigate(typeof(ResidueScanPage));
+                    break;
+                case "forcedelete":
+                    ContentFrame.Navigate(typeof(ForceDeletePage));
                     break;
             }
         }

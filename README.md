@@ -42,6 +42,25 @@ leftover files and registry entries.
   `.exe` file or shortcut (Start menu, Desktop) — toggle in Settings. Clicking it opens the
   app, matches the file to the corresponding installed app, and jumps straight into the
   confirm-and-uninstall flow.
+- Trước mỗi lần gỡ cài đặt, app luôn hỏi có muốn tạo **điểm khôi phục hệ thống (System
+  Restore)** trước không — dùng đúng cơ chế backup gốc của Windows, không phải định dạng
+  riêng của app. Nếu tạo lỗi (System Restore đang tắt), app báo rõ lý do và hỏi tiếp có
+  muốn tiếp tục gỡ cài đặt hay không.
+  Before every uninstall, the app always asks whether to create a **System Restore**
+  point first — using Windows' own backup mechanism, not a custom format. If creation
+  fails (System Restore disabled), it reports why and asks whether to continue anyway.
+- Trang **"Xoá ép buộc" (Force Delete)** độc lập: chọn (duyệt hoặc kéo-thả) bất kỳ file/thư
+  mục nào để ép buộc xoá (kể cả đang bị khoá bởi tiến trình khác, hoặc read-only) và/hoặc
+  xoá không thể khôi phục (ghi đè dữ liệu ngẫu nhiên trước khi xoá).
+  Standalone **"Force Delete"** page: browse or drag-and-drop any file/folder to force-delete
+  it (even if locked by another process or read-only) and/or delete it unrecoverably
+  (overwrites the contents with random data first).
+- Tuỳ chọn thêm mục **"Gỡ nhanh..."** vào menu chuột phải, song song với mục gỡ cài đặt
+  hiện có — chạy toàn bộ luồng gỡ cài đặt (kèm hỏi backup) chỉ bằng hộp thoại hệ thống nhỏ,
+  không mở giao diện chính của app.
+  Optional **"Quick uninstall..."** entry on the right-click menu, alongside the existing
+  uninstall entry — runs the entire uninstall flow (including the backup prompt) using only
+  small native system dialogs, without ever opening the app's main window.
 
 ## Yêu cầu / Requirements
 
@@ -97,16 +116,25 @@ can be copied to another machine without installing the .NET runtime separately.
 
 ```
 src/RemoveInstallerApp/
-├── Models/         InstalledAppInfo, ResidueItem, UninstallResult, AppSettings
+├── Models/         InstalledAppInfo, ResidueItem, UninstallResult, AppSettings,
+│                     BackupResult, ForceDeleteOutcome, BulkForceDeleteResult,
+│                     ForceDeleteQueueItem
 ├── Services/        InstalledAppsService (registry enumeration)
 │                     UninstallService (run uninstaller / force remove)
 │                     ResidueScanService (leftover file & registry scan)
+│                     UninstallOrchestrator (shared uninstall pipeline — windowed + headless)
+│                     SystemRestoreBackupService (System Restore point before uninstall)
+│                     ForceDeleteService (force-delete / secure-delete queue)
 │                     UpdateService (GitHub Releases version check)
+│                     ShellIntegrationService (both right-click verbs)
 │                     LocalizationService, SettingsService
 ├── ViewModels/      MVVM view models (CommunityToolkit.Mvvm)
-├── Views/            AppListPage, ResidueScanPage, SettingsPage (WinUI 3 XAML)
+├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, SettingsPage (WinUI 3 XAML)
 ├── Strings/          AppStrings.cs — bảng chuỗi song ngữ EN/VI
 └── Helpers/          PathSafety — chặn xoá nhầm thư mục hệ thống
+                       ForceDelete, SecureFileWiper — pipeline xoá ép buộc / không thể khôi phục
+                       InstalledAppMatcher, UninstallResultFormatter, NativeMessageBox —
+                       dùng chung giữa luồng có giao diện và luồng "Gỡ nhanh" headless
 ```
 
 MVVM đơn giản với dependency injection (`Microsoft.Extensions.DependencyInjection`), đăng
@@ -217,6 +245,44 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   HKLM. Turning the Settings toggle off (or uninstalling the app) removes these keys; if
   you manually delete the install folder without turning the toggle off first, the menu
   entry will point at a missing file — delete those two keys by hand in `regedit` to clean up.
+- Cùng toggle menu chuột phải ở trên cũng ghi thêm mục **"Gỡ nhanh..."** vào
+  `...\shell\RemoveInstallerAppQuickUninstall` (cả `exefile` và `lnkfile`) — chạy
+  `RemoveInstallerApp.exe --quick-uninstall "<path>"`, không mở cửa sổ chính, chỉ dùng
+  `MessageBox` gốc của Windows. Đây là một verb registry riêng biệt, không phải chế độ khác
+  của verb gỡ cài đặt hiện có.
+  The same right-click toggle above also writes a **"Quick uninstall..."** entry at
+  `...\shell\RemoveInstallerAppQuickUninstall` (both `exefile` and `lnkfile`) — it runs
+  `RemoveInstallerApp.exe --quick-uninstall "<path>"`, never opens the main window, and uses
+  only native Windows `MessageBox` dialogs. It's a separate registry verb, not a mode of the
+  existing uninstall verb.
+- **Sao lưu trước khi gỡ** tạo một **System Restore point** thật của Windows (qua
+  `SRSetRestorePointW`), xem được bằng `rstrui.exe` hoặc PowerShell
+  `Get-ComputerRestorePoint`. Nếu System Restore đang tắt trên máy/ổ đĩa, việc tạo sẽ thất
+  bại — app báo lỗi và vẫn cho phép tiếp tục gỡ cài đặt.
+  **The pre-uninstall backup** creates a real Windows **System Restore point** (via
+  `SRSetRestorePointW`), visible through `rstrui.exe` or PowerShell's
+  `Get-ComputerRestorePoint`. If System Restore is disabled on the machine/drive, creation
+  fails — the app reports the error and still lets the uninstall continue.
+- **Force Delete** dùng `MoveFileEx`/`MOVEFILE_DELAY_UNTIL_REBOOT` khi một file vẫn bị khoá
+  sau khi đã thử xoá bình thường và reset quyền/ACL — mục đó sẽ nằm trong
+  `PendingFileRenameOperations` (regedit,
+  `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager`) và bị xoá thật ở
+  lần khởi động lại máy tiếp theo, không có nút tự khởi động lại. `PathSafety` vẫn áp dụng ở
+  chế độ ép buộc — không thể xoá bất cứ gì bên trong thư mục Windows hay chính các thư mục
+  hệ thống được bảo vệ, kể cả khi bật force.
+  **Force Delete** falls back to `MoveFileEx`/`MOVEFILE_DELAY_UNTIL_REBOOT` when a file is
+  still locked after a normal delete attempt and an ownership/ACL reset — that entry lands
+  in `PendingFileRenameOperations` (regedit,
+  `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager`) and is actually
+  removed on the next restart; there's no auto-restart button. `PathSafety` still applies in
+  force mode — nothing under the Windows folder or any protected system folder can be
+  deleted, even with force enabled.
+- **Xoá không thể khôi phục** chỉ ghi đè nội dung file bằng dữ liệu ngẫu nhiên trước khi
+  xoá. Trên ổ SSD, cơ chế wear-leveling/TRIM có thể khiến dữ liệu gốc vẫn còn ở vị trí vật
+  lý khác — tính năng này **không đảm bảo** không thể khôi phục tuyệt đối trên SSD.
+  **Delete unrecoverably** only overwrites file contents with random data before deleting.
+  On SSDs, wear-leveling/TRIM can leave the original data intact in a different physical
+  location — this feature does **not** guarantee the data is truly unrecoverable on an SSD.
 
 ## License
 
