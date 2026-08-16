@@ -13,6 +13,7 @@ namespace RemoveInstallerApp.Services;
 public sealed class ShellIntegrationService : IShellIntegrationService
 {
     private const string VerbName = "RemoveInstallerAppUninstall";
+    private const string QuickVerbName = "RemoveInstallerAppQuickUninstall";
     private static readonly string[] TargetClasses = { "exefile", "lnkfile" };
 
     public bool IsRegistered
@@ -41,17 +42,10 @@ public sealed class ShellIntegrationService : IShellIntegrationService
             return;
         }
 
-        var menuText = AppStrings.ContextMenu_UninstallVerb;
-        var command = $"\"{exePath}\" --uninstall \"%1\"";
-
         foreach (var targetClass in TargetClasses)
         {
-            using var verbKey = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{targetClass}\shell\{VerbName}");
-            verbKey.SetValue(null, menuText);
-            verbKey.SetValue("Icon", $"\"{exePath}\",0");
-
-            using var commandKey = verbKey.CreateSubKey("command");
-            commandKey.SetValue(null, command);
+            RegisterVerb(targetClass, VerbName, AppStrings.ContextMenu_UninstallVerb, exePath, "--uninstall");
+            RegisterVerb(targetClass, QuickVerbName, AppStrings.ContextMenu_QuickUninstallVerb, exePath, "--quick-uninstall");
         }
     }
 
@@ -61,7 +55,18 @@ public sealed class ShellIntegrationService : IShellIntegrationService
         {
             using var shellKey = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{targetClass}\shell", writable: true);
             shellKey?.DeleteSubKeyTree(VerbName, throwOnMissingSubKey: false);
+            shellKey?.DeleteSubKeyTree(QuickVerbName, throwOnMissingSubKey: false);
         }
+    }
+
+    private static void RegisterVerb(string targetClass, string verbName, string menuText, string exePath, string argument)
+    {
+        using var verbKey = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{targetClass}\shell\{verbName}");
+        verbKey.SetValue(null, menuText);
+        verbKey.SetValue("Icon", $"\"{exePath}\",0");
+
+        using var commandKey = verbKey.CreateSubKey("command");
+        commandKey.SetValue(null, $"\"{exePath}\" {argument} \"%1\"");
     }
 
     public void RefreshMenuText()

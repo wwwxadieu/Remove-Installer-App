@@ -41,6 +41,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <!-- FileSystemAclExtensions (GetAccessControl/SetAccessControl on FileInfo/DirectoryInfo) used
+         by Helpers/ForceDelete.cs to take ownership of locked files before retrying deletion. -->
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
