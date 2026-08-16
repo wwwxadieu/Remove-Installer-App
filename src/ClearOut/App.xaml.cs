@@ -163,12 +163,14 @@ public partial class App : Application
         collection.AddSingleton<IUninstallOrchestrator, UninstallOrchestrator>();
         collection.AddSingleton<IDiskCleanupService, DiskCleanupService>();
         collection.AddSingleton<ILicenseService, LicenseService>();
+        collection.AddSingleton<IDeviceInfoService, DeviceInfoService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
         collection.AddTransient<ForceDeleteViewModel>();
         collection.AddTransient<DiskCleanupViewModel>();
         collection.AddTransient<SettingsViewModel>();
+        collection.AddTransient<DeviceSpecsViewModel>();
 
         return collection.BuildServiceProvider();
     }

@@ -17,6 +17,7 @@ public static class AppStrings
         ["NavLeftoverCleaner"] = "Leftover Cleaner",
         ["NavForceDelete"] = "Force Delete",
         ["NavDiskCleanup"] = "Disk Cleanup",
+        ["NavDeviceSpecs"] = "Device Specs",
         ["NavSettings"] = "Settings",
 
         ["Welcome_Title"] = "Welcome to ClearOut!",
@@ -128,6 +129,20 @@ public static class AppStrings
         ["DiskCleanup_ResultSkipped"] = "{0} file(s) were skipped because they were in use by another program.",
         ["DiskCleanup_ErrorsTitle"] = "Some categories could not be cleaned",
 
+        ["DeviceSpecs_Title"] = "Device Specs",
+        ["DeviceSpecs_Subtitle"] = "Hardware, storage, and operating system details for this PC.",
+        ["DeviceSpecs_SectionOS"] = "Operating System",
+        ["DeviceSpecs_SectionHardware"] = "Hardware",
+        ["DeviceSpecs_OsEdition"] = "Windows edition",
+        ["DeviceSpecs_OsVersion"] = "Version",
+        ["DeviceSpecs_Architecture"] = "Architecture",
+        ["DeviceSpecs_ComputerName"] = "Computer name",
+        ["DeviceSpecs_Processor"] = "Processor",
+        ["DeviceSpecs_Cores"] = "Logical processors",
+        ["DeviceSpecs_InstalledMemory"] = "Installed memory (RAM)",
+        ["DeviceSpecs_Manufacturer"] = "Manufacturer",
+        ["DeviceSpecs_Model"] = "Model",
+
         ["DiskCleanupCategory_TemporaryFiles_Name"] = "Temporary files",
         ["DiskCleanupCategory_TemporaryFiles_Description"] = "Files apps left behind in your user Temp folder and C:\\Windows\\Temp that they no longer need.",
         ["DiskCleanupCategory_RecycleBin_Name"] = "Recycle Bin",
@@ -227,6 +242,7 @@ public static class AppStrings
         ["NavLeftoverCleaner"] = "Dọn dẹp file rác",
         ["NavForceDelete"] = "Xoá ép buộc",
         ["NavDiskCleanup"] = "Dọn ổ đĩa",
+        ["NavDeviceSpecs"] = "Cấu hình máy",
         ["NavSettings"] = "Cài đặt",
 
         ["Welcome_Title"] = "Chào mừng đến với ClearOut!",
@@ -338,6 +354,20 @@ public static class AppStrings
         ["DiskCleanup_ResultSkipped"] = "{0} tệp tin đã bị bỏ qua vì đang được chương trình khác sử dụng.",
         ["DiskCleanup_ErrorsTitle"] = "Một số mục không thể dọn dẹp",
 
+        ["DeviceSpecs_Title"] = "Cấu hình máy",
+        ["DeviceSpecs_Subtitle"] = "Thông tin phần cứng, dung lượng ổ đĩa và hệ điều hành của máy này.",
+        ["DeviceSpecs_SectionOS"] = "Hệ điều hành",
+        ["DeviceSpecs_SectionHardware"] = "Phần cứng",
+        ["DeviceSpecs_OsEdition"] = "Phiên bản Windows",
+        ["DeviceSpecs_OsVersion"] = "Phiên bản",
+        ["DeviceSpecs_Architecture"] = "Kiến trúc",
+        ["DeviceSpecs_ComputerName"] = "Tên máy",
+        ["DeviceSpecs_Processor"] = "Bộ xử lý (CPU)",
+        ["DeviceSpecs_Cores"] = "Số nhân luận lý",
+        ["DeviceSpecs_InstalledMemory"] = "Bộ nhớ RAM",
+        ["DeviceSpecs_Manufacturer"] = "Nhà sản xuất",
+        ["DeviceSpecs_Model"] = "Model máy",
+
         ["DiskCleanupCategory_TemporaryFiles_Name"] = "Tệp tin tạm",
         ["DiskCleanupCategory_TemporaryFiles_Description"] = "Các tệp ứng dụng để lại trong thư mục Temp của bạn và C:\\Windows\\Temp mà chúng không còn cần dùng.",
         ["DiskCleanupCategory_RecycleBin_Name"] = "Thùng rác",
@@ -440,6 +470,7 @@ public static class AppStrings
     public static string NavLeftoverCleaner => Get("NavLeftoverCleaner");
     public static string NavForceDelete => Get("NavForceDelete");
     public static string NavDiskCleanup => Get("NavDiskCleanup");
+    public static string NavDeviceSpecs => Get("NavDeviceSpecs");
     public static string NavSettings => Get("NavSettings");
 
     public static string Welcome_Title => Get("Welcome_Title");
@@ -545,6 +576,19 @@ public static class AppStrings
     public static string DiskCleanup_ResultSummary(string sizeText) => string.Format(Get("DiskCleanup_ResultSummary"), sizeText);
     public static string DiskCleanup_ResultSkipped(int count) => string.Format(Get("DiskCleanup_ResultSkipped"), count);
     public static string DiskCleanup_ErrorsTitle => Get("DiskCleanup_ErrorsTitle");
+    public static string DeviceSpecs_Title => Get("DeviceSpecs_Title");
+    public static string DeviceSpecs_Subtitle => Get("DeviceSpecs_Subtitle");
+    public static string DeviceSpecs_SectionOS => Get("DeviceSpecs_SectionOS");
+    public static string DeviceSpecs_SectionHardware => Get("DeviceSpecs_SectionHardware");
+    public static string DeviceSpecs_OsEdition => Get("DeviceSpecs_OsEdition");
+    public static string DeviceSpecs_OsVersion => Get("DeviceSpecs_OsVersion");
+    public static string DeviceSpecs_Architecture => Get("DeviceSpecs_Architecture");
+    public static string DeviceSpecs_ComputerName => Get("DeviceSpecs_ComputerName");
+    public static string DeviceSpecs_Processor => Get("DeviceSpecs_Processor");
+    public static string DeviceSpecs_Cores => Get("DeviceSpecs_Cores");
+    public static string DeviceSpecs_InstalledMemory => Get("DeviceSpecs_InstalledMemory");
+    public static string DeviceSpecs_Manufacturer => Get("DeviceSpecs_Manufacturer");
+    public static string DeviceSpecs_Model => Get("DeviceSpecs_Model");
 
     public static string DiskCleanupCategoryName(DiskCleanupCategoryKind kind) => Get($"DiskCleanupCategory_{kind}_Name");
     public static string DiskCleanupCategoryDescription(DiskCleanupCategoryKind kind) => Get($"DiskCleanupCategory_{kind}_Description");

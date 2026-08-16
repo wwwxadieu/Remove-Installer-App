@@ -71,6 +71,7 @@ public sealed partial class MainWindow : Window
         NavItemResidue.Content = AppStrings.NavLeftoverCleaner;
         NavItemForceDelete.Content = AppStrings.NavForceDelete;
         NavItemDiskCleanup.Content = AppStrings.NavDiskCleanup;
+        NavItemDeviceSpecs.Content = AppStrings.NavDeviceSpecs;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -110,6 +111,7 @@ public sealed partial class MainWindow : Window
             "residue" => typeof(ResidueScanPage),
             "forcedelete" => typeof(ForceDeletePage),
             "diskcleanup" => typeof(DiskCleanupPage),
+            "devicespecs" => typeof(DeviceSpecsPage),
             _ => null,
         };
 

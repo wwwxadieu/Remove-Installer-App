@@ -35,6 +35,11 @@
                         <FontIcon Glyph="&#xE74A;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Name="NavItemDeviceSpecs" Tag="devicespecs">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE950;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <Grid Margin="16" RowDefinitions="Auto,*">
