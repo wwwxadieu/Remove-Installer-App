@@ -1,0 +1,117 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Strings;
+using RemoveInstallerApp.ViewModels;
+
+namespace RemoveInstallerApp.Views;
+
+public sealed partial class DiskCleanupPage : Page
+{
+    public DiskCleanupViewModel ViewModel { get; }
+
+    public DiskCleanupPage()
+    {
+        InitializeComponent();
+        ViewModel = App.Services.GetRequiredService<DiskCleanupViewModel>();
+        CategoryListView.ItemsSource = ViewModel.Categories;
+        ViewModel.Categories.CollectionChanged += (_, _) => UpdateEmptyState();
+        UpdateEmptyState();
+    }
+
+    private async void ScanButton_Click(object sender, RoutedEventArgs e)
+    {
+        SetBusy(true, AppStrings.DiskCleanup_Scanning);
+        await ViewModel.ScanAsync();
+        SetBusy(false, null);
+        UpdateEmptyState();
+    }
+
+    private void SelectAllButton_Click(object sender, RoutedEventArgs e) => ViewModel.SelectAll(true);
+
+    private void ClearSelectionButton_Click(object sender, RoutedEventArgs e) => ViewModel.SelectAll(false);
+
+    private async void CleanButton_Click(object sender, RoutedEventArgs e)
+    {
+        var selected = ViewModel.Categories.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0)
+        {
+            return;
+        }
+
+        var totalBytes = selected.Sum(c => c.SizeBytes);
+
+        var confirmDialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = AppStrings.DiskCleanup_ConfirmTitle,
+            Content = AppStrings.DiskCleanup_ConfirmMessage(FormatBytes(totalBytes), selected.Count),
+            PrimaryButtonText = AppStrings.Common_Yes,
+            CloseButtonText = AppStrings.Common_No,
+            DefaultButton = ContentDialogButton.Close,
+        };
+
+        if (await confirmDialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        SetBusy(true, null);
+        var result = await ViewModel.CleanSelectedAsync();
+        SetBusy(false, null);
+        UpdateEmptyState();
+
+        var message = AppStrings.DiskCleanup_ResultSummary(FormatBytes(result.BytesFreed));
+        if (result.SkippedFileCount > 0)
+        {
+            message += "\n\n" + AppStrings.DiskCleanup_ResultSkipped(result.SkippedFileCount);
+        }
+
+        var resultDialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = AppStrings.DiskCleanup_ResultTitle,
+            Content = message,
+            CloseButtonText = AppStrings.Common_Close,
+        };
+        await resultDialog.ShowAsync();
+
+        if (result.Errors.Count > 0)
+        {
+            var errorDialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = AppStrings.DiskCleanup_ErrorsTitle,
+                Content = string.Join("\n", result.Errors),
+                CloseButtonText = AppStrings.Common_Close,
+            };
+            await errorDialog.ShowAsync();
+        }
+    }
+
+    private void SetBusy(bool isBusy, string? status)
+    {
+        BusyRing.IsActive = isBusy;
+        StatusText.Text = status ?? string.Empty;
+    }
+
+    private void UpdateEmptyState()
+    {
+        var isEmpty = ViewModel.Categories.Count == 0;
+        CategoryListView.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        EmptyStateText.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = { "B", "KB", "MB", "GB" };
+        double size = bytes;
+        var unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.Length - 1)
+        {
+            size /= 1024;
+            unitIndex++;
+        }
+        return $"{size:0.#} {units[unitIndex]}";
+    }
+}

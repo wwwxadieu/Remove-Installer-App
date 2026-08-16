@@ -33,6 +33,7 @@ public sealed partial class MainWindow : Window
         NavItemAppList.Content = AppStrings.NavInstalledApps;
         NavItemResidue.Content = AppStrings.NavLeftoverCleaner;
         NavItemForceDelete.Content = AppStrings.NavForceDelete;
+        NavItemDiskCleanup.Content = AppStrings.NavDiskCleanup;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -60,6 +61,9 @@ public sealed partial class MainWindow : Window
                     break;
                 case "forcedelete":
                     ContentFrame.Navigate(typeof(ForceDeletePage));
+                    break;
+                case "diskcleanup":
+                    ContentFrame.Navigate(typeof(DiskCleanupPage));
                     break;
             }
         }

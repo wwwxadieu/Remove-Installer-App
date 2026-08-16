@@ -124,10 +124,12 @@ public partial class App : Application
         collection.AddSingleton<IBackupService, SystemRestoreBackupService>();
         collection.AddSingleton<IForceDeleteService, ForceDeleteService>();
         collection.AddSingleton<IUninstallOrchestrator, UninstallOrchestrator>();
+        collection.AddSingleton<IDiskCleanupService, DiskCleanupService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
         collection.AddTransient<ForceDeleteViewModel>();
+        collection.AddTransient<DiskCleanupViewModel>();
         collection.AddTransient<SettingsViewModel>();
 
         return collection.BuildServiceProvider();

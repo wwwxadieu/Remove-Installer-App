@@ -16,6 +16,7 @@ public static class AppStrings
         ["NavInstalledApps"] = "Installed Apps",
         ["NavLeftoverCleaner"] = "Leftover Cleaner",
         ["NavForceDelete"] = "Force Delete",
+        ["NavDiskCleanup"] = "Disk Cleanup",
         ["NavSettings"] = "Settings",
 
         ["AppList_SearchPlaceholder"] = "Search installed apps...",
@@ -82,6 +83,35 @@ public static class AppStrings
         ["ForceDelete_PathNotFound"] = "\"{0}\" no longer exists.",
         ["ForceDelete_UnsafePath"] = "\"{0}\" is a protected system location and can't be added here.",
 
+        ["DiskCleanup_Title"] = "Disk Cleanup",
+        ["DiskCleanup_Scan"] = "Scan",
+        ["DiskCleanup_Scanning"] = "Scanning...",
+        ["DiskCleanup_SelectAll"] = "Select all",
+        ["DiskCleanup_ClearSelection"] = "Clear selection",
+        ["DiskCleanup_Clean"] = "Clean up",
+        ["DiskCleanup_Empty"] = "Nothing scanned yet. Click \"Scan\" to check how much space each category is using.",
+        ["DiskCleanup_ConfirmTitle"] = "Clean up selected categories?",
+        ["DiskCleanup_ConfirmMessage"] = "This will permanently delete {0} of files across {1} selected category(ies). This cannot be undone.",
+        ["DiskCleanup_ResultTitle"] = "Disk Cleanup result",
+        ["DiskCleanup_ResultSummary"] = "Freed up {0}.",
+        ["DiskCleanup_ResultSkipped"] = "{0} file(s) were skipped because they were in use by another program.",
+        ["DiskCleanup_ErrorsTitle"] = "Some categories could not be cleaned",
+
+        ["DiskCleanupCategory_TemporaryFiles_Name"] = "Temporary files",
+        ["DiskCleanupCategory_TemporaryFiles_Description"] = "Files apps left behind in your user Temp folder and C:\\Windows\\Temp that they no longer need.",
+        ["DiskCleanupCategory_RecycleBin_Name"] = "Recycle Bin",
+        ["DiskCleanupCategory_RecycleBin_Description"] = "Files you've deleted that are still recoverable from the Recycle Bin.",
+        ["DiskCleanupCategory_ThumbnailCache_Name"] = "Thumbnail cache",
+        ["DiskCleanupCategory_ThumbnailCache_Description"] = "Cached thumbnail previews. Windows regenerates these automatically as needed.",
+        ["DiskCleanupCategory_WindowsUpdateCleanup_Name"] = "Windows Update cleanup",
+        ["DiskCleanupCategory_WindowsUpdateCleanup_Description"] = "Downloaded Windows Update packages that have already been installed.",
+        ["DiskCleanupCategory_DeliveryOptimizationFiles_Name"] = "Delivery Optimization files",
+        ["DiskCleanupCategory_DeliveryOptimizationFiles_Description"] = "Locally cached update/app files used to share downloads with other devices on your network.",
+        ["DiskCleanupCategory_WindowsErrorReports_Name"] = "Windows Error Reporting files",
+        ["DiskCleanupCategory_WindowsErrorReports_Description"] = "Crash/error report files queued or archived for diagnostics.",
+        ["DiskCleanupCategory_MemoryDumpFiles_Name"] = "Memory dump files",
+        ["DiskCleanupCategory_MemoryDumpFiles_Description"] = "Diagnostic dump files left behind by past system crashes.",
+
         ["Kind_Folder"] = "Folder",
         ["Kind_File"] = "File",
         ["Kind_Shortcut"] = "Shortcut",
@@ -131,6 +161,7 @@ public static class AppStrings
         ["NavInstalledApps"] = "Ứng dụng đã cài",
         ["NavLeftoverCleaner"] = "Dọn dẹp file rác",
         ["NavForceDelete"] = "Xoá ép buộc",
+        ["NavDiskCleanup"] = "Dọn ổ đĩa",
         ["NavSettings"] = "Cài đặt",
 
         ["AppList_SearchPlaceholder"] = "Tìm ứng dụng đã cài...",
@@ -197,6 +228,35 @@ public static class AppStrings
         ["ForceDelete_PathNotFound"] = "\"{0}\" không còn tồn tại.",
         ["ForceDelete_UnsafePath"] = "\"{0}\" là vị trí hệ thống được bảo vệ, không thể thêm vào đây.",
 
+        ["DiskCleanup_Title"] = "Dọn ổ đĩa",
+        ["DiskCleanup_Scan"] = "Quét",
+        ["DiskCleanup_Scanning"] = "Đang quét...",
+        ["DiskCleanup_SelectAll"] = "Chọn tất cả",
+        ["DiskCleanup_ClearSelection"] = "Bỏ chọn tất cả",
+        ["DiskCleanup_Clean"] = "Dọn dẹp",
+        ["DiskCleanup_Empty"] = "Chưa quét. Bấm \"Quét\" để xem mỗi mục đang chiếm bao nhiêu dung lượng.",
+        ["DiskCleanup_ConfirmTitle"] = "Dọn dẹp các mục đã chọn?",
+        ["DiskCleanup_ConfirmMessage"] = "Thao tác này sẽ xoá vĩnh viễn {0} dữ liệu thuộc {1} mục đã chọn. Không thể hoàn tác.",
+        ["DiskCleanup_ResultTitle"] = "Kết quả dọn ổ đĩa",
+        ["DiskCleanup_ResultSummary"] = "Đã giải phóng {0}.",
+        ["DiskCleanup_ResultSkipped"] = "{0} tệp tin đã bị bỏ qua vì đang được chương trình khác sử dụng.",
+        ["DiskCleanup_ErrorsTitle"] = "Một số mục không thể dọn dẹp",
+
+        ["DiskCleanupCategory_TemporaryFiles_Name"] = "Tệp tin tạm",
+        ["DiskCleanupCategory_TemporaryFiles_Description"] = "Các tệp ứng dụng để lại trong thư mục Temp của bạn và C:\\Windows\\Temp mà chúng không còn cần dùng.",
+        ["DiskCleanupCategory_RecycleBin_Name"] = "Thùng rác",
+        ["DiskCleanupCategory_RecycleBin_Description"] = "Các tệp bạn đã xoá nhưng vẫn có thể khôi phục từ Thùng rác.",
+        ["DiskCleanupCategory_ThumbnailCache_Name"] = "Bộ nhớ đệm hình thu nhỏ",
+        ["DiskCleanupCategory_ThumbnailCache_Description"] = "Hình thu nhỏ được lưu đệm. Windows sẽ tự tạo lại khi cần.",
+        ["DiskCleanupCategory_WindowsUpdateCleanup_Name"] = "Dọn dẹp Windows Update",
+        ["DiskCleanupCategory_WindowsUpdateCleanup_Description"] = "Các gói Windows Update đã tải về và đã được cài đặt xong.",
+        ["DiskCleanupCategory_DeliveryOptimizationFiles_Name"] = "Tệp Delivery Optimization",
+        ["DiskCleanupCategory_DeliveryOptimizationFiles_Description"] = "Tệp cập nhật/ứng dụng được lưu đệm cục bộ để chia sẻ với thiết bị khác trong mạng của bạn.",
+        ["DiskCleanupCategory_WindowsErrorReports_Name"] = "Tệp báo lỗi Windows",
+        ["DiskCleanupCategory_WindowsErrorReports_Description"] = "Các tệp báo cáo lỗi/sự cố đang chờ hoặc đã lưu trữ để chẩn đoán.",
+        ["DiskCleanupCategory_MemoryDumpFiles_Name"] = "Tệp memory dump",
+        ["DiskCleanupCategory_MemoryDumpFiles_Description"] = "Các tệp dump chẩn đoán để lại từ những lần hệ thống bị lỗi trước đây.",
+
         ["Kind_Folder"] = "Thư mục",
         ["Kind_File"] = "Tệp tin",
         ["Kind_Shortcut"] = "Lối tắt",
@@ -249,6 +309,7 @@ public static class AppStrings
     public static string NavInstalledApps => Get("NavInstalledApps");
     public static string NavLeftoverCleaner => Get("NavLeftoverCleaner");
     public static string NavForceDelete => Get("NavForceDelete");
+    public static string NavDiskCleanup => Get("NavDiskCleanup");
     public static string NavSettings => Get("NavSettings");
 
     public static string AppList_SearchPlaceholder => Get("AppList_SearchPlaceholder");
@@ -314,6 +375,23 @@ public static class AppStrings
     public static string ForceDelete_AddErrorTitle => Get("ForceDelete_AddErrorTitle");
     public static string ForceDelete_PathNotFound(string path) => string.Format(Get("ForceDelete_PathNotFound"), path);
     public static string ForceDelete_UnsafePath(string path) => string.Format(Get("ForceDelete_UnsafePath"), path);
+
+    public static string DiskCleanup_Title => Get("DiskCleanup_Title");
+    public static string DiskCleanup_Scan => Get("DiskCleanup_Scan");
+    public static string DiskCleanup_Scanning => Get("DiskCleanup_Scanning");
+    public static string DiskCleanup_SelectAll => Get("DiskCleanup_SelectAll");
+    public static string DiskCleanup_ClearSelection => Get("DiskCleanup_ClearSelection");
+    public static string DiskCleanup_Clean => Get("DiskCleanup_Clean");
+    public static string DiskCleanup_Empty => Get("DiskCleanup_Empty");
+    public static string DiskCleanup_ConfirmTitle => Get("DiskCleanup_ConfirmTitle");
+    public static string DiskCleanup_ConfirmMessage(string sizeText, int categoryCount) => string.Format(Get("DiskCleanup_ConfirmMessage"), sizeText, categoryCount);
+    public static string DiskCleanup_ResultTitle => Get("DiskCleanup_ResultTitle");
+    public static string DiskCleanup_ResultSummary(string sizeText) => string.Format(Get("DiskCleanup_ResultSummary"), sizeText);
+    public static string DiskCleanup_ResultSkipped(int count) => string.Format(Get("DiskCleanup_ResultSkipped"), count);
+    public static string DiskCleanup_ErrorsTitle => Get("DiskCleanup_ErrorsTitle");
+
+    public static string DiskCleanupCategoryName(DiskCleanupCategoryKind kind) => Get($"DiskCleanupCategory_{kind}_Name");
+    public static string DiskCleanupCategoryDescription(DiskCleanupCategoryKind kind) => Get($"DiskCleanupCategory_{kind}_Description");
 
     public static string Settings_Title => Get("Settings_Title");
     public static string Settings_Language => Get("Settings_Language");

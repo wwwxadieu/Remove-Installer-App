@@ -61,6 +61,16 @@ leftover files and registry entries.
   Optional **"Quick uninstall..."** entry on the right-click menu, alongside the existing
   uninstall entry — runs the entire uninstall flow (including the backup prompt) using only
   small native system dialogs, without ever opening the app's main window.
+- Trang **"Dọn ổ đĩa" (Disk Cleanup)** — hoạt động giống công cụ Disk Cleanup có sẵn của
+  Windows: quét dung lượng từng nhóm (tệp tin tạm, Thùng rác, bộ nhớ đệm hình thu nhỏ, gói
+  Windows Update đã cài xong, tệp Delivery Optimization, báo cáo lỗi Windows, memory dump),
+  cho chọn nhóm muốn dọn rồi xoá — Thùng rác được dọn qua đúng API `SHEmptyRecycleBinW` của
+  Windows thay vì tự xoá file.
+  A **"Disk Cleanup"** page that works like Windows' own Disk Cleanup tool: scans the size
+  of each category (temp files, Recycle Bin, thumbnail cache, already-installed Windows
+  Update packages, Delivery Optimization files, Windows Error Reporting files, memory
+  dumps), lets you pick which to clean, then deletes them — the Recycle Bin is emptied via
+  Windows' own `SHEmptyRecycleBinW` API rather than deleting files manually.
 
 ## Yêu cầu / Requirements
 
@@ -125,14 +135,17 @@ src/RemoveInstallerApp/
 │                     UninstallOrchestrator (shared uninstall pipeline — windowed + headless)
 │                     SystemRestoreBackupService (System Restore point before uninstall)
 │                     ForceDeleteService (force-delete / secure-delete queue)
+│                     DiskCleanupService (Disk Cleanup-style temp/cache sweep)
 │                     UpdateService (GitHub Releases version check)
 │                     ShellIntegrationService (both right-click verbs)
 │                     LocalizationService, SettingsService
 ├── ViewModels/      MVVM view models (CommunityToolkit.Mvvm)
-├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, SettingsPage (WinUI 3 XAML)
+├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, DiskCleanupPage,
+│                     SettingsPage (WinUI 3 XAML)
 ├── Strings/          AppStrings.cs — bảng chuỗi song ngữ EN/VI
 └── Helpers/          PathSafety — chặn xoá nhầm thư mục hệ thống
                        ForceDelete, SecureFileWiper — pipeline xoá ép buộc / không thể khôi phục
+                       RecycleBinInterop — SHQueryRecycleBinW/SHEmptyRecycleBinW cho Dọn ổ đĩa
                        InstalledAppMatcher, UninstallResultFormatter, NativeMessageBox —
                        dùng chung giữa luồng có giao diện và luồng "Gỡ nhanh" headless
 ```
@@ -283,6 +296,16 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   **Delete unrecoverably** only overwrites file contents with random data before deleting.
   On SSDs, wear-leveling/TRIM can leave the original data intact in a different physical
   location — this feature does **not** guarantee the data is truly unrecoverable on an SSD.
+- **Dọn ổ đĩa** chỉ động vào những thư mục hệ thống cố định đã biết trước (Temp, thùng rác,
+  cache thumbnail, `SoftwareDistribution\Download`, Delivery Optimization, WER, memory dump)
+  — không nhận đường dẫn tuỳ ý từ người dùng như Force Delete. File đang bị khoá bởi tiến
+  trình khác (thường gặp với file tạm) sẽ được bỏ qua âm thầm và tính vào số lượng "đã bỏ
+  qua" trong kết quả, không báo lỗi riêng cho từng file.
+  **Disk Cleanup** only ever touches a fixed set of known system folders (Temp, Recycle Bin,
+  thumbnail cache, `SoftwareDistribution\Download`, Delivery Optimization, WER, memory
+  dumps) — it doesn't accept arbitrary user-supplied paths the way Force Delete does. Files
+  locked by another process (common for temp files) are silently skipped and counted in the
+  result's "skipped" total rather than reported as individual errors.
 
 ## License
 
