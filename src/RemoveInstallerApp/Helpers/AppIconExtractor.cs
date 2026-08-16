@@ -38,7 +38,10 @@ public static class AppIconExtractor
         try
         {
             var file = await StorageFile.GetFileFromPathAsync(path);
-            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, RequestedSize, ThumbnailOptions.IconOnly);
+            // No ThumbnailOptions needed: an .exe/.dll has no picture/video thumbnail to prefer
+            // over its icon in the first place, so the plain (mode, size) overload already
+            // returns the file's icon.
+            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, RequestedSize);
             return thumbnail is { Size: > 0 } ? thumbnail : null;
         }
         catch (Exception ex)

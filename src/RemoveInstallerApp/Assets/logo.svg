@@ -1,35 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <!--
-    Remove Installer App logo — vector master.
-
-    Design: an application window (the thing being removed) with a red delete
-    badge over its corner. Large, high-contrast shapes with no fine detail so
-    it stays legible at 16px (taskbar/Explorer small-icon size). This file is
-    the source of truth for edits; tools/generate_icon.py re-derives
-    Assets/app.ico from the same shapes procedurally (no SVG rasterizer is
-    available in the build/dev environment).
+    Remove Installer App logo — vector master, redesigned from a concept mockup supplied by the
+    user: a glossy blue rounded-square tile, an open package with a downward arrow (an installed
+    app "package"), and a red delete badge over the corner. Large, high-contrast shapes with no
+    fine detail so it stays legible at 16px (taskbar/Explorer small-icon size). This file is the
+    source of truth for edits; tools/generate_icon.py re-derives Assets/app.ico from the same
+    shapes procedurally (no SVG rasterizer is available in the build/dev environment).
   -->
 
-  <!-- Window body -->
-  <rect x="26" y="51" width="174" height="169" rx="23" fill="#3B6FE0" />
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6FA8F5" />
+      <stop offset="1" stop-color="#2F6FE0" />
+    </linearGradient>
+  </defs>
 
-  <!-- Window titlebar (rounded top corners only, straight bottom edge) -->
-  <path d="
-    M 26 74
-    A 23 23 0 0 1 49 51
-    L 177 51
-    A 23 23 0 0 1 200 74
-    L 200 86
-    L 26 86
-    Z"
-    fill="#1E4FBF" />
+  <!-- Tile background -->
+  <rect x="15" y="15" width="226" height="226" rx="50" fill="url(#tile)" />
+  <ellipse cx="128" cy="68" rx="90" ry="38" fill="#FFFFFF" opacity="0.15" />
+
+  <!-- Box flaps (open lid) -->
+  <polygon points="77,118 109,118 66,87" fill="#EFE9DA" stroke="#C9C2AE" stroke-width="3" stroke-linejoin="round" />
+  <polygon points="147,118 179,118 190,87" fill="#EFE9DA" stroke="#C9C2AE" stroke-width="3" stroke-linejoin="round" />
+
+  <!-- Box body -->
+  <rect x="77" y="118" width="102" height="72" rx="8" fill="#F5F2E9" stroke="#C9C2AE" stroke-width="3" />
+  <line x1="77" y1="133" x2="179" y2="133" stroke="#C9C2AE" stroke-width="2" />
+
+  <!-- Down arrow, entering the box -->
+  <rect x="118" y="68" width="20" height="42" fill="#1E4FBF" />
+  <polygon points="103,110 155,110 129,138" fill="#1E4FBF" />
 
   <!-- Delete badge -->
-  <circle cx="205" cy="205" r="61" fill="#E13636" />
-
-  <!-- X mark -->
-  <g stroke="#FFFFFF" stroke-width="12" stroke-linecap="round">
-    <line x1="183" y1="183" x2="227" y2="227" />
-    <line x1="227" y1="183" x2="183" y2="227" />
+  <circle cx="205" cy="205" r="48" fill="#E13636" />
+  <g stroke="#FFFFFF" stroke-width="10" stroke-linecap="round">
+    <line x1="188" y1="188" x2="222" y2="222" />
+    <line x1="222" y1="188" x2="188" y2="222" />
   </g>
 </svg>

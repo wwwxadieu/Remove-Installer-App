@@ -3,7 +3,7 @@
 
 No SVG rasterizer (Inkscape/ImageMagick/cairosvg/Pillow) is available in this
 environment, so the icon is drawn procedurally: each pixel is classified
-against the same rectangles/circle/lines used in logo.svg, using only the
+against the same rectangles/polygons/circle used in logo.svg, using only the
 Python standard library (zlib for PNG compression). Re-run this script after
 editing logo.svg's shapes to keep app.ico in sync.
 
@@ -19,27 +19,43 @@ from pathlib import Path
 
 # Shape coordinates, as fractions of the 256x256 logo.svg viewBox, so this
 # script and the SVG describe the same logo from a single set of numbers.
-WINDOW = dict(x0=26 / 256, y0=51 / 256, x1=200 / 256, y1=220 / 256, r_top=23 / 256, r_bottom=23 / 256)
-TITLEBAR = dict(x0=26 / 256, y0=51 / 256, x1=200 / 256, y1=86 / 256, r_top=23 / 256, r_bottom=0.0)
-BADGE = dict(cx=205 / 256, cy=205 / 256, r=61 / 256)
-X_MARK_STROKE = 12 / 256
-X_MARK_LINES = (
-    ((183 / 256, 183 / 256), (227 / 256, 227 / 256)),
-    ((227 / 256, 183 / 256), (183 / 256, 227 / 256)),
+TILE = dict(x0=15 / 256, y0=15 / 256, x1=241 / 256, y1=241 / 256, r=50 / 256)
+TILE_TOP = (0x6F, 0xA8, 0xF5)
+TILE_BOTTOM = (0x2F, 0x6F, 0xE0)
+
+HIGHLIGHT = dict(cx=128 / 256, cy=68 / 256, rx=90 / 256, ry=38 / 256)
+
+LEFT_FLAP = ((77 / 256, 118 / 256), (109 / 256, 118 / 256), (66 / 256, 87 / 256))
+RIGHT_FLAP = ((147 / 256, 118 / 256), (179 / 256, 118 / 256), (190 / 256, 87 / 256))
+FLAP_FILL = (0xEF, 0xE9, 0xDA)
+FLAP_BORDER = (0xC9, 0xC2, 0xAE)
+FLAP_STROKE = 3 / 256
+
+BOX = dict(x0=77 / 256, y0=118 / 256, x1=179 / 256, y1=190 / 256, r=8 / 256)
+BOX_FILL = (0xF5, 0xF2, 0xE9)
+BOX_BORDER = (0xC9, 0xC2, 0xAE)
+BOX_STROKE = 3 / 256
+FOLD_LINE = ((77 / 256, 133 / 256), (179 / 256, 133 / 256))
+FOLD_STROKE = 2 / 256
+
+ARROW_SHAFT = dict(x0=118 / 256, y0=68 / 256, x1=138 / 256, y1=110 / 256)
+ARROW_HEAD = ((103 / 256, 110 / 256), (155 / 256, 110 / 256), (129 / 256, 138 / 256))
+ARROW_COLOR = (0x1E, 0x4F, 0xBF)
+
+BADGE = dict(cx=205 / 256, cy=205 / 256, r=48 / 256)
+BADGE_COLOR = (0xE1, 0x36, 0x36)
+X_STROKE = 10 / 256
+X_LINES = (
+    ((188 / 256, 188 / 256), (222 / 256, 222 / 256)),
+    ((222 / 256, 188 / 256), (188 / 256, 222 / 256)),
 )
 
-WINDOW_COLOR = (0x3B, 0x6F, 0xE0, 0xFF)
-TITLEBAR_COLOR = (0x1E, 0x4F, 0xBF, 0xFF)
-BADGE_COLOR = (0xE1, 0x36, 0x36, 0xFF)
-X_COLOR = (0xFF, 0xFF, 0xFF, 0xFF)
 TRANSPARENT = (0, 0, 0, 0)
-
 SUPERSAMPLE = 3  # per-axis; 3x3 = 9 samples per pixel for anti-aliased edges
 SIZES = (16, 32, 48, 64, 128, 256)
 
 
-def rounded_rect_sdf(u: float, v: float, x0: float, y0: float, x1: float, y1: float, r_top: float, r_bottom: float) -> float:
-    r = r_top if v < (y0 + y1) / 2 else r_bottom
+def rounded_rect_sdf(u: float, v: float, x0: float, y0: float, x1: float, y1: float, r: float) -> float:
     qx = min(max(u, x0 + r), x1 - r)
     qy = min(max(v, y0 + r), y1 - r)
     return math.hypot(u - qx, v - qy) - r
@@ -53,22 +69,74 @@ def point_segment_distance(px: float, py: float, ax: float, ay: float, bx: float
     return math.hypot(px - cx, py - cy)
 
 
+def _tri_sign(px: float, py: float, ax: float, ay: float, bx: float, by: float) -> float:
+    return (px - bx) * (ay - by) - (ax - bx) * (py - by)
+
+
+def point_in_triangle(px: float, py: float, tri: tuple) -> bool:
+    (ax, ay), (bx, by), (cx, cy) = tri
+    d1 = _tri_sign(px, py, ax, ay, bx, by)
+    d2 = _tri_sign(px, py, bx, by, cx, cy)
+    d3 = _tri_sign(px, py, cx, cy, ax, ay)
+    has_neg = d1 < 0 or d2 < 0 or d3 < 0
+    has_pos = d1 > 0 or d2 > 0 or d3 > 0
+    return not (has_neg and has_pos)
+
+
+def triangle_edge_distance(px: float, py: float, tri: tuple) -> float:
+    (ax, ay), (bx, by), (cx, cy) = tri
+    return min(
+        point_segment_distance(px, py, ax, ay, bx, by),
+        point_segment_distance(px, py, bx, by, cx, cy),
+        point_segment_distance(px, py, cx, cy, ax, ay),
+    )
+
+
+def lerp_color(a: tuple, b: tuple, t: float) -> tuple:
+    return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
 def shape_color(u: float, v: float) -> tuple[int, int, int, int]:
-    """Topmost shape wins: X mark, then the delete badge, then the titlebar, then the window body."""
-    half_stroke = X_MARK_STROKE / 2
-    for (ax, ay), (bx, by) in X_MARK_LINES:
-        if point_segment_distance(u, v, ax, ay, bx, by) <= half_stroke:
-            if math.hypot(u - BADGE["cx"], v - BADGE["cy"]) <= BADGE["r"]:
-                return X_COLOR
-
+    """Topmost shape wins: X mark, badge, arrow, box, flaps, then the tile background."""
+    half_x = X_STROKE / 2
     if math.hypot(u - BADGE["cx"], v - BADGE["cy"]) <= BADGE["r"]:
-        return BADGE_COLOR
+        for (ax, ay), (bx, by) in X_LINES:
+            if point_segment_distance(u, v, ax, ay, bx, by) <= half_x:
+                return (255, 255, 255, 255)
+        return (*BADGE_COLOR, 255)
 
-    if rounded_rect_sdf(u, v, **TITLEBAR) <= 0:
-        return TITLEBAR_COLOR
+    in_shaft = ARROW_SHAFT["x0"] <= u <= ARROW_SHAFT["x1"] and ARROW_SHAFT["y0"] <= v <= ARROW_SHAFT["y1"]
+    if in_shaft or point_in_triangle(u, v, ARROW_HEAD):
+        return (*ARROW_COLOR, 255)
 
-    if rounded_rect_sdf(u, v, **WINDOW) <= 0:
-        return WINDOW_COLOR
+    box_d = rounded_rect_sdf(u, v, BOX["x0"], BOX["y0"], BOX["x1"], BOX["y1"], BOX["r"])
+    half_box_stroke = BOX_STROKE / 2
+    if box_d <= half_box_stroke:
+        if abs(box_d) <= half_box_stroke:
+            return (*BOX_BORDER, 255)
+        (fx0, fy0), (fx1, fy1) = FOLD_LINE
+        if point_segment_distance(u, v, fx0, fy0, fx1, fy1) <= FOLD_STROKE / 2:
+            return (*BOX_BORDER, 255)
+        return (*BOX_FILL, 255)
+
+    half_flap_stroke = FLAP_STROKE / 2
+    for flap in (LEFT_FLAP, RIGHT_FLAP):
+        if point_in_triangle(u, v, flap):
+            if triangle_edge_distance(u, v, flap) <= half_flap_stroke:
+                return (*FLAP_BORDER, 255)
+            return (*FLAP_FILL, 255)
+
+    tile_d = rounded_rect_sdf(u, v, TILE["x0"], TILE["y0"], TILE["x1"], TILE["y1"], TILE["r"])
+    if tile_d <= 0:
+        t = min(1.0, max(0.0, (v - TILE["y0"]) / (TILE["y1"] - TILE["y0"])))
+        base = lerp_color(TILE_TOP, TILE_BOTTOM, t)
+
+        ex = (u - HIGHLIGHT["cx"]) / HIGHLIGHT["rx"]
+        ey = (v - HIGHLIGHT["cy"]) / HIGHLIGHT["ry"]
+        if ex * ex + ey * ey <= 1:
+            base = lerp_color(base, (255, 255, 255), 0.15)
+
+        return (*base, 255)
 
     return TRANSPARENT
 
