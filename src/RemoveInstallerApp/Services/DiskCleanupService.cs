@@ -1,5 +1,6 @@
 using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
+using RemoveInstallerApp.Strings;
 
 namespace RemoveInstallerApp.Services;
 
@@ -11,15 +12,27 @@ namespace RemoveInstallerApp.Services;
 /// </summary>
 public sealed class DiskCleanupService : IDiskCleanupService
 {
-    public Task<IReadOnlyList<DiskCleanupCategory>> ScanAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<DiskCleanupCategory>> ScanAsync(
+        IProgress<ScanProgress>? progress = null,
+        CancellationToken cancellationToken = default)
     {
         return Task.Run(() =>
         {
             var categories = new List<DiskCleanupCategory>();
+            var kinds = Enum.GetValues<DiskCleanupCategoryKind>();
 
-            foreach (var kind in Enum.GetValues<DiskCleanupCategoryKind>())
+            for (var i = 0; i < kinds.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                var kind = kinds[i];
+
+                progress?.Report(new ScanProgress
+                {
+                    StepName = AppStrings.DiskCleanupCategoryName(kind),
+                    CurrentStep = i,
+                    TotalSteps = kinds.Length,
+                    ItemsFound = categories.Count(c => c.SizeBytes > 0),
+                });
 
                 var size = kind == DiskCleanupCategoryKind.RecycleBin
                     ? RecycleBinInterop.GetSizeBytes()
@@ -27,6 +40,14 @@ public sealed class DiskCleanupService : IDiskCleanupService
 
                 categories.Add(new DiskCleanupCategory { Kind = kind, SizeBytes = size });
             }
+
+            progress?.Report(new ScanProgress
+            {
+                StepName = AppStrings.ScanStep_Done,
+                CurrentStep = kinds.Length,
+                TotalSteps = kinds.Length,
+                ItemsFound = categories.Count(c => c.SizeBytes > 0),
+            });
 
             return (IReadOnlyList<DiskCleanupCategory>)categories;
         }, cancellationToken);

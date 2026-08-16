@@ -26,6 +26,22 @@
             </StackPanel>
 
             <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="AlwaysUseAppUninstallerToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_AlwaysUseAppUninstaller}"
+                              Toggled="AlwaysUseAppUninstallerToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_AlwaysUseAppUninstallerDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="PermanentlyDeleteToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_PermanentlyDelete}"
+                              Toggled="PermanentlyDeleteToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_PermanentlyDeleteDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
                 <ToggleSwitch x:Name="ContextMenuToggle"
                               Header="{x:Bind strings:AppStrings.Settings_ContextMenu}"
                               Toggled="ContextMenuToggle_Toggled" />

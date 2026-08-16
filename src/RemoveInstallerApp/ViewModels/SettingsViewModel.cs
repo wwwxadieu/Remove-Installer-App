@@ -25,6 +25,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _preferSilentUninstall;
 
     [ObservableProperty]
+    private bool _alwaysUseAppUninstaller;
+
+    [ObservableProperty]
+    private bool _permanentlyDelete;
+
+    [ObservableProperty]
     private bool _autoCheckForUpdates;
 
     [ObservableProperty]
@@ -55,6 +61,8 @@ public sealed partial class SettingsViewModel : ObservableObject
         _licenseService = licenseService;
         _selectedLanguage = _localizationService.CurrentLanguage;
         _preferSilentUninstall = _settingsService.Current.PreferSilentUninstall;
+        _alwaysUseAppUninstaller = _settingsService.Current.AlwaysUseAppUninstaller;
+        _permanentlyDelete = _settingsService.Current.PermanentlyDelete;
         _autoCheckForUpdates = _settingsService.Current.AutoCheckForUpdates;
         _enableContextMenuIntegration = _settingsService.Current.EnableContextMenuIntegration;
     }
@@ -68,6 +76,18 @@ public sealed partial class SettingsViewModel : ObservableObject
     partial void OnPreferSilentUninstallChanged(bool value)
     {
         _settingsService.Current.PreferSilentUninstall = value;
+        _settingsService.Save();
+    }
+
+    partial void OnAlwaysUseAppUninstallerChanged(bool value)
+    {
+        _settingsService.Current.AlwaysUseAppUninstaller = value;
+        _settingsService.Save();
+    }
+
+    partial void OnPermanentlyDeleteChanged(bool value)
+    {
+        _settingsService.Current.PermanentlyDelete = value;
         _settingsService.Save();
     }
 

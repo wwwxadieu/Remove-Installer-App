@@ -8,4 +8,22 @@ public enum ResidueKind
     RegistryKey,
     OrphanedUninstallEntry,
     OrphanedRunEntry,
+
+    /// <summary>A Windows service whose ImagePath pointed inside the removed install folder.</summary>
+    ServiceEntry,
+
+    /// <summary>A scheduled task referencing the removed install folder.</summary>
+    ScheduledTask,
+}
+
+public static class ResidueKindExtensions
+{
+    /// <summary>
+    /// Services and scheduled tasks are inferred from a path reference rather than a name
+    /// match, and removing the wrong one can break an unrelated program or leave Windows with
+    /// a half-registered service. They are listed for review but left unchecked so the user
+    /// has to opt into each one; everything else is checked by default as before.
+    /// </summary>
+    public static bool IsHighRisk(this ResidueKind kind) =>
+        kind is ResidueKind.ServiceEntry or ResidueKind.ScheduledTask;
 }

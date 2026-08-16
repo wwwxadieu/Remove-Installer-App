@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RemoveInstallerApp.Helpers;
+using RemoveInstallerApp.Models;
 using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.ViewModels;
@@ -27,7 +28,20 @@ public sealed partial class DiskCleanupPage : Page
     private async void ScanButton_Click(object sender, RoutedEventArgs e)
     {
         SetBusy(true, AppStrings.DiskCleanup_Scanning);
-        await ViewModel.ScanAsync();
+        ScanProgressBar.Value = 0;
+        ScanProgressBar.Visibility = Visibility.Visible;
+
+        // Progress<T> hops back to the UI thread on its own, so these assignments are safe
+        // even though the scan itself runs on a background thread.
+        var progress = new Progress<ScanProgress>(p =>
+        {
+            ScanProgressBar.Value = p.PercentComplete;
+            StatusText.Text = AppStrings.ScanProgress_Status(p.StepName, p.ItemsFound);
+        });
+
+        await ViewModel.ScanAsync(progress);
+
+        ScanProgressBar.Visibility = Visibility.Collapsed;
         SetBusy(false, null);
         UpdateEmptyState();
     }

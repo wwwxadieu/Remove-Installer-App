@@ -21,12 +21,12 @@ public sealed partial class DiskCleanupViewModel : ObservableObject
         _diskCleanupService = diskCleanupService;
     }
 
-    public async Task ScanAsync()
+    public async Task ScanAsync(IProgress<ScanProgress>? progress = null)
     {
         IsBusy = true;
         try
         {
-            var categories = await _diskCleanupService.ScanAsync();
+            var categories = await _diskCleanupService.ScanAsync(progress);
             Categories.Clear();
             foreach (var category in categories)
             {

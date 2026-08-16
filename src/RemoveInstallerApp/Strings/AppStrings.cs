@@ -56,6 +56,7 @@ public static class AppStrings
         ["AppList_ResultForceRemoved"] = "\"{0}\" had no uninstaller, so it was removed manually.",
         ["AppList_ResultFailed"] = "Failed to uninstall \"{0}\" (exit code {1}).",
         ["AppList_ResultError"] = "An error occurred while uninstalling \"{0}\": {1}",
+        ["AppList_ResultNoUninstaller"] = "\"{0}\" has no uninstaller of its own. Nothing was removed, because \"Always use the app's own uninstaller\" is turned on in Settings.",
         ["AppList_ResidueFound"] = "Found {0} leftover item(s). Review them on the Leftover Cleaner page?",
         ["AppList_GoToResidue"] = "Review leftovers",
         ["AppList_ContextMenuNoMatchTitle"] = "No matching app found",
@@ -139,6 +140,29 @@ public static class AppStrings
         ["Kind_RegistryKey"] = "Registry key",
         ["Kind_OrphanedUninstallEntry"] = "Orphaned uninstall entry",
         ["Kind_OrphanedRunEntry"] = "Orphaned startup entry",
+        ["Kind_ServiceEntry"] = "Windows service",
+        ["Kind_ScheduledTask"] = "Scheduled task",
+
+        ["ScanStep_InstallFolders"] = "Install and data folders",
+        ["ScanStep_TempFolders"] = "Temp folders",
+        ["ScanStep_Shortcuts"] = "Shortcuts",
+        ["ScanStep_StartupFolders"] = "Startup folders",
+        ["ScanStep_SoftwareKeys"] = "SOFTWARE registry keys",
+        ["ScanStep_ClassesRoot"] = "File associations (HKEY_CLASSES_ROOT)",
+        ["ScanStep_AppPaths"] = "App Paths entries",
+        ["ScanStep_RunKeys"] = "Startup registry entries",
+        ["ScanStep_Services"] = "Windows services",
+        ["ScanStep_ScheduledTasks"] = "Scheduled tasks",
+        ["ScanStep_UninstallEntry"] = "Add/Remove Programs entry",
+        ["ScanStep_Done"] = "Scan complete",
+        ["ScanProgress_Status"] = "Scanning: {0} — {1} item(s) found",
+
+        ["PostUninstall_Title"] = "Cleaning up leftovers",
+        ["PostUninstall_NothingFound"] = "No leftover files or registry entries were found.",
+        ["PostUninstall_ScanFailed"] = "The leftover scan could not be completed. See error.log for details.",
+        ["PostUninstall_Deleting"] = "Deleting selected items...",
+        ["PostUninstall_DeletedToRecycleBin"] = "Moved {0} item(s) to the Recycle Bin.",
+        ["PostUninstall_DeletedPermanently"] = "Permanently deleted {0} item(s).",
 
         ["Settings_Title"] = "Settings",
         ["Settings_Language"] = "Language",
@@ -146,6 +170,10 @@ public static class AppStrings
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
         ["Settings_SilentUninstall"] = "Prefer silent uninstall",
         ["Settings_SilentUninstallDescription"] = "Use each app's quiet/unattended uninstall option when available, to avoid extra prompts.",
+        ["Settings_AlwaysUseAppUninstaller"] = "Always use the app's own uninstaller",
+        ["Settings_AlwaysUseAppUninstallerDescription"] = "Never fall back to removing an app manually. If it has no uninstaller, or the uninstaller fails, nothing is deleted and you're told why — safer, but some apps will be left installed.",
+        ["Settings_PermanentlyDelete"] = "Delete leftovers permanently (skip the Recycle Bin)",
+        ["Settings_PermanentlyDeleteDescription"] = "Off by default: leftover files go to the Recycle Bin so you can restore them if something was matched by mistake. Registry keys have no Recycle Bin, so a .reg backup is exported before deleting either way.",
 
         ["Settings_ContextMenu"] = "Add \"Uninstall with Remove Installer App\" to the right-click menu",
         ["Settings_ContextMenuDescription"] = "Adds this option to the right-click menu of .exe files and shortcuts (Start menu, Desktop), so you can start an uninstall straight from Explorer. Applies to your Windows user account only.",
@@ -222,6 +250,7 @@ public static class AppStrings
         ["AppList_ResultForceRemoved"] = "\"{0}\" không có trình gỡ cài đặt nên đã được xoá thủ công.",
         ["AppList_ResultFailed"] = "Gỡ cài đặt \"{0}\" thất bại (mã thoát {1}).",
         ["AppList_ResultError"] = "Có lỗi xảy ra khi gỡ cài đặt \"{0}\": {1}",
+        ["AppList_ResultNoUninstaller"] = "\"{0}\" không có trình gỡ cài đặt riêng. Không có gì bị xoá, vì tuỳ chọn \"Luôn dùng trình gỡ của ứng dụng\" đang bật trong Cài đặt.",
         ["AppList_ResidueFound"] = "Tìm thấy {0} mục còn sót lại. Xem chi tiết ở trang Dọn dẹp file rác?",
         ["AppList_GoToResidue"] = "Xem file rác",
         ["AppList_ContextMenuNoMatchTitle"] = "Không tìm thấy ứng dụng phù hợp",
@@ -305,6 +334,29 @@ public static class AppStrings
         ["Kind_RegistryKey"] = "Khoá registry",
         ["Kind_OrphanedUninstallEntry"] = "Mục gỡ cài đặt còn sót",
         ["Kind_OrphanedRunEntry"] = "Mục khởi động còn sót",
+        ["Kind_ServiceEntry"] = "Dịch vụ Windows",
+        ["Kind_ScheduledTask"] = "Tác vụ theo lịch",
+
+        ["ScanStep_InstallFolders"] = "Thư mục cài đặt và dữ liệu",
+        ["ScanStep_TempFolders"] = "Thư mục tạm",
+        ["ScanStep_Shortcuts"] = "Lối tắt",
+        ["ScanStep_StartupFolders"] = "Thư mục khởi động",
+        ["ScanStep_SoftwareKeys"] = "Khoá registry SOFTWARE",
+        ["ScanStep_ClassesRoot"] = "Liên kết tệp (HKEY_CLASSES_ROOT)",
+        ["ScanStep_AppPaths"] = "Mục App Paths",
+        ["ScanStep_RunKeys"] = "Mục khởi động trong registry",
+        ["ScanStep_Services"] = "Dịch vụ Windows",
+        ["ScanStep_ScheduledTasks"] = "Tác vụ theo lịch",
+        ["ScanStep_UninstallEntry"] = "Mục trong Add/Remove Programs",
+        ["ScanStep_Done"] = "Quét xong",
+        ["ScanProgress_Status"] = "Đang quét: {0} — tìm thấy {1} mục",
+
+        ["PostUninstall_Title"] = "Dọn dẹp phần còn sót lại",
+        ["PostUninstall_NothingFound"] = "Không tìm thấy file rác hay mục registry nào còn sót lại.",
+        ["PostUninstall_ScanFailed"] = "Không hoàn tất được việc quét. Xem chi tiết trong error.log.",
+        ["PostUninstall_Deleting"] = "Đang xoá các mục đã chọn...",
+        ["PostUninstall_DeletedToRecycleBin"] = "Đã chuyển {0} mục vào Thùng rác.",
+        ["PostUninstall_DeletedPermanently"] = "Đã xoá vĩnh viễn {0} mục.",
 
         ["Settings_Title"] = "Cài đặt",
         ["Settings_Language"] = "Ngôn ngữ",
@@ -312,6 +364,10 @@ public static class AppStrings
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
         ["Settings_SilentUninstall"] = "Ưu tiên gỡ cài đặt im lặng",
         ["Settings_SilentUninstallDescription"] = "Dùng chế độ gỡ cài đặt im lặng/tự động của từng ứng dụng khi có thể, để tránh hộp thoại phát sinh.",
+        ["Settings_AlwaysUseAppUninstaller"] = "Luôn dùng trình gỡ của ứng dụng",
+        ["Settings_AlwaysUseAppUninstallerDescription"] = "Không bao giờ tự xoá thủ công. Nếu ứng dụng không có trình gỡ, hoặc trình gỡ lỗi, thì không xoá gì cả và báo rõ lý do — an toàn hơn, nhưng một số ứng dụng sẽ vẫn còn trên máy.",
+        ["Settings_PermanentlyDelete"] = "Xoá vĩnh viễn file rác (bỏ qua Thùng rác)",
+        ["Settings_PermanentlyDeleteDescription"] = "Mặc định tắt: file rác được đưa vào Thùng rác để bạn khôi phục nếu app quét nhầm. Registry không có Thùng rác nên dù bật hay tắt, app đều tự xuất file .reg sao lưu trước khi xoá.",
 
         ["Settings_ContextMenu"] = "Thêm \"Gỡ bằng Remove Installer App\" vào menu chuột phải",
         ["Settings_ContextMenuDescription"] = "Thêm lựa chọn này vào menu chuột phải của file .exe và shortcut (Start Menu, Desktop), để gỡ cài đặt ngay từ File Explorer. Chỉ áp dụng cho tài khoản Windows hiện tại.",
@@ -386,6 +442,7 @@ public static class AppStrings
     public static string AppList_ResultForceRemoved(string appName) => string.Format(Get("AppList_ResultForceRemoved"), appName);
     public static string AppList_ResultFailed(string appName, int? exitCode) => string.Format(Get("AppList_ResultFailed"), appName, exitCode?.ToString() ?? "?");
     public static string AppList_ResultError(string appName, string error) => string.Format(Get("AppList_ResultError"), appName, error);
+    public static string AppList_ResultNoUninstaller(string appName) => string.Format(Get("AppList_ResultNoUninstaller"), appName);
     public static string AppList_ResidueFound(int count) => string.Format(Get("AppList_ResidueFound"), count);
     public static string AppList_GoToResidue => Get("AppList_GoToResidue");
     public static string AppList_ContextMenuNoMatchTitle => Get("AppList_ContextMenuNoMatchTitle");
@@ -457,6 +514,10 @@ public static class AppStrings
     public static string Settings_LanguageVietnamese => Get("Settings_LanguageVietnamese");
     public static string Settings_SilentUninstall => Get("Settings_SilentUninstall");
     public static string Settings_SilentUninstallDescription => Get("Settings_SilentUninstallDescription");
+    public static string Settings_AlwaysUseAppUninstaller => Get("Settings_AlwaysUseAppUninstaller");
+    public static string Settings_AlwaysUseAppUninstallerDescription => Get("Settings_AlwaysUseAppUninstallerDescription");
+    public static string Settings_PermanentlyDelete => Get("Settings_PermanentlyDelete");
+    public static string Settings_PermanentlyDeleteDescription => Get("Settings_PermanentlyDeleteDescription");
 
     public static string Settings_ContextMenu => Get("Settings_ContextMenu");
     public static string Settings_ContextMenuDescription => Get("Settings_ContextMenuDescription");
@@ -486,6 +547,27 @@ public static class AppStrings
     public static string Common_Close => Get("Common_Close");
     public static string Common_OK => Get("Common_OK");
 
+    public static string ScanStep_InstallFolders => Get("ScanStep_InstallFolders");
+    public static string ScanStep_TempFolders => Get("ScanStep_TempFolders");
+    public static string ScanStep_Shortcuts => Get("ScanStep_Shortcuts");
+    public static string ScanStep_StartupFolders => Get("ScanStep_StartupFolders");
+    public static string ScanStep_SoftwareKeys => Get("ScanStep_SoftwareKeys");
+    public static string ScanStep_ClassesRoot => Get("ScanStep_ClassesRoot");
+    public static string ScanStep_AppPaths => Get("ScanStep_AppPaths");
+    public static string ScanStep_RunKeys => Get("ScanStep_RunKeys");
+    public static string ScanStep_Services => Get("ScanStep_Services");
+    public static string ScanStep_ScheduledTasks => Get("ScanStep_ScheduledTasks");
+    public static string ScanStep_UninstallEntry => Get("ScanStep_UninstallEntry");
+    public static string ScanStep_Done => Get("ScanStep_Done");
+    public static string ScanProgress_Status(string step, int itemsFound) => string.Format(Get("ScanProgress_Status"), step, itemsFound);
+
+    public static string PostUninstall_Title => Get("PostUninstall_Title");
+    public static string PostUninstall_NothingFound => Get("PostUninstall_NothingFound");
+    public static string PostUninstall_ScanFailed => Get("PostUninstall_ScanFailed");
+    public static string PostUninstall_Deleting => Get("PostUninstall_Deleting");
+    public static string PostUninstall_DeletedToRecycleBin(int count) => string.Format(Get("PostUninstall_DeletedToRecycleBin"), count);
+    public static string PostUninstall_DeletedPermanently(int count) => string.Format(Get("PostUninstall_DeletedPermanently"), count);
+
     public static string KindLabel(ResidueKind kind) => Get(kind switch
     {
         ResidueKind.Folder => "Kind_Folder",
@@ -494,6 +576,8 @@ public static class AppStrings
         ResidueKind.RegistryKey => "Kind_RegistryKey",
         ResidueKind.OrphanedUninstallEntry => "Kind_OrphanedUninstallEntry",
         ResidueKind.OrphanedRunEntry => "Kind_OrphanedRunEntry",
+        ResidueKind.ServiceEntry => "Kind_ServiceEntry",
+        ResidueKind.ScheduledTask => "Kind_ScheduledTask",
         _ => "Kind_File",
     });
 }

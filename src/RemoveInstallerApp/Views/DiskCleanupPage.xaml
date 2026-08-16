@@ -42,9 +42,12 @@
                        Opacity="0.6" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" />
         </Grid>
 
-        <Grid Grid.Row="3" Margin="0,8,0,0" ColumnDefinitions="Auto,*">
-            <ProgressRing x:Name="BusyRing" Grid.Column="0" Width="20" Height="20" Margin="0,0,8,0" IsActive="False" />
-            <TextBlock x:Name="StatusText" Grid.Column="1" VerticalAlignment="Center" Opacity="0.7" />
-        </Grid>
+        <StackPanel Grid.Row="3" Margin="0,8,0,0" Spacing="4">
+            <ProgressBar x:Name="ScanProgressBar" Minimum="0" Maximum="100" Visibility="Collapsed" />
+            <Grid ColumnDefinitions="Auto,*">
+                <ProgressRing x:Name="BusyRing" Grid.Column="0" Width="20" Height="20" Margin="0,0,8,0" IsActive="False" />
+                <TextBlock x:Name="StatusText" Grid.Column="1" VerticalAlignment="Center" Opacity="0.7" TextWrapping="Wrap" />
+            </Grid>
+        </StackPanel>
     </Grid>
 </Page>

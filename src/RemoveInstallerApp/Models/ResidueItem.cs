@@ -28,6 +28,11 @@ public sealed partial class ResidueItem : ObservableObject
     /// </summary>
     public string? RegistryValueName { get; init; }
 
+    /// <summary>
+    /// Checked by default. High-risk kinds are created with this explicitly set to false by
+    /// the scanner (see <see cref="ResidueKindExtensions.IsHighRisk"/>) so the user has to opt
+    /// into each one; Kind is a required init property and so isn't available to default it here.
+    /// </summary>
     [ObservableProperty]
     private bool _isSelected = true;
 

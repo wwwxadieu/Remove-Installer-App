@@ -8,6 +8,7 @@ namespace RemoveInstallerApp.ViewModels;
 public sealed partial class ResidueScanViewModel : ObservableObject
 {
     private readonly IResidueScanService _residueScanService;
+    private readonly ISettingsService _settingsService;
 
     public ObservableCollection<ResidueItem> Items { get; } = new();
 
@@ -17,9 +18,10 @@ public sealed partial class ResidueScanViewModel : ObservableObject
     [ObservableProperty]
     private string? _statusMessage;
 
-    public ResidueScanViewModel(IResidueScanService residueScanService)
+    public ResidueScanViewModel(IResidueScanService residueScanService, ISettingsService settingsService)
     {
         _residueScanService = residueScanService;
+        _settingsService = settingsService;
     }
 
     public void LoadItems(IEnumerable<ResidueItem> items)
@@ -31,12 +33,12 @@ public sealed partial class ResidueScanViewModel : ObservableObject
         }
     }
 
-    public async Task ScanForOrphansAsync()
+    public async Task ScanForOrphansAsync(IProgress<ScanProgress>? progress = null)
     {
         IsBusy = true;
         try
         {
-            var items = await _residueScanService.ScanOrphanedEntriesAsync();
+            var items = await _residueScanService.ScanOrphanedEntriesAsync(progress);
             LoadItems(items);
         }
         finally
@@ -64,7 +66,7 @@ public sealed partial class ResidueScanViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var errors = await _residueScanService.DeleteAsync(selected);
+            var errors = await _residueScanService.DeleteAsync(selected, _settingsService.Current.PermanentlyDelete);
             var failedPaths = errors.Select(e => e.Split(':')[0]).ToHashSet();
 
             foreach (var item in selected.Where(i => !failedPaths.Contains(i.Path)))

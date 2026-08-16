@@ -2,6 +2,7 @@ using System.Threading;
 using Microsoft.Win32;
 using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Models;
+using RemoveInstallerApp.Strings;
 
 namespace RemoveInstallerApp.Services;
 
@@ -20,52 +21,123 @@ public sealed class ResidueScanService : IResidueScanService
         @"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
     };
 
-    public Task<IReadOnlyList<ResidueItem>> ScanAfterUninstallAsync(InstalledAppInfo app, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ResidueItem>> ScanAfterUninstallAsync(
+        InstalledAppInfo app,
+        IProgress<ScanProgress>? progress = null,
+        CancellationToken cancellationToken = default)
     {
         return Task.Run(() =>
         {
             var items = new List<ResidueItem>();
             var nameKey = Compact(app.DisplayName);
 
-            ScanFolders(app, nameKey, items);
-            ScanShortcuts(app.DisplayName, items);
-            ScanRegistrySoftwareKeys(app, nameKey, items);
-            ScanRunKeys(app.DisplayName, app.InstallLocation, items);
-            ScanOrphanedUninstallEntry(app, items);
+            // Each entry is one visible step in the UI, so the user can follow what the scan
+            // is actually doing rather than watching an unexplained spinner.
+            var steps = new (string Name, Action Run)[]
+            {
+                (AppStrings.ScanStep_InstallFolders, () => ScanFolders(app, nameKey, items)),
+                (AppStrings.ScanStep_TempFolders, () => ScanTempFolders(nameKey, items)),
+                (AppStrings.ScanStep_Shortcuts, () => ScanShortcuts(app.DisplayName, items)),
+                (AppStrings.ScanStep_StartupFolders, () => ScanStartupShortcuts(app.DisplayName, app.InstallLocation, items)),
+                (AppStrings.ScanStep_SoftwareKeys, () => ScanRegistrySoftwareKeys(app, nameKey, items)),
+                (AppStrings.ScanStep_ClassesRoot, () => ScanClassesRoot(nameKey, items)),
+                (AppStrings.ScanStep_AppPaths, () => ScanAppPaths(app, items)),
+                (AppStrings.ScanStep_RunKeys, () => ScanRunKeys(app.DisplayName, app.InstallLocation, items)),
+                (AppStrings.ScanStep_Services, () => ScanServices(app.InstallLocation, items)),
+                (AppStrings.ScanStep_ScheduledTasks, () => ScanScheduledTasks(app.InstallLocation, items)),
+                (AppStrings.ScanStep_UninstallEntry, () => ScanOrphanedUninstallEntry(app, items)),
+            };
 
+            RunSteps(steps, items, progress, cancellationToken);
             return (IReadOnlyList<ResidueItem>)items;
         }, cancellationToken);
     }
 
-    public Task<IReadOnlyList<ResidueItem>> ScanOrphanedEntriesAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ResidueItem>> ScanOrphanedEntriesAsync(
+        IProgress<ScanProgress>? progress = null,
+        CancellationToken cancellationToken = default)
     {
         return Task.Run(() =>
         {
             var items = new List<ResidueItem>();
 
-            foreach (var (hive, view) in RegistryScanTargets)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                ScanOrphanedUninstallEntriesFor(hive, view, items);
-                ScanOrphanedRunEntriesFor(hive, view, items);
-            }
+            var steps = RegistryScanTargets
+                .SelectMany(target => new (string Name, Action Run)[]
+                {
+                    ($"{AppStrings.ScanStep_UninstallEntry} ({HiveLabel(target.Hive)})",
+                        () => ScanOrphanedUninstallEntriesFor(target.Hive, target.View, items)),
+                    ($"{AppStrings.ScanStep_RunKeys} ({HiveLabel(target.Hive)})",
+                        () => ScanOrphanedRunEntriesFor(target.Hive, target.View, items)),
+                })
+                .ToArray();
 
+            RunSteps(steps, items, progress, cancellationToken);
             return (IReadOnlyList<ResidueItem>)items;
         }, cancellationToken);
     }
 
-    public Task<IReadOnlyList<string>> DeleteAsync(IEnumerable<ResidueItem> items, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Runs each scan step, reporting progress before and after. A step that throws is logged
+    /// and skipped rather than aborting the whole scan — one inaccessible registry hive or
+    /// protected folder should not cost the user every other result.
+    /// </summary>
+    private static void RunSteps(
+        (string Name, Action Run)[] steps,
+        List<ResidueItem> items,
+        IProgress<ScanProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        for (var i = 0; i < steps.Length; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            progress?.Report(new ScanProgress
+            {
+                StepName = steps[i].Name,
+                CurrentStep = i,
+                TotalSteps = steps.Length,
+                ItemsFound = items.Count,
+            });
+
+            try
+            {
+                steps[i].Run();
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error($"Residue scan step \"{steps[i].Name}\" failed.", ex);
+            }
+        }
+
+        progress?.Report(new ScanProgress
+        {
+            StepName = AppStrings.ScanStep_Done,
+            CurrentStep = steps.Length,
+            TotalSteps = steps.Length,
+            ItemsFound = items.Count,
+        });
+    }
+
+    public Task<IReadOnlyList<string>> DeleteAsync(
+        IEnumerable<ResidueItem> items,
+        bool permanentlyDelete,
+        CancellationToken cancellationToken = default)
     {
         return Task.Run(() =>
         {
             var errors = new List<string>();
+            var backupSessionId = RegistryBackup.NewSessionId();
 
             foreach (var item in items)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
-                    DeleteOne(item);
+                    DeleteOne(item, permanentlyDelete, backupSessionId);
                 }
                 catch (Exception ex)
                 {
@@ -77,14 +149,14 @@ public sealed class ResidueScanService : IResidueScanService
         }, cancellationToken);
     }
 
-    private static void DeleteOne(ResidueItem item)
+    private static void DeleteOne(ResidueItem item, bool permanentlyDelete, string backupSessionId)
     {
         switch (item.Kind)
         {
             case ResidueKind.Folder:
                 if (PathSafety.IsSafeToDeleteRecursively(item.Path) && Directory.Exists(item.Path))
                 {
-                    Directory.Delete(item.Path, recursive: true);
+                    DeleteFileSystemItem(item.Path, permanentlyDelete, isFolder: true);
                 }
                 break;
 
@@ -92,34 +164,77 @@ public sealed class ResidueScanService : IResidueScanService
             case ResidueKind.Shortcut:
                 if (File.Exists(item.Path))
                 {
-                    File.Delete(item.Path);
+                    DeleteFileSystemItem(item.Path, permanentlyDelete, isFolder: false);
                 }
+                break;
+
+            case ResidueKind.ScheduledTask:
+                // Deleted through schtasks rather than by removing the XML under
+                // System32\Tasks: the Task Scheduler service also keeps registry state, and
+                // deleting the file alone leaves a half-registered task behind.
+                DeleteScheduledTask(item.Path);
                 break;
 
             case ResidueKind.RegistryKey:
             case ResidueKind.OrphanedUninstallEntry:
+            case ResidueKind.ServiceEntry:
                 if (item.Hive is { } hive && item.View is { } view)
                 {
-                    using (var baseKey = RegistryKey.OpenBaseKey(hive, view))
-                    {
-                        var relativePath = StripHivePrefix(item.Path);
-                        var parentPath = GetParentKeyPath(relativePath, out var leaf);
-                        using var parent = baseKey.OpenSubKey(parentPath, writable: true);
-                        parent?.DeleteSubKeyTree(leaf, throwOnMissingSubKey: false);
-                    }
+                    // No Recycle Bin for the registry — the .reg export is the only undo.
+                    RegistryBackup.TryExport(item.Path, backupSessionId, out _);
+
+                    using var baseKey = RegistryKey.OpenBaseKey(hive, view);
+                    var relativePath = StripHivePrefix(item.Path);
+                    var parentPath = GetParentKeyPath(relativePath, out var leaf);
+
+                    // HKCR entries sit directly under the hive root, so there is no parent
+                    // path to open — delete straight off the base key in that case.
+                    using var parent = string.IsNullOrEmpty(parentPath)
+                        ? null
+                        : baseKey.OpenSubKey(parentPath, writable: true);
+
+                    (parent ?? baseKey).DeleteSubKeyTree(leaf, throwOnMissingSubKey: false);
                 }
                 break;
 
             case ResidueKind.OrphanedRunEntry:
                 if (item.Hive is { } runHive && item.View is { } runView && item.RegistryValueName is not null)
                 {
-                    using (var baseKey = RegistryKey.OpenBaseKey(runHive, runView))
-                    using (var key = baseKey.OpenSubKey(StripHivePrefix(item.Path), writable: true))
-                    {
-                        key?.DeleteValue(item.RegistryValueName, throwOnMissingValue: false);
-                    }
+                    // Only a single value is removed, but exporting the parent key captures it.
+                    RegistryBackup.TryExport(item.Path, backupSessionId, out _);
+
+                    using var baseKey = RegistryKey.OpenBaseKey(runHive, runView);
+                    using var key = baseKey.OpenSubKey(StripHivePrefix(item.Path), writable: true);
+                    key?.DeleteValue(item.RegistryValueName, throwOnMissingValue: false);
                 }
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Recycle Bin by default so a mis-detected leftover stays recoverable. If the shell
+    /// refuses (no bin on that volume, item over quota) the failure is surfaced rather than
+    /// silently hard-deleting — quietly turning a recoverable delete into a permanent one
+    /// would defeat the point of the setting.
+    /// </summary>
+    private static void DeleteFileSystemItem(string path, bool permanentlyDelete, bool isFolder)
+    {
+        if (permanentlyDelete)
+        {
+            if (isFolder)
+            {
+                Directory.Delete(path, recursive: true);
+            }
+            else
+            {
+                File.Delete(path);
+            }
+            return;
+        }
+
+        if (!RecycleBin.TrySend(path, out var error))
+        {
+            throw new IOException($"Could not move to the Recycle Bin: {error}");
         }
     }
 
@@ -136,6 +251,298 @@ public sealed class ResidueScanService : IResidueScanService
         var idx = fullPath.LastIndexOf('\\');
         leaf = idx >= 0 ? fullPath[(idx + 1)..] : fullPath;
         return idx >= 0 ? fullPath[..idx] : string.Empty;
+    }
+
+    /// <summary>Deletes a scheduled task by name through schtasks.exe.</summary>
+    private static void DeleteScheduledTask(string taskName)
+    {
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "schtasks.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+        };
+        startInfo.ArgumentList.Add("/Delete");
+        startInfo.ArgumentList.Add("/TN");
+        startInfo.ArgumentList.Add(taskName);
+        startInfo.ArgumentList.Add("/F");
+
+        using var process = System.Diagnostics.Process.Start(startInfo)
+            ?? throw new IOException("Could not start schtasks.exe.");
+
+        process.WaitForExit(15_000);
+        if (process.ExitCode != 0)
+        {
+            throw new IOException($"schtasks exited with code {process.ExitCode}.");
+        }
+    }
+
+    /// <summary>Leftovers an installer dropped in %TEMP% or %WINDIR%\Temp and never cleaned up.</summary>
+    private static void ScanTempFolders(string nameKey, List<ResidueItem> items)
+    {
+        var systemRoot = Environment.GetEnvironmentVariable("SystemRoot")
+                         ?? Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+
+        var roots = new[] { Path.GetTempPath(), Path.Combine(systemRoot, "Temp") }
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(Directory.Exists);
+
+        foreach (var root in roots)
+        {
+            try
+            {
+                foreach (var dir in Directory.EnumerateDirectories(root))
+                {
+                    if (LooksLikeMatch(Path.GetFileName(dir), nameKey))
+                    {
+                        items.Add(MakeFolderItem(dir, "Leftover temp folder"));
+                    }
+                }
+
+                foreach (var file in Directory.EnumerateFiles(root))
+                {
+                    if (LooksLikeMatch(Path.GetFileNameWithoutExtension(file), nameKey))
+                    {
+                        items.Add(new ResidueItem
+                        {
+                            Kind = ResidueKind.File,
+                            Path = file,
+                            Description = "Leftover temp file",
+                        });
+                    }
+                }
+            }
+            catch
+            {
+                // Temp folders routinely contain items locked by other processes.
+            }
+        }
+    }
+
+    /// <summary>Auto-start shortcuts the uninstaller left in the Startup folders.</summary>
+    private static void ScanStartupShortcuts(string displayName, string? installLocation, List<ResidueItem> items)
+    {
+        var folders = new[]
+        {
+            Environment.GetFolderPath(Environment.SpecialFolder.Startup),
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonStartup),
+        }.Distinct(StringComparer.OrdinalIgnoreCase).Where(Directory.Exists);
+
+        foreach (var folder in folders)
+        {
+            IEnumerable<string> files;
+            try
+            {
+                files = Directory.EnumerateFiles(folder, "*.lnk", SearchOption.AllDirectories);
+            }
+            catch
+            {
+                continue;
+            }
+
+            foreach (var file in files)
+            {
+                var matchesName = Path.GetFileNameWithoutExtension(file)
+                    .Contains(displayName, StringComparison.OrdinalIgnoreCase);
+
+                var target = ShortcutResolver.ResolveTarget(file);
+                var matchesTarget = !string.IsNullOrWhiteSpace(installLocation) &&
+                                    target is not null &&
+                                    target.StartsWith(installLocation!.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase);
+
+                if (matchesName || matchesTarget)
+                {
+                    items.Add(new ResidueItem
+                    {
+                        Kind = ResidueKind.Shortcut,
+                        Path = file,
+                        Description = "Leftover startup shortcut",
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>App Paths entries whose registered executable no longer exists.</summary>
+    private static void ScanAppPaths(InstalledAppInfo app, List<ResidueItem> items)
+    {
+        const string appPathsKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths";
+
+        foreach (var (hive, view) in RegistryScanTargets)
+        {
+            using var baseKey = RegistryKey.OpenBaseKey(hive, view);
+            using var appPaths = baseKey.OpenSubKey(appPathsKey);
+            if (appPaths is null)
+            {
+                continue;
+            }
+
+            foreach (var subKeyName in appPaths.GetSubKeyNames())
+            {
+                using var subKey = appPaths.OpenSubKey(subKeyName);
+                var target = subKey?.GetValue(null) as string;
+                if (string.IsNullOrWhiteSpace(target))
+                {
+                    continue;
+                }
+
+                var exePath = target.Trim('"');
+                var belongsToApp = !string.IsNullOrWhiteSpace(app.InstallLocation) &&
+                                   exePath.StartsWith(app.InstallLocation!.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase);
+
+                if (belongsToApp || (Path.IsPathRooted(exePath) && !File.Exists(exePath)))
+                {
+                    items.Add(new ResidueItem
+                    {
+                        Kind = ResidueKind.RegistryKey,
+                        Path = $@"{HiveLabel(hive)}\{appPathsKey}\{subKeyName}",
+                        Description = $"App Paths entry pointing at \"{exePath}\"",
+                        Hive = hive,
+                        View = view,
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>File-association and COM leftovers under HKEY_CLASSES_ROOT.</summary>
+    private static void ScanClassesRoot(string nameKey, List<ResidueItem> items)
+    {
+        using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry64);
+
+        string[] subKeyNames;
+        try
+        {
+            subKeyNames = baseKey.GetSubKeyNames();
+        }
+        catch
+        {
+            return;
+        }
+
+        foreach (var subKeyName in subKeyNames)
+        {
+            // HKCR is huge and mostly extensions/CLSIDs; only flag names that clearly carry
+            // the app's own name, and never bare ".ext" association keys.
+            if (subKeyName.StartsWith('.') || !LooksLikeMatch(subKeyName, nameKey))
+            {
+                continue;
+            }
+
+            items.Add(new ResidueItem
+            {
+                Kind = ResidueKind.RegistryKey,
+                Path = $@"HKCR\{subKeyName}",
+                Description = "Leftover HKEY_CLASSES_ROOT key",
+                Hive = RegistryHive.ClassesRoot,
+                View = RegistryView.Registry64,
+            });
+        }
+    }
+
+    /// <summary>Services whose ImagePath sits inside the app's install folder.</summary>
+    private static void ScanServices(string? installLocation, List<ResidueItem> items)
+    {
+        if (string.IsNullOrWhiteSpace(installLocation))
+        {
+            return;
+        }
+
+        const string servicesKey = @"SYSTEM\CurrentControlSet\Services";
+        var prefix = installLocation!.TrimEnd('\\') + "\\";
+
+        using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+        using var services = baseKey.OpenSubKey(servicesKey);
+        if (services is null)
+        {
+            return;
+        }
+
+        foreach (var serviceName in services.GetSubKeyNames())
+        {
+            using var service = services.OpenSubKey(serviceName);
+            var imagePath = service?.GetValue("ImagePath") as string;
+            if (string.IsNullOrWhiteSpace(imagePath))
+            {
+                continue;
+            }
+
+            var exePath = ExtractExecutablePath(imagePath.Replace("\\??\\", string.Empty));
+            if (exePath is null || !exePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            items.Add(new ResidueItem
+            {
+                Kind = ResidueKind.ServiceEntry,
+                Path = $@"HKLM\{servicesKey}\{serviceName}",
+                Description = $"Service \"{serviceName}\" running from the removed install folder",
+                Hive = RegistryHive.LocalMachine,
+                View = RegistryView.Registry64,
+                // High risk: leave it to the user to opt in per item.
+                IsSelected = false,
+            });
+        }
+    }
+
+    /// <summary>Scheduled tasks whose action points inside the app's install folder.</summary>
+    private static void ScanScheduledTasks(string? installLocation, List<ResidueItem> items)
+    {
+        if (string.IsNullOrWhiteSpace(installLocation))
+        {
+            return;
+        }
+
+        var systemRoot = Environment.GetEnvironmentVariable("SystemRoot")
+                         ?? Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        var tasksRoot = Path.Combine(systemRoot, "System32", "Tasks");
+        if (!Directory.Exists(tasksRoot))
+        {
+            return;
+        }
+
+        IEnumerable<string> taskFiles;
+        try
+        {
+            taskFiles = Directory.EnumerateFiles(tasksRoot, "*", SearchOption.AllDirectories);
+        }
+        catch
+        {
+            return;
+        }
+
+        foreach (var taskFile in taskFiles)
+        {
+            string content;
+            try
+            {
+                content = File.ReadAllText(taskFile);
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (!content.Contains(installLocation!, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            // schtasks identifies a task by its path relative to the Tasks root, with a
+            // leading backslash — not by the file path on disk.
+            var taskName = "\\" + Path.GetRelativePath(tasksRoot, taskFile).Replace('/', '\\');
+
+            items.Add(new ResidueItem
+            {
+                Kind = ResidueKind.ScheduledTask,
+                Path = taskName,
+                Description = "Scheduled task referencing the removed install folder",
+                IsSelected = false,
+            });
+        }
     }
 
     private static void ScanFolders(InstalledAppInfo app, string nameKey, List<ResidueItem> items)
@@ -451,6 +858,7 @@ public sealed class ResidueScanService : IResidueScanService
     {
         RegistryHive.LocalMachine => "HKLM",
         RegistryHive.CurrentUser => "HKCU",
+        RegistryHive.ClassesRoot => "HKCR",
         _ => hive.ToString(),
     };
 

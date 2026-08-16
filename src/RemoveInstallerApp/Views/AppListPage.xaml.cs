@@ -142,26 +142,20 @@ public sealed partial class AppListPage : Page
             return;
         }
 
+        // The app's own uninstaller runs to completion here (UninstallService awaits its exit)
+        // before anything else happens.
         SetBusy(true, AppStrings.AppList_Loading);
-        var (result, residue) = await ViewModel.UninstallAppAsync(app);
+        var result = await ViewModel.UninstallAppAsync(app);
         SetBusy(false, null);
         UpdateEmptyState();
 
-        var message = UninstallResultFormatter.Format(app.DisplayName, result, residue);
+        var message = UninstallResultFormatter.Format(app.DisplayName, result);
 
-        var resultDialog = new ContentDialog
-        {
-            XamlRoot = XamlRoot,
-            Title = AppStrings.AppList_ResultTitle,
-            Content = message,
-            PrimaryButtonText = residue.Count > 0 ? AppStrings.AppList_GoToResidue : null,
-            CloseButtonText = AppStrings.Common_Close,
-        };
-
-        if (await resultDialog.ShowAsync() == ContentDialogResult.Primary && residue.Count > 0)
-        {
-            Frame.Navigate(typeof(ResidueScanPage), residue);
-        }
+        // Then the leftover scan runs in its own dialog, which reports progress step by step.
+        // Deliberately not a Frame.Navigate: that left the nav pane pointing at this page while
+        // the frame showed another, so clicking "Installed apps" did nothing.
+        var cleanupDialog = new PostUninstallDialog(app, message) { XamlRoot = XamlRoot };
+        await cleanupDialog.ShowAsync();
     }
 
     /// <summary>
