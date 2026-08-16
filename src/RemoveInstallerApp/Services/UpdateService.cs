@@ -75,6 +75,45 @@ public sealed class UpdateService : IUpdateService, IDisposable
         }
     }
 
+    public async Task<ReleaseNotesResult> GetReleaseNotesAsync(string version, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var tag = version.StartsWith('v', StringComparison.OrdinalIgnoreCase) ? version : $"v{version}";
+            var url = $"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases/tags/{tag}";
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return ReleaseNotesResult.Failed($"No published release found for {tag}.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return ReleaseNotesResult.Failed($"HTTP {(int)response.StatusCode}");
+            }
+
+            using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+            var root = doc.RootElement;
+
+            return new ReleaseNotesResult
+            {
+                Success = true,
+                Body = root.TryGetProperty("body", out var bodyEl) ? bodyEl.GetString() : null,
+                HtmlUrl = root.TryGetProperty("html_url", out var htmlUrlEl) ? htmlUrlEl.GetString() : null,
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return ReleaseNotesResult.Failed(ex.Message);
+        }
+    }
+
     private static string? FindWindowsAssetUrl(JsonElement release)
     {
         if (!release.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array)

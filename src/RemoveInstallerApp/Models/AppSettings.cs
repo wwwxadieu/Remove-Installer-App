@@ -15,4 +15,10 @@ public sealed class AppSettings
 
     /// <summary>Show "Uninstall with Remove Installer App" on the right-click menu of .exe files and shortcuts.</summary>
     public bool EnableContextMenuIntegration { get; set; }
+
+    /// <summary>
+    /// The app version (informational/semver, e.g. "1.0.0-beta5") last shown to the user via the
+    /// welcome/what's-new dialog. Null means the dialog has never been shown (first run).
+    /// </summary>
+    public string? LastSeenVersion { get; set; }
 }

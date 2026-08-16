@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using RemoveInstallerApp.Helpers;
 using RemoveInstallerApp.Services;
 using RemoveInstallerApp.Strings;
 using RemoveInstallerApp.Views;
@@ -24,6 +25,7 @@ public sealed partial class MainWindow : Window
         RootNavigationView.SelectedItem = NavItemAppList;
         ContentFrame.Navigate(typeof(AppListPage));
 
+        _ = ShowWelcomeOrWhatsNewIfNeededAsync();
         _ = CheckForUpdateOnLaunchAsync();
     }
 
@@ -67,6 +69,42 @@ public sealed partial class MainWindow : Window
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// Shows the welcome screen on first launch ever (LastSeenVersion unset), or a "what's new"
+    /// screen with that version's GitHub release notes whenever the running version differs from
+    /// the last one the user was shown. Uses the full informational version (e.g. "1.0.0-beta5"),
+    /// not the numeric assembly version, so it also fires across beta-to-beta updates.
+    /// </summary>
+    private async Task ShowWelcomeOrWhatsNewIfNeededAsync()
+    {
+        var settingsService = App.Services.GetRequiredService<ISettingsService>();
+        var currentVersion = AppVersionInfo.CurrentInformationalVersionText;
+        var lastSeenVersion = settingsService.Current.LastSeenVersion;
+
+        if (string.Equals(lastSeenVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var dialog = new WelcomeDialog { XamlRoot = RootNavigationView.XamlRoot };
+
+        if (string.IsNullOrEmpty(lastSeenVersion))
+        {
+            dialog.ConfigureAsWelcome();
+        }
+        else
+        {
+            var updateService = App.Services.GetRequiredService<IUpdateService>();
+            var notes = await updateService.GetReleaseNotesAsync(currentVersion);
+            dialog.ConfigureAsWhatsNew(currentVersion, notes.Success ? notes.Body : null);
+        }
+
+        await dialog.ShowAsync();
+
+        settingsService.Current.LastSeenVersion = currentVersion;
+        settingsService.Save();
     }
 
     private async Task CheckForUpdateOnLaunchAsync()

@@ -19,6 +19,17 @@ public static class AppStrings
         ["NavDiskCleanup"] = "Disk Cleanup",
         ["NavSettings"] = "Settings",
 
+        ["Welcome_Title"] = "Welcome to Remove Installer App!",
+        ["Welcome_Intro"] = "This app helps you uninstall Windows applications cleanly, with a few extra tools for the leftovers a normal uninstall doesn't catch:",
+        ["Welcome_FeatureList"] =
+            "• Installed Apps — one-click uninstall, with an optional System Restore point created first.\n" +
+            "• Leftover Cleaner — scans for files and registry entries an uninstall left behind.\n" +
+            "• Force Delete — force-delete or securely wipe files/folders that won't delete normally.\n" +
+            "• Disk Cleanup — clears temp files, the Recycle Bin, and other OS-wide junk, like Windows' own Disk Cleanup.\n" +
+            "• Optional right-click entries in File Explorer to uninstall an app, with or without opening this window.",
+        ["Welcome_UpdatedTitle"] = "Updated to version {0}",
+        ["Welcome_UpdatedGenericMessage"] = "The app was updated to a new version. No release notes were available for it.",
+
         ["AppList_SearchPlaceholder"] = "Search installed apps...",
         ["AppList_Refresh"] = "Refresh",
         ["AppList_ColumnName"] = "Name",
@@ -163,6 +174,17 @@ public static class AppStrings
         ["NavForceDelete"] = "Xoá ép buộc",
         ["NavDiskCleanup"] = "Dọn ổ đĩa",
         ["NavSettings"] = "Cài đặt",
+
+        ["Welcome_Title"] = "Chào mừng đến với Remove Installer App!",
+        ["Welcome_Intro"] = "Ứng dụng này giúp bạn gỡ cài đặt ứng dụng Windows một cách sạch sẽ, kèm vài công cụ xử lý những thứ còn sót lại mà gỡ cài đặt thông thường không dọn tới:",
+        ["Welcome_FeatureList"] =
+            "• Ứng dụng đã cài — gỡ cài đặt chỉ với một cú bấm, có thể tạo điểm khôi phục hệ thống trước.\n" +
+            "• Dọn dẹp file rác — quét file và registry còn sót lại sau khi gỡ cài đặt.\n" +
+            "• Xoá ép buộc — ép buộc xoá hoặc xoá không thể khôi phục file/thư mục không xoá được bình thường.\n" +
+            "• Dọn ổ đĩa — dọn file tạm, Thùng rác và các rác khác trên toàn máy, giống Disk Cleanup của Windows.\n" +
+            "• Tuỳ chọn thêm mục vào menu chuột phải trong File Explorer để gỡ cài đặt, có hoặc không cần mở cửa sổ này.",
+        ["Welcome_UpdatedTitle"] = "Đã cập nhật lên phiên bản {0}",
+        ["Welcome_UpdatedGenericMessage"] = "Ứng dụng đã được cập nhật lên phiên bản mới. Không có ghi chú phát hành nào cho phiên bản này.",
 
         ["AppList_SearchPlaceholder"] = "Tìm ứng dụng đã cài...",
         ["AppList_Refresh"] = "Làm mới",
@@ -311,6 +333,12 @@ public static class AppStrings
     public static string NavForceDelete => Get("NavForceDelete");
     public static string NavDiskCleanup => Get("NavDiskCleanup");
     public static string NavSettings => Get("NavSettings");
+
+    public static string Welcome_Title => Get("Welcome_Title");
+    public static string Welcome_Intro => Get("Welcome_Intro");
+    public static string Welcome_FeatureList => Get("Welcome_FeatureList");
+    public static string Welcome_UpdatedTitle(string version) => string.Format(Get("Welcome_UpdatedTitle"), version);
+    public static string Welcome_UpdatedGenericMessage => Get("Welcome_UpdatedGenericMessage");
 
     public static string AppList_SearchPlaceholder => Get("AppList_SearchPlaceholder");
     public static string AppList_Refresh => Get("AppList_Refresh");

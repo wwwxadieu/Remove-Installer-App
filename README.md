@@ -71,6 +71,14 @@ leftover files and registry entries.
   Update packages, Delivery Optimization files, Windows Error Reporting files, memory
   dumps), lets you pick which to clean, then deletes them — the Recycle Bin is emptied via
   Windows' own `SHEmptyRecycleBinW` API rather than deleting files manually.
+- Màn hình chào mừng hiện ra ở lần chạy đầu tiên, giới thiệu ngắn gọn các tính năng chính.
+  Từ lần cập nhật thứ hai trở đi, màn hình này tự động đổi thành "ghi chú phát hành" —
+  hiện đúng nội dung release notes của phiên bản vừa cập nhật lên (lấy từ GitHub Releases),
+  thay vì lặp lại phần giới thiệu.
+  A welcome screen appears on first launch, briefly introducing the app's main features.
+  From the second update onward, this screen automatically becomes a "what's new" screen —
+  showing that version's actual release notes (pulled from GitHub Releases) instead of
+  repeating the introduction.
 
 ## Yêu cầu / Requirements
 
@@ -128,7 +136,7 @@ can be copied to another machine without installing the .NET runtime separately.
 src/RemoveInstallerApp/
 ├── Models/         InstalledAppInfo, ResidueItem, UninstallResult, AppSettings,
 │                     BackupResult, ForceDeleteOutcome, BulkForceDeleteResult,
-│                     ForceDeleteQueueItem
+│                     ForceDeleteQueueItem, ReleaseNotesResult
 ├── Services/        InstalledAppsService (registry enumeration)
 │                     UninstallService (run uninstaller / force remove)
 │                     ResidueScanService (leftover file & registry scan)
@@ -136,12 +144,12 @@ src/RemoveInstallerApp/
 │                     SystemRestoreBackupService (System Restore point before uninstall)
 │                     ForceDeleteService (force-delete / secure-delete queue)
 │                     DiskCleanupService (Disk Cleanup-style temp/cache sweep)
-│                     UpdateService (GitHub Releases version check)
+│                     UpdateService (GitHub Releases version check + per-version release notes)
 │                     ShellIntegrationService (both right-click verbs)
 │                     LocalizationService, SettingsService
 ├── ViewModels/      MVVM view models (CommunityToolkit.Mvvm)
 ├── Views/            AppListPage, ResidueScanPage, ForceDeletePage, DiskCleanupPage,
-│                     SettingsPage (WinUI 3 XAML)
+│                     SettingsPage, WelcomeDialog (WinUI 3 XAML)
 ├── Strings/          AppStrings.cs — bảng chuỗi song ngữ EN/VI
 └── Helpers/          PathSafety — chặn xoá nhầm thư mục hệ thống
                        ForceDelete, SecureFileWiper — pipeline xoá ép buộc / không thể khôi phục
@@ -306,6 +314,18 @@ move to a beta build, only to an official (non-prerelease) release. That's inten
   dumps) — it doesn't accept arbitrary user-supplied paths the way Force Delete does. Files
   locked by another process (common for temp files) are silently skipped and counted in the
   result's "skipped" total rather than reported as individual errors.
+- **Màn hình chào mừng / ghi chú phát hành** so sánh `AssemblyInformationalVersionAttribute`
+  (chuỗi semver đầy đủ như `1.0.0-beta5`, do `-p:Version` của CI đặt) chứ không dùng version
+  số nguyên hiển thị ở Settings — vì version số nguyên giữ nguyên `1.0.0` xuyên suốt các bản
+  beta. Nhờ vậy màn hình này vẫn đổi đúng nội dung giữa các bản beta liên tiếp. Nếu không lấy
+  được release notes từ GitHub (offline, hoặc bản build cục bộ chưa có release tương ứng),
+  app hiện một thông báo chung chung thay vì lỗi.
+  **The welcome / what's-new screen** compares `AssemblyInformationalVersionAttribute` (the
+  full semver string, e.g. `1.0.0-beta5`, set by CI's `-p:Version`) rather than the numeric
+  version shown in Settings — since the numeric version stays `1.0.0` across every beta. This
+  lets the screen correctly change content between consecutive beta builds too. If release
+  notes can't be fetched from GitHub (offline, or a local build with no matching release),
+  the app shows a generic message instead of an error.
 
 ## License
 
