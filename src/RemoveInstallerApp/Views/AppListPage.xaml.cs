@@ -25,6 +25,10 @@ public sealed partial class AppListPage : Page
         Loaded += async (_, _) =>
         {
             await RefreshAsync();
+            if (App.MainAppWindow is MainWindow mainWindow)
+            {
+                await mainWindow.ShowWelcomeOrWhatsNewIfNeededAsync();
+            }
             await HandlePendingLaunchTargetAsync();
         };
     }
