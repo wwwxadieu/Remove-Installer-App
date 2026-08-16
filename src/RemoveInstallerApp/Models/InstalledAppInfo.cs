@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
 
 namespace RemoveInstallerApp.Models;
@@ -6,7 +8,7 @@ namespace RemoveInstallerApp.Models;
 /// One entry read from a Windows "Uninstall" registry key
 /// (HKLM/HKCU × 32-bit/64-bit views).
 /// </summary>
-public sealed class InstalledAppInfo
+public sealed partial class InstalledAppInfo : ObservableObject
 {
     public required string DisplayName { get; init; }
     public string? DisplayVersion { get; init; }
@@ -32,6 +34,15 @@ public sealed class InstalledAppInfo
         $@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{RegistryKeyName}";
 
     public string Id => $"{Hive}|{View}|{RegistryKeyName}";
+
+    /// <summary>
+    /// Loaded lazily and in the background by <see cref="ViewModels.AppListViewModel"/> after
+    /// the list is already showing — extracting icons synchronously for a few hundred apps is
+    /// exactly the kind of UI-thread stall that made the app feel unresponsive before.
+    /// Null (unset) is a normal, permanent state for apps whose icon can't be resolved.
+    /// </summary>
+    [ObservableProperty]
+    private BitmapImage? _iconSource;
 
     public string DisplaySize
     {

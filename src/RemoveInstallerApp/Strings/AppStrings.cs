@@ -70,6 +70,7 @@ public static class AppStrings
         ["Backup_ContinueAnyway"] = "Continue with the uninstall anyway?",
 
         ["Residue_Title"] = "Leftover Cleaner",
+        ["Residue_Subtitle"] = "Residue a specific app left behind: data folders, shortcuts, and registry entries that no longer match any installed app. For general Windows junk (temp files, Recycle Bin, Windows Update cache), use Disk Cleanup instead.",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
         ["Residue_Scanning"] = "Scanning...",
         ["Residue_SelectAll"] = "Select all",
@@ -104,8 +105,10 @@ public static class AppStrings
         ["ForceDelete_AddErrorTitle"] = "Couldn't add item",
         ["ForceDelete_PathNotFound"] = "\"{0}\" no longer exists.",
         ["ForceDelete_UnsafePath"] = "\"{0}\" is a protected system location and can't be added here.",
+        ["ForceDelete_ElevatedDragDropNotice"] = "Drag and drop is unavailable while running as Administrator. Use the buttons above to add files or folders.",
 
         ["DiskCleanup_Title"] = "Disk Cleanup",
+        ["DiskCleanup_Subtitle"] = "Windows junk: temp files, Recycle Bin, Windows Update cache, error reports. For leftovers a specific app left behind, use Leftover Cleaner instead.",
         ["DiskCleanup_Scan"] = "Scan",
         ["DiskCleanup_Scanning"] = "Scanning...",
         ["DiskCleanup_SelectAll"] = "Select all",
@@ -142,6 +145,7 @@ public static class AppStrings
         ["Kind_OrphanedRunEntry"] = "Orphaned startup entry",
         ["Kind_ServiceEntry"] = "Windows service",
         ["Kind_ScheduledTask"] = "Scheduled task",
+        ["Kind_OrphanedFolder"] = "Orphaned data folder",
 
         ["ScanStep_InstallFolders"] = "Install and data folders",
         ["ScanStep_TempFolders"] = "Temp folders",
@@ -154,7 +158,9 @@ public static class AppStrings
         ["ScanStep_Services"] = "Windows services",
         ["ScanStep_ScheduledTasks"] = "Scheduled tasks",
         ["ScanStep_UninstallEntry"] = "Add/Remove Programs entry",
+        ["ScanStep_OrphanedFolders"] = "Orphaned data folders",
         ["ScanStep_Done"] = "Scan complete",
+        ["OrphanedFolder_Description"] = "Doesn't match any installed app — last modified {0}. Review before deleting.",
         ["ScanProgress_Status"] = "Scanning: {0} — {1} item(s) found",
 
         ["PostUninstall_Title"] = "Cleaning up leftovers",
@@ -168,6 +174,10 @@ public static class AppStrings
         ["Settings_Language"] = "Language",
         ["Settings_LanguageEnglish"] = "English",
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
+        ["Settings_Theme"] = "Appearance",
+        ["Settings_ThemeSystem"] = "Follow Windows",
+        ["Settings_ThemeLight"] = "Light",
+        ["Settings_ThemeDark"] = "Dark",
         ["Settings_SilentUninstall"] = "Prefer silent uninstall",
         ["Settings_SilentUninstallDescription"] = "Use each app's quiet/unattended uninstall option when available, to avoid extra prompts.",
         ["Settings_AlwaysUseAppUninstaller"] = "Always use the app's own uninstaller",
@@ -264,6 +274,7 @@ public static class AppStrings
         ["Backup_ContinueAnyway"] = "Vẫn tiếp tục gỡ cài đặt?",
 
         ["Residue_Title"] = "Dọn dẹp file rác",
+        ["Residue_Subtitle"] = "Rác do một ứng dụng cụ thể để lại: thư mục dữ liệu, lối tắt, và mục registry không còn khớp với ứng dụng nào đã cài. Với rác chung của hệ điều hành (file tạm, Thùng rác, cache Windows Update), hãy dùng Dọn ổ đĩa.",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
         ["Residue_Scanning"] = "Đang quét...",
         ["Residue_SelectAll"] = "Chọn tất cả",
@@ -298,8 +309,10 @@ public static class AppStrings
         ["ForceDelete_AddErrorTitle"] = "Không thể thêm mục",
         ["ForceDelete_PathNotFound"] = "\"{0}\" không còn tồn tại.",
         ["ForceDelete_UnsafePath"] = "\"{0}\" là vị trí hệ thống được bảo vệ, không thể thêm vào đây.",
+        ["ForceDelete_ElevatedDragDropNotice"] = "Kéo-thả không dùng được khi ứng dụng đang chạy với quyền Quản trị viên. Hãy dùng các nút phía trên để thêm file hoặc thư mục.",
 
         ["DiskCleanup_Title"] = "Dọn ổ đĩa",
+        ["DiskCleanup_Subtitle"] = "Rác của hệ điều hành: file tạm, Thùng rác, cache Windows Update, báo cáo lỗi. Với rác do một ứng dụng cụ thể để lại, hãy dùng Dọn dẹp file rác.",
         ["DiskCleanup_Scan"] = "Quét",
         ["DiskCleanup_Scanning"] = "Đang quét...",
         ["DiskCleanup_SelectAll"] = "Chọn tất cả",
@@ -336,6 +349,7 @@ public static class AppStrings
         ["Kind_OrphanedRunEntry"] = "Mục khởi động còn sót",
         ["Kind_ServiceEntry"] = "Dịch vụ Windows",
         ["Kind_ScheduledTask"] = "Tác vụ theo lịch",
+        ["Kind_OrphanedFolder"] = "Thư mục dữ liệu mồ côi",
 
         ["ScanStep_InstallFolders"] = "Thư mục cài đặt và dữ liệu",
         ["ScanStep_TempFolders"] = "Thư mục tạm",
@@ -348,7 +362,9 @@ public static class AppStrings
         ["ScanStep_Services"] = "Dịch vụ Windows",
         ["ScanStep_ScheduledTasks"] = "Tác vụ theo lịch",
         ["ScanStep_UninstallEntry"] = "Mục trong Add/Remove Programs",
+        ["ScanStep_OrphanedFolders"] = "Thư mục dữ liệu mồ côi",
         ["ScanStep_Done"] = "Quét xong",
+        ["OrphanedFolder_Description"] = "Không khớp với ứng dụng nào đã cài — sửa đổi lần cuối {0}. Hãy kiểm tra kỹ trước khi xoá.",
         ["ScanProgress_Status"] = "Đang quét: {0} — tìm thấy {1} mục",
 
         ["PostUninstall_Title"] = "Dọn dẹp phần còn sót lại",
@@ -362,6 +378,10 @@ public static class AppStrings
         ["Settings_Language"] = "Ngôn ngữ",
         ["Settings_LanguageEnglish"] = "English",
         ["Settings_LanguageVietnamese"] = "Tiếng Việt",
+        ["Settings_Theme"] = "Giao diện",
+        ["Settings_ThemeSystem"] = "Theo hệ thống",
+        ["Settings_ThemeLight"] = "Sáng",
+        ["Settings_ThemeDark"] = "Tối",
         ["Settings_SilentUninstall"] = "Ưu tiên gỡ cài đặt im lặng",
         ["Settings_SilentUninstallDescription"] = "Dùng chế độ gỡ cài đặt im lặng/tự động của từng ứng dụng khi có thể, để tránh hộp thoại phát sinh.",
         ["Settings_AlwaysUseAppUninstaller"] = "Luôn dùng trình gỡ của ứng dụng",
@@ -456,6 +476,7 @@ public static class AppStrings
     public static string Backup_ContinueAnyway => Get("Backup_ContinueAnyway");
 
     public static string Residue_Title => Get("Residue_Title");
+    public static string Residue_Subtitle => Get("Residue_Subtitle");
     public static string Residue_ScanOrphans => Get("Residue_ScanOrphans");
     public static string Residue_Scanning => Get("Residue_Scanning");
     public static string Residue_SelectAll => Get("Residue_SelectAll");
@@ -490,8 +511,10 @@ public static class AppStrings
     public static string ForceDelete_AddErrorTitle => Get("ForceDelete_AddErrorTitle");
     public static string ForceDelete_PathNotFound(string path) => string.Format(Get("ForceDelete_PathNotFound"), path);
     public static string ForceDelete_UnsafePath(string path) => string.Format(Get("ForceDelete_UnsafePath"), path);
+    public static string ForceDelete_ElevatedDragDropNotice => Get("ForceDelete_ElevatedDragDropNotice");
 
     public static string DiskCleanup_Title => Get("DiskCleanup_Title");
+    public static string DiskCleanup_Subtitle => Get("DiskCleanup_Subtitle");
     public static string DiskCleanup_Scan => Get("DiskCleanup_Scan");
     public static string DiskCleanup_Scanning => Get("DiskCleanup_Scanning");
     public static string DiskCleanup_SelectAll => Get("DiskCleanup_SelectAll");
@@ -512,6 +535,10 @@ public static class AppStrings
     public static string Settings_Language => Get("Settings_Language");
     public static string Settings_LanguageEnglish => Get("Settings_LanguageEnglish");
     public static string Settings_LanguageVietnamese => Get("Settings_LanguageVietnamese");
+    public static string Settings_Theme => Get("Settings_Theme");
+    public static string Settings_ThemeSystem => Get("Settings_ThemeSystem");
+    public static string Settings_ThemeLight => Get("Settings_ThemeLight");
+    public static string Settings_ThemeDark => Get("Settings_ThemeDark");
     public static string Settings_SilentUninstall => Get("Settings_SilentUninstall");
     public static string Settings_SilentUninstallDescription => Get("Settings_SilentUninstallDescription");
     public static string Settings_AlwaysUseAppUninstaller => Get("Settings_AlwaysUseAppUninstaller");
@@ -558,7 +585,9 @@ public static class AppStrings
     public static string ScanStep_Services => Get("ScanStep_Services");
     public static string ScanStep_ScheduledTasks => Get("ScanStep_ScheduledTasks");
     public static string ScanStep_UninstallEntry => Get("ScanStep_UninstallEntry");
+    public static string ScanStep_OrphanedFolders => Get("ScanStep_OrphanedFolders");
     public static string ScanStep_Done => Get("ScanStep_Done");
+    public static string OrphanedFolder_Description(string lastModified) => string.Format(Get("OrphanedFolder_Description"), lastModified);
     public static string ScanProgress_Status(string step, int itemsFound) => string.Format(Get("ScanProgress_Status"), step, itemsFound);
 
     public static string PostUninstall_Title => Get("PostUninstall_Title");
@@ -578,6 +607,7 @@ public static class AppStrings
         ResidueKind.OrphanedRunEntry => "Kind_OrphanedRunEntry",
         ResidueKind.ServiceEntry => "Kind_ServiceEntry",
         ResidueKind.ScheduledTask => "Kind_ScheduledTask",
+        ResidueKind.OrphanedFolder => "Kind_OrphanedFolder",
         _ => "Kind_File",
     });
 }

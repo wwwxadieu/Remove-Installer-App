@@ -21,6 +21,33 @@ public sealed class ResidueScanService : IResidueScanService
         @"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
     };
 
+    /// <summary>
+    /// A folder untouched this recently is probably still in active use by whatever created
+    /// it, even if that thing doesn't currently look like an installed app (a running
+    /// background service, a portable tool, a cache an app repopulates on each launch).
+    /// </summary>
+    private static readonly TimeSpan OrphanedFolderRecencyThreshold = TimeSpan.FromDays(90);
+
+    /// <summary>
+    /// Common vendors/platforms whose support folders should never be flagged as orphaned no
+    /// matter what's currently installed — they're shared by many apps (driver stacks, browser
+    /// profiles, store/package infrastructure) and matching them by name alone is exactly the
+    /// kind of false positive this scan has to avoid.
+    /// </summary>
+    private static readonly string[] KnownVendorNameFragments =
+    {
+        "microsoft", "windows", "google", "mozilla", "nvidia", "intel", "amd", "adobe",
+        "realtek", "dell", "lenovo", "hewlettpackard", "logitech", "steam", "epicgames",
+        "packages", "windowsapps",
+    };
+
+    private readonly IInstalledAppsService _installedAppsService;
+
+    public ResidueScanService(IInstalledAppsService installedAppsService)
+    {
+        _installedAppsService = installedAppsService;
+    }
+
     public Task<IReadOnlyList<ResidueItem>> ScanAfterUninstallAsync(
         InstalledAppInfo app,
         IProgress<ScanProgress>? progress = null,
@@ -53,11 +80,15 @@ public sealed class ResidueScanService : IResidueScanService
         }, cancellationToken);
     }
 
-    public Task<IReadOnlyList<ResidueItem>> ScanOrphanedEntriesAsync(
+    public async Task<IReadOnlyList<ResidueItem>> ScanOrphanedEntriesAsync(
         IProgress<ScanProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
-        return Task.Run(() =>
+        // Fetched up front (and off the Task.Run below) so the folder-matching step has the
+        // full installed-app list without re-scanning the registry itself mid-scan.
+        var installedApps = await _installedAppsService.GetInstalledAppsAsync(cancellationToken);
+
+        return await Task.Run(() =>
         {
             var items = new List<ResidueItem>();
 
@@ -69,6 +100,7 @@ public sealed class ResidueScanService : IResidueScanService
                     ($"{AppStrings.ScanStep_RunKeys} ({HiveLabel(target.Hive)})",
                         () => ScanOrphanedRunEntriesFor(target.Hive, target.View, items)),
                 })
+                .Append((AppStrings.ScanStep_OrphanedFolders, (Action)(() => ScanOrphanedFolders(installedApps, items))))
                 .ToArray();
 
             RunSteps(steps, items, progress, cancellationToken);
@@ -154,6 +186,7 @@ public sealed class ResidueScanService : IResidueScanService
         switch (item.Kind)
         {
             case ResidueKind.Folder:
+            case ResidueKind.OrphanedFolder:
                 if (PathSafety.IsSafeToDeleteRecursively(item.Path) && Directory.Exists(item.Path))
                 {
                     DeleteFileSystemItem(item.Path, permanentlyDelete, isFolder: true);
@@ -582,6 +615,131 @@ public sealed class ResidueScanService : IResidueScanService
                     items.Add(MakeFolderItem(dir, $"Leftover data folder under {Path.GetFileName(root)}"));
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Folders under AppData/ProgramData/Program Files that don't match any currently installed
+    /// app by name, publisher, or install location. This is inference by exclusion — the
+    /// riskiest kind of match in this app — so it leans hard on caution: recently touched
+    /// folders and known shared-vendor folders are skipped, and every result stays unchecked
+    /// (see <see cref="ResidueKindExtensions.IsHighRisk"/>) for the user to review individually.
+    /// </summary>
+    private static void ScanOrphanedFolders(IReadOnlyList<InstalledAppInfo> installedApps, List<ResidueItem> items)
+    {
+        var installedNameKeys = installedApps
+            .Select(a => Compact(a.DisplayName))
+            .Where(k => k.Length >= 3)
+            .ToHashSet();
+
+        var installedPublisherKeys = installedApps
+            .Select(a => a.Publisher)
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Select(p => Compact(p!))
+            .Where(k => k.Length >= 3)
+            .ToHashSet();
+
+        var installedLocations = installedApps
+            .Select(a => a.InstallLocation)
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Select(p => p!.TrimEnd('\\'))
+            .ToArray();
+
+        var roots = new[]
+        {
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+        }.Distinct(StringComparer.OrdinalIgnoreCase).Where(Directory.Exists);
+
+        var cutoff = DateTime.Now - OrphanedFolderRecencyThreshold;
+
+        foreach (var root in roots)
+        {
+            IEnumerable<string> subDirs;
+            try
+            {
+                subDirs = Directory.EnumerateDirectories(root);
+            }
+            catch
+            {
+                continue;
+            }
+
+            foreach (var dir in subDirs)
+            {
+                if (IsExcludedFromOrphanScan(dir, installedNameKeys, installedPublisherKeys, installedLocations, cutoff))
+                {
+                    continue;
+                }
+
+                items.Add(new ResidueItem
+                {
+                    Kind = ResidueKind.OrphanedFolder,
+                    Path = dir,
+                    Description = AppStrings.OrphanedFolder_Description(Directory.GetLastWriteTime(dir).ToString("yyyy-MM-dd")),
+                    SizeBytes = TryGetFolderSize(dir),
+                    IsSelected = false,
+                });
+            }
+        }
+    }
+
+    private static bool IsExcludedFromOrphanScan(
+        string dir,
+        HashSet<string> installedNameKeys,
+        HashSet<string> installedPublisherKeys,
+        string[] installedLocations,
+        DateTime cutoff)
+    {
+        DateTime lastWrite;
+        try
+        {
+            lastWrite = Directory.GetLastWriteTime(dir);
+        }
+        catch
+        {
+            return true; // Can't inspect it — don't guess.
+        }
+
+        if (lastWrite >= cutoff)
+        {
+            return true;
+        }
+
+        if (installedLocations.Any(loc => dir.Equals(loc, StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        var dirNameKey = Compact(Path.GetFileName(dir));
+        if (dirNameKey.Length < 3)
+        {
+            // Too short to compare reliably either way — leaving it out avoids a name-collision
+            // false positive more than it costs us a true one.
+            return true;
+        }
+
+        if (installedNameKeys.Any(k => dirNameKey.Contains(k) || k.Contains(dirNameKey)) ||
+            installedPublisherKeys.Any(k => dirNameKey.Contains(k) || k.Contains(dirNameKey)))
+        {
+            return true;
+        }
+
+        return KnownVendorNameFragments.Any(dirNameKey.Contains);
+    }
+
+    private static long? TryGetFolderSize(string path)
+    {
+        try
+        {
+            return new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
+        }
+        catch
+        {
+            return null;
         }
     }
 

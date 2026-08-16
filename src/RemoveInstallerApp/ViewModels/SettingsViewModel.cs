@@ -25,6 +25,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _preferSilentUninstall;
 
     [ObservableProperty]
+    private ThemeMode _theme;
+
+    [ObservableProperty]
     private bool _alwaysUseAppUninstaller;
 
     [ObservableProperty]
@@ -61,6 +64,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _licenseService = licenseService;
         _selectedLanguage = _localizationService.CurrentLanguage;
         _preferSilentUninstall = _settingsService.Current.PreferSilentUninstall;
+        _theme = _settingsService.Current.Theme;
         _alwaysUseAppUninstaller = _settingsService.Current.AlwaysUseAppUninstaller;
         _permanentlyDelete = _settingsService.Current.PermanentlyDelete;
         _autoCheckForUpdates = _settingsService.Current.AutoCheckForUpdates;
@@ -76,6 +80,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     partial void OnPreferSilentUninstallChanged(bool value)
     {
         _settingsService.Current.PreferSilentUninstall = value;
+        _settingsService.Save();
+    }
+
+    partial void OnThemeChanged(ThemeMode value)
+    {
+        _settingsService.Current.Theme = value;
         _settingsService.Save();
     }
 

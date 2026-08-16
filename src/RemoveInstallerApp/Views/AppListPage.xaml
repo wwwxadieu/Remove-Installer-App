@@ -19,24 +19,28 @@
                     Click="RefreshButton_Click" />
         </Grid>
 
-        <Grid Grid.Row="1" ColumnDefinitions="3*,2*,1*,1*,Auto" Padding="12,4" Background="{ThemeResource LayerFillColorDefaultBrush}">
-            <TextBlock Grid.Column="0" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnName}" />
-            <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnPublisher}" />
-            <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnVersion}" />
-            <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnSize}" />
-            <TextBlock Grid.Column="4" Width="120" />
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,3*,2*,1*,1*,Auto" Padding="12,4" Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <TextBlock Grid.Column="0" Width="20" />
+            <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnName}" />
+            <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnPublisher}" />
+            <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnVersion}" />
+            <TextBlock Grid.Column="4" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnSize}" />
+            <TextBlock Grid.Column="5" Width="120" />
         </Grid>
 
         <Grid Grid.Row="2">
-            <ListView x:Name="AppsListView" SelectionMode="None" Visibility="Collapsed">
+            <ListView x:Name="AppsListView" SelectionMode="None" Visibility="Collapsed"
+                      DoubleTapped="AppsListView_DoubleTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:InstalledAppInfo">
-                        <Grid ColumnDefinitions="3*,2*,1*,1*,Auto" Padding="12,8">
-                            <TextBlock Grid.Column="0" Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind Publisher}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.8" />
-                            <TextBlock Grid.Column="2" Text="{x:Bind DisplayVersion}" VerticalAlignment="Center" Opacity="0.8" />
-                            <TextBlock Grid.Column="3" Text="{x:Bind DisplaySize}" VerticalAlignment="Center" Opacity="0.8" />
-                            <Button Grid.Column="4" Width="120"
+                        <Grid ColumnDefinitions="Auto,3*,2*,1*,1*,Auto" Padding="12,8">
+                            <Image Grid.Column="0" Width="20" Height="20" VerticalAlignment="Center"
+                                   Source="{x:Bind IconSource, Mode=OneWay}" />
+                            <TextBlock Grid.Column="1" Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="8,0,0,0" />
+                            <TextBlock Grid.Column="2" Text="{x:Bind Publisher}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.8" />
+                            <TextBlock Grid.Column="3" Text="{x:Bind DisplayVersion}" VerticalAlignment="Center" Opacity="0.8" />
+                            <TextBlock Grid.Column="4" Text="{x:Bind DisplaySize}" VerticalAlignment="Center" Opacity="0.8" />
+                            <Button Grid.Column="5" Width="120"
                                     Content="{x:Bind strings:AppStrings.AppList_Uninstall}"
                                     Click="UninstallButton_Click"
                                     Tag="{x:Bind}" />

@@ -25,6 +25,15 @@
                            Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
             </StackPanel>
 
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.Settings_Theme}" />
+                <RadioButtons x:Name="ThemeRadioButtons" SelectionChanged="ThemeRadioButtons_SelectionChanged">
+                    <RadioButton x:Name="ThemeSystemOption" Content="{x:Bind strings:AppStrings.Settings_ThemeSystem}" Tag="System" />
+                    <RadioButton x:Name="ThemeLightOption" Content="{x:Bind strings:AppStrings.Settings_ThemeLight}" Tag="Light" />
+                    <RadioButton x:Name="ThemeDarkOption" Content="{x:Bind strings:AppStrings.Settings_ThemeDark}" Tag="Dark" />
+                </RadioButtons>
+            </StackPanel>
+
             <StackPanel Spacing="4">
                 <ToggleSwitch x:Name="AlwaysUseAppUninstallerToggle"
                               Header="{x:Bind strings:AppStrings.Settings_AlwaysUseAppUninstaller}"

@@ -22,7 +22,8 @@ public sealed class AppSettings
     /// </summary>
     public bool PermanentlyDelete { get; set; }
 
-    public bool IsLightTheme { get; set; }
+    /// <summary>Light/dark preference. Defaults to following Windows.</summary>
+    public ThemeMode Theme { get; set; } = ThemeMode.System;
 
     /// <summary>Silently check GitHub Releases for a newer version each time the app launches.</summary>
     public bool AutoCheckForUpdates { get; set; } = true;
