@@ -37,6 +37,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _autoCheckForUpdates;
 
     [ObservableProperty]
+    private bool _autoCheckStorageWarnings;
+
+    [ObservableProperty]
     private bool _isCheckingForUpdate;
 
     [ObservableProperty]
@@ -68,6 +71,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _alwaysUseAppUninstaller = _settingsService.Current.AlwaysUseAppUninstaller;
         _permanentlyDelete = _settingsService.Current.PermanentlyDelete;
         _autoCheckForUpdates = _settingsService.Current.AutoCheckForUpdates;
+        _autoCheckStorageWarnings = _settingsService.Current.AutoCheckStorageWarnings;
         _enableContextMenuIntegration = _settingsService.Current.EnableContextMenuIntegration;
     }
 
@@ -104,6 +108,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     partial void OnAutoCheckForUpdatesChanged(bool value)
     {
         _settingsService.Current.AutoCheckForUpdates = value;
+        _settingsService.Save();
+    }
+
+    partial void OnAutoCheckStorageWarningsChanged(bool value)
+    {
+        _settingsService.Current.AutoCheckStorageWarnings = value;
         _settingsService.Save();
     }
 

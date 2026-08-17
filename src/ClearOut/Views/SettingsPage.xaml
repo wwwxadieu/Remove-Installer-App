@@ -82,6 +82,12 @@
                               Toggled="AutoCheckUpdateToggle_Toggled" />
                 <TextBlock Text="{x:Bind strings:AppStrings.Settings_AutoCheckUpdateDescription}"
                            Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+
+                <ToggleSwitch x:Name="AutoCheckStorageWarningsToggle"
+                              Header="{x:Bind strings:AppStrings.Settings_AutoCheckStorageWarnings}"
+                              Toggled="AutoCheckStorageWarningsToggle_Toggled" />
+                <TextBlock Text="{x:Bind strings:AppStrings.Settings_AutoCheckStorageWarningsDescription}"
+                           Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
             </StackPanel>
 
             <StackPanel Spacing="8">

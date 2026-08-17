@@ -67,7 +67,7 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
 
-            <Grid Margin="16" RowDefinitions="Auto,*">
+            <Grid Margin="16" RowDefinitions="Auto,Auto,*">
                 <InfoBar x:Name="UpdateInfoBar"
                          Grid.Row="0"
                          Margin="0,0,0,12"
@@ -77,7 +77,16 @@
                         <Button x:Name="UpdateActionButton" Click="UpdateActionButton_Click" />
                     </InfoBar.ActionButton>
                 </InfoBar>
-                <Frame x:Name="ContentFrame" Grid.Row="1" />
+                <InfoBar x:Name="StorageWarningInfoBar"
+                         Grid.Row="1"
+                         Margin="0,0,0,12"
+                         IsOpen="False"
+                         Severity="Warning">
+                    <InfoBar.ActionButton>
+                        <Button x:Name="StorageWarningActionButton" Click="StorageWarningActionButton_Click" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <Frame x:Name="ContentFrame" Grid.Row="2" />
             </Grid>
         </NavigationView>
     </Grid>
