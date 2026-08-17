@@ -328,7 +328,8 @@ public sealed class ResidueScanService : IResidueScanService
             {
                 foreach (var dir in Directory.EnumerateDirectories(root))
                 {
-                    if (LooksLikeMatch(Path.GetFileName(dir), nameKey))
+                    var dirName = Path.GetFileName(dir);
+                    if (!IsKnownVendorFolderName(dirName) && LooksLikeMatch(dirName, nameKey))
                     {
                         items.Add(MakeFolderItem(dir, "Leftover temp folder"));
                     }
@@ -609,10 +610,27 @@ public sealed class ResidueScanService : IResidueScanService
             foreach (var dir in subDirs)
             {
                 var dirName = Path.GetFileName(dir);
+
+                // Without this, uninstalling any app whose display name merely contains a
+                // vendor word as a substring (e.g. a "Microsoft Wi-Fi Direct Virtual Adapter"
+                // driver component) makes LooksLikeMatch bidirectionally match the entire
+                // top-level "Microsoft"/"Google"/"EpicGames"/... folder under AppData or
+                // ProgramData — folders shared by many unrelated apps, potentially holding
+                // other apps' saved credentials or account data — and flag the whole thing as
+                // a leftover of the one app just uninstalled.
+                if (IsKnownVendorFolderName(dirName))
+                {
+                    continue;
+                }
+
                 if (LooksLikeMatch(dirName, nameKey) &&
                     !string.Equals(dir, app.InstallLocation, StringComparison.OrdinalIgnoreCase))
                 {
-                    items.Add(MakeFolderItem(dir, $"Leftover data folder under {Path.GetFileName(root)}"));
+                    // Unlike app.InstallLocation above (a folder we know for certain belonged to
+                    // the app just uninstalled), a name-only match here is inference, not
+                    // certainty — so, like the standalone orphaned-folder scan, it stays
+                    // unchecked until the user reviews and opts in.
+                    items.Add(MakeFolderItem(dir, $"Leftover data folder under {Path.GetFileName(root)}", isSelected: false));
                 }
             }
         }
@@ -743,7 +761,7 @@ public sealed class ResidueScanService : IResidueScanService
         }
     }
 
-    private static ResidueItem MakeFolderItem(string path, string description)
+    private static ResidueItem MakeFolderItem(string path, string description, bool isSelected = true)
     {
         long? size = null;
         try
@@ -755,8 +773,15 @@ public sealed class ResidueScanService : IResidueScanService
             // Best-effort size only; access-denied subfolders just leave the size blank.
         }
 
-        return new ResidueItem { Kind = ResidueKind.Folder, Path = path, Description = description, SizeBytes = size };
+        return new ResidueItem { Kind = ResidueKind.Folder, Path = path, Description = description, SizeBytes = size, IsSelected = isSelected };
     }
+
+    /// <summary>True if a top-level AppData/ProgramData/Program Files folder name is a known
+    /// shared vendor/platform folder (driver stacks, browser profiles, store infrastructure) that
+    /// must never be treated as one app's leftover, no matter how the name-matching heuristic
+    /// scores it — see <see cref="KnownVendorNameFragments"/>.</summary>
+    private static bool IsKnownVendorFolderName(string dirName) =>
+        KnownVendorNameFragments.Any(Compact(dirName).Contains);
 
     private static void ScanShortcuts(string displayName, List<ResidueItem> items)
     {
