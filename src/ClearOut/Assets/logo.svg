@@ -1,17 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <!--
-    Remove Installer App logo — vector master, redesigned from a concept mockup supplied by the
-    user: a glossy blue rounded-square tile, an open package with a downward arrow (an installed
-    app "package"), and a red delete badge over the corner. Large, high-contrast shapes with no
-    fine detail so it stays legible at 16px (taskbar/Explorer small-icon size). This file is the
-    source of truth for edits; tools/generate_icon.py re-derives Assets/app.ico from the same
-    shapes procedurally (no SVG rasterizer is available in the build/dev environment).
+    ClearOut logo — "Primary - Dark Mode" vector master: a dark teal rounded-square
+    tile, a gold/tan trash can, and a curved sweeping arrow plunging into the can's
+    opening (dust/clutter being swept away). Large, high-contrast shapes with no
+    fine detail so it stays legible at 16px (taskbar/Explorer small-icon size).
+    This file is the source of truth for edits; tools/generate_icon.py re-derives
+    Assets/app.ico (and the Scan/Cleanup + Maintenance feature-icon PNGs, which
+    reuse the same can/lid/handle geometry) from the same shapes procedurally
+    (no SVG rasterizer is available in the build/dev environment).
   -->
 
   <defs>
     <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#6FA8F5" />
-      <stop offset="1" stop-color="#2F6FE0" />
+      <stop offset="0" stop-color="#138A96" />
+      <stop offset="1" stop-color="#0C6D77" />
     </linearGradient>
   </defs>
 
@@ -19,22 +21,19 @@
   <rect x="15" y="15" width="226" height="226" rx="50" fill="url(#tile)" />
   <ellipse cx="128" cy="68" rx="90" ry="38" fill="#FFFFFF" opacity="0.15" />
 
-  <!-- Box flaps (open lid) -->
-  <polygon points="77,118 109,118 66,87" fill="#EFE9DA" stroke="#C9C2AE" stroke-width="3" stroke-linejoin="round" />
-  <polygon points="147,118 179,118 190,87" fill="#EFE9DA" stroke="#C9C2AE" stroke-width="3" stroke-linejoin="round" />
-
-  <!-- Box body -->
-  <rect x="77" y="118" width="102" height="72" rx="8" fill="#F5F2E9" stroke="#C9C2AE" stroke-width="3" />
-  <line x1="77" y1="133" x2="179" y2="133" stroke="#C9C2AE" stroke-width="2" />
-
-  <!-- Down arrow, entering the box -->
-  <rect x="118" y="68" width="20" height="42" fill="#1E4FBF" />
-  <polygon points="103,110 155,110 129,138" fill="#1E4FBF" />
-
-  <!-- Delete badge -->
-  <circle cx="205" cy="205" r="48" fill="#E13636" />
-  <g stroke="#FFFFFF" stroke-width="10" stroke-linecap="round">
-    <line x1="188" y1="188" x2="222" y2="222" />
-    <line x1="222" y1="188" x2="188" y2="222" />
+  <!-- Trash can body (tapered) + ribs -->
+  <polygon points="84,102 172,102 158,198 98,198" fill="#DDA15E" stroke="#9F7444" stroke-width="4" stroke-linejoin="round" />
+  <g stroke="#9F7444" stroke-width="3" stroke-linecap="round">
+    <line x1="110" y1="115" x2="110" y2="185" />
+    <line x1="128" y1="115" x2="128" y2="185" />
+    <line x1="146" y1="115" x2="146" y2="185" />
   </g>
+
+  <!-- Lid + handle -->
+  <rect x="76" y="90" width="104" height="12" rx="5" fill="#DDA15E" stroke="#9F7444" stroke-width="4" />
+  <rect x="116" y="76" width="24" height="16" rx="4" fill="#DDA15E" stroke="#9F7444" stroke-width="4" />
+
+  <!-- Sweeping arrow, plunging into the can's opening -->
+  <path d="M 52,45 Q 145,55 120,97" fill="none" stroke="#DDA15E" stroke-width="12" stroke-linecap="round" />
+  <polygon points="107.7,117.6 108.3,85.4 135.8,101.7" fill="#DDA15E" />
 </svg>
