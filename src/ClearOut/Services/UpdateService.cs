@@ -14,19 +14,28 @@ namespace ClearOut.Services;
 /// Unpackaged Win32 apps have unrestricted outbound network access, so no manifest capability
 /// is required for this (unlike an MSIX-packaged app).
 ///
-/// Every release this project has ever published is a beta, marked <c>prerelease: true</c> (see
-/// .github/workflows/release-beta.yml). GitHub's <c>/releases/latest</c> endpoint always excludes
-/// prereleases, so calling it here would never find anything to compare against — it isn't a
-/// "give regular users only stable builds" filter in this repo, it's "never detect an update at
-/// all". This uses the full releases list instead and picks whichever entry parses to the
-/// highest version, prerelease or not; once a real (non-beta) release exists, its bare
+/// Early releases were all betas, marked <c>prerelease: true</c> (see
+/// .github/workflows/release-beta.yml), before a stable line started at v1.0.0. GitHub's
+/// <c>/releases/latest</c> endpoint always excludes prereleases, so calling it here would have
+/// found nothing to compare against back when every release was a beta — it isn't a "give
+/// regular users only stable builds" filter in this repo, it's "never detect an update at all"
+/// until the first stable release existed. This uses the full releases list instead and picks
+/// whichever entry parses to the highest version, prerelease or not; a stable release's bare
 /// "1.0.0"-style tag naturally outranks any "1.0.0-betaN" of the same core version (see
-/// <see cref="ParsedVersion"/>), so beta users still get pointed at the stable build then.
+/// <see cref="ParsedVersion"/>), so beta users get pointed at the stable build once one exists.
+///
+/// <see cref="RepoName"/> has to be kept in sync by hand across any future repo rename: GitHub's
+/// rename redirect does not apply uniformly to every REST endpoint — the releases *list*
+/// endpoint used below silently returned an empty array through a renamed repo's old name
+/// (verified directly against the live API) even though single-resource endpoints like
+/// <c>/releases/latest</c> redirected correctly through the same old name. An empty list reads
+/// as "no release published yet" rather than an HTTP error, so this fails silently instead of
+/// loudly - there's no automatic way to catch a stale name here.
 /// </summary>
 public sealed class UpdateService : IUpdateService, IDisposable
 {
     private const string RepoOwner = "wwwxadieu";
-    private const string RepoName = "Remove-Installer-App";
+    private const string RepoName = "UnInstall";
 
     private readonly HttpClient _httpClient;
 
