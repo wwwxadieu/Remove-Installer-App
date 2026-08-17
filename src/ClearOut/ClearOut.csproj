@@ -46,6 +46,10 @@
     <!-- FileSystemAclExtensions (GetAccessControl/SetAccessControl on FileInfo/DirectoryInfo) used
          by Helpers/ForceDelete.cs to take ownership of locked files before retrying deletion. -->
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+    <!-- WMI (System.Management.ManagementObject etc.) used by SystemRestoreBackupService for
+         listing/restoring System Restore points - there is no fully-managed .NET API for either,
+         unlike everywhere else in this app where WMI/P-Invoke is deliberately avoided. -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

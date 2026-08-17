@@ -1,3 +1,4 @@
+using System.Management;
 using System.Runtime.InteropServices;
 using ClearOut.Models;
 
@@ -7,6 +8,11 @@ namespace ClearOut.Services;
 /// Creates a Windows System Restore point via Srclient.dll!SRSetRestorePointW — the OS's own
 /// "backup before installing/uninstalling software" mechanism, so an uninstall gone wrong (files
 /// or registry) can be rolled back from rstrui.exe without this app needing its own backup format.
+///
+/// Listing and restoring points has no P/Invoke or fully-managed .NET equivalent, so those two
+/// operations go through the WMI SystemRestore class instead (System.Management) - the one
+/// deliberate exception to this app's "managed APIs only, no WMI" rule, scoped narrowly to what
+/// genuinely has no other way to do it.
 /// </summary>
 public sealed class SystemRestoreBackupService : IBackupService
 {
@@ -59,6 +65,69 @@ public sealed class SystemRestoreBackupService : IBackupService
             catch (Exception ex)
             {
                 return new BackupResult { Success = false, ErrorMessage = ex.Message };
+            }
+        }, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<RestorePointInfo>> GetRestorePointsAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.Run(() =>
+        {
+            var points = new List<RestorePointInfo>();
+
+            try
+            {
+                using var searcher = new ManagementObjectSearcher(@"root\default", "SELECT * FROM SystemRestore");
+                using var results = searcher.Get();
+
+                foreach (ManagementBaseObject result in results)
+                {
+                    using (result)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var creationTimeRaw = result["CreationTime"] as string;
+                        points.Add(new RestorePointInfo
+                        {
+                            SequenceNumber = (uint)result["SequenceNumber"],
+                            Description = result["Description"] as string ?? string.Empty,
+                            CreationTime = creationTimeRaw is null
+                                ? DateTime.MinValue
+                                : ManagementDateTimeConverter.ToDateTime(creationTimeRaw),
+                        });
+                    }
+                }
+            }
+            catch
+            {
+                // WMI unavailable, System Restore disabled, or the SystemRestore class missing
+                // entirely (some Windows editions strip it) - an empty list reads correctly as
+                // "nothing to restore to" either way.
+            }
+
+            return (IReadOnlyList<RestorePointInfo>)points
+                .OrderByDescending(p => p.SequenceNumber)
+                .ToList();
+        }, cancellationToken);
+    }
+
+    public Task<bool> RestoreToPointAsync(uint sequenceNumber, CancellationToken cancellationToken = default)
+    {
+        return Task.Run(() =>
+        {
+            try
+            {
+                using var restoreClass = new ManagementClass(@"root\default:SystemRestore");
+                using var inParams = restoreClass.GetMethodParameters("Restore");
+                inParams["SequenceNumber"] = sequenceNumber;
+
+                using var outParams = restoreClass.InvokeMethod("Restore", inParams, null);
+                var returnValue = outParams?["ReturnValue"] is uint code ? code : 1u;
+                return returnValue == 0;
+            }
+            catch
+            {
+                return false;
             }
         }, cancellationToken);
     }

@@ -32,7 +32,7 @@
             <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnPublisher}" />
             <TextBlock Grid.Column="4" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnVersion}" />
             <TextBlock Grid.Column="5" FontWeight="SemiBold" Text="{x:Bind strings:AppStrings.AppList_ColumnSize}" />
-            <TextBlock Grid.Column="6" Width="120" />
+            <TextBlock Grid.Column="6" Width="44" />
         </Grid>
 
         <Grid Grid.Row="3">
@@ -40,7 +40,13 @@
                       DoubleTapped="AppsListView_DoubleTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:InstalledAppInfo">
-                        <Grid ColumnDefinitions="Auto,Auto,3*,2*,1*,1*,Auto" Padding="12,8">
+                        <!-- Background="Transparent" (not left unset) is required for the whole row -
+                             including the gaps between columns - to be hit-testable at all; a Panel
+                             with no Background only receives pointer input where a child element
+                             already covers the pixels, which is what silently broke both right-click
+                             (ContextFlyout) and row selection anywhere off the checkbox/text glyphs. -->
+                        <Grid ColumnDefinitions="Auto,Auto,3*,2*,1*,1*,Auto" Padding="12,8"
+                              Background="Transparent" Tapped="AppRow_Tapped">
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="{x:Bind strings:AppStrings.AppList_ContextMenuUninstall}"
@@ -57,10 +63,13 @@
                             <TextBlock Grid.Column="3" Text="{x:Bind Publisher}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.8" />
                             <TextBlock Grid.Column="4" Text="{x:Bind DisplayVersion}" VerticalAlignment="Center" Opacity="0.8" />
                             <TextBlock Grid.Column="5" Text="{x:Bind DisplaySize}" VerticalAlignment="Center" Opacity="0.8" />
-                            <Button Grid.Column="6" Width="120"
-                                    Content="{x:Bind strings:AppStrings.AppList_Uninstall}"
+                            <Button Grid.Column="6" Padding="8,6" VerticalAlignment="Center"
                                     Click="UninstallButton_Click"
-                                    Tag="{x:Bind}" />
+                                    Tag="{x:Bind}"
+                                    ToolTipService.ToolTip="{x:Bind strings:AppStrings.AppList_Uninstall}"
+                                    AutomationProperties.Name="{x:Bind strings:AppStrings.AppList_Uninstall}">
+                                <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

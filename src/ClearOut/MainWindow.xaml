@@ -14,6 +14,31 @@
             Loaded="RootNavigationView_Loaded"
             PaneDisplayMode="Left">
 
+            <NavigationView.Header>
+                <CommandBar x:Name="ToolbarCommandBar"
+                            DefaultLabelPosition="Right"
+                            Background="Transparent"
+                            IsOpen="False"
+                            HorizontalAlignment="Left"
+                            HorizontalContentAlignment="Left">
+                    <!-- Grows to 5 buttons across Phần 1/2/3 of the toolbar rollout (see the plan):
+                         disk health, Windows Update, and advanced tools join here once their
+                         backing services exist, instead of shipping dead/placeholder buttons now. -->
+                    <CommandBar.PrimaryCommands>
+                        <AppBarButton x:Name="CreateRestorePointButton" Click="CreateRestorePointButton_Click">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE74E;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton x:Name="RestoreSystemButton" Click="RestoreSystemButton_Click">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE81C;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                    </CommandBar.PrimaryCommands>
+                </CommandBar>
+            </NavigationView.Header>
+
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="NavItemAppList" Tag="apps">
                     <NavigationViewItem.Icon>
