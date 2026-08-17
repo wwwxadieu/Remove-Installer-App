@@ -72,6 +72,8 @@ public sealed partial class MainWindow : Window
         NavItemForceDelete.Content = AppStrings.NavForceDelete;
         NavItemDiskCleanup.Content = AppStrings.NavDiskCleanup;
         NavItemDeviceSpecs.Content = AppStrings.NavDeviceSpecs;
+        CreateRestorePointButton.Label = AppStrings.Toolbar_CreateRestorePoint;
+        RestoreSystemButton.Label = AppStrings.Toolbar_RestoreSystem;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -230,5 +232,39 @@ public sealed partial class MainWindow : Window
         {
             Process.Start(new ProcessStartInfo { FileName = _updateActionUrl, UseShellExecute = true });
         }
+    }
+
+    /// <summary>Quick action: creates a restore point with a single click, without opening the
+    /// full browse/restore dialog. That dialog also has its own "create" button for convenience
+    /// while already browsing existing points.</summary>
+    private async void CreateRestorePointButton_Click(object sender, RoutedEventArgs e)
+    {
+        CreateRestorePointButton.IsEnabled = false;
+        try
+        {
+            var backupService = App.Services.GetRequiredService<IBackupService>();
+            var result = await backupService.CreateRestorePointAsync(AppStrings.RestorePoints_ManualDescription);
+
+            var resultDialog = new ContentDialog
+            {
+                XamlRoot = RootNavigationView.XamlRoot,
+                Title = AppStrings.RestorePoints_Title,
+                Content = result.Success
+                    ? AppStrings.RestorePoints_CreateSucceeded
+                    : AppStrings.RestorePoints_CreateFailed(result.ErrorMessage ?? string.Empty),
+                CloseButtonText = AppStrings.Common_Close,
+            };
+            await resultDialog.ShowAsync();
+        }
+        finally
+        {
+            CreateRestorePointButton.IsEnabled = true;
+        }
+    }
+
+    private async void RestoreSystemButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new RestorePointsDialog { XamlRoot = RootNavigationView.XamlRoot };
+        await dialog.ShowAsync();
     }
 }

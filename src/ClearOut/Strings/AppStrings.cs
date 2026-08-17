@@ -74,6 +74,25 @@ public static class AppStrings
         ["Backup_Failed"] = "Couldn't create a restore point: {0}",
         ["Backup_ContinueAnyway"] = "Continue with the uninstall anyway?",
 
+        ["Toolbar_CreateRestorePoint"] = "Create restore point",
+        ["Toolbar_RestoreSystem"] = "Restore system",
+        ["Toolbar_DiskHealth"] = "Disk health",
+        ["Toolbar_WindowsUpdate"] = "Windows Update",
+        ["Toolbar_AdvancedTools"] = "Advanced tools",
+
+        ["RestorePoints_Title"] = "System Restore",
+        ["RestorePoints_Intro"] = "Roll Windows settings and system files back to an earlier point in time. This does not affect your personal files.",
+        ["RestorePoints_CreateNew"] = "Create restore point",
+        ["RestorePoints_ManualDescription"] = "Manual restore point (ClearOut)",
+        ["RestorePoints_CreateSucceeded"] = "Restore point created.",
+        ["RestorePoints_CreateFailed"] = "Couldn't create a restore point: {0}",
+        ["RestorePoints_Empty"] = "No restore points found. Create one above, or check that System Restore is turned on for this drive.",
+        ["RestorePoints_RestoreButton"] = "Restore",
+        ["RestorePoints_ConfirmWarning"] = "Restore to \"{0}\"? The computer will restart to finish. Save your work before continuing — this cannot be undone once started.",
+        ["RestorePoints_ConfirmButton"] = "Restore now",
+        ["RestorePoints_RestoreSucceeded"] = "Restore started. The computer will restart shortly to finish.",
+        ["RestorePoints_RestoreFailed"] = "Couldn't start the restore. System Restore may be turned off for this drive.",
+
         ["Residue_Title"] = "Leftover Cleaner",
         ["Residue_Subtitle"] = "Residue a specific app left behind: data folders, shortcuts, and registry entries that no longer match any installed app. For general Windows junk (temp files, Recycle Bin, Windows Update cache), use Disk Cleanup instead.",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
@@ -299,6 +318,25 @@ public static class AppStrings
         ["Backup_Failed"] = "Không thể tạo điểm khôi phục: {0}",
         ["Backup_ContinueAnyway"] = "Vẫn tiếp tục gỡ cài đặt?",
 
+        ["Toolbar_CreateRestorePoint"] = "Tạo điểm khôi phục",
+        ["Toolbar_RestoreSystem"] = "Khôi phục hệ thống",
+        ["Toolbar_DiskHealth"] = "Sức khoẻ ổ đĩa",
+        ["Toolbar_WindowsUpdate"] = "Windows Update",
+        ["Toolbar_AdvancedTools"] = "Công cụ nâng cao",
+
+        ["RestorePoints_Title"] = "Khôi phục hệ thống",
+        ["RestorePoints_Intro"] = "Đưa cài đặt và file hệ thống của Windows về một thời điểm trước đó. Không ảnh hưởng đến file cá nhân của bạn.",
+        ["RestorePoints_CreateNew"] = "Tạo điểm khôi phục",
+        ["RestorePoints_ManualDescription"] = "Điểm khôi phục thủ công (ClearOut)",
+        ["RestorePoints_CreateSucceeded"] = "Đã tạo điểm khôi phục.",
+        ["RestorePoints_CreateFailed"] = "Không thể tạo điểm khôi phục: {0}",
+        ["RestorePoints_Empty"] = "Không tìm thấy điểm khôi phục nào. Hãy tạo một điểm ở trên, hoặc kiểm tra xem System Restore đã được bật cho ổ này chưa.",
+        ["RestorePoints_RestoreButton"] = "Khôi phục",
+        ["RestorePoints_ConfirmWarning"] = "Khôi phục về \"{0}\"? Máy tính sẽ khởi động lại để hoàn tất. Hãy lưu công việc trước khi tiếp tục — không thể hoàn tác sau khi đã bắt đầu.",
+        ["RestorePoints_ConfirmButton"] = "Khôi phục ngay",
+        ["RestorePoints_RestoreSucceeded"] = "Đã bắt đầu khôi phục. Máy tính sẽ khởi động lại sau ít phút để hoàn tất.",
+        ["RestorePoints_RestoreFailed"] = "Không thể bắt đầu khôi phục. System Restore có thể đang bị tắt cho ổ này.",
+
         ["Residue_Title"] = "Dọn dẹp file rác",
         ["Residue_Subtitle"] = "Rác do một ứng dụng cụ thể để lại: thư mục dữ liệu, lối tắt, và mục registry không còn khớp với ứng dụng nào đã cài. Với rác chung của hệ điều hành (file tạm, Thùng rác, cache Windows Update), hãy dùng Dọn ổ đĩa.",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
@@ -521,6 +559,23 @@ public static class AppStrings
     public static string Backup_Creating => Get("Backup_Creating");
     public static string Backup_Failed(string reason) => string.Format(Get("Backup_Failed"), reason);
     public static string Backup_ContinueAnyway => Get("Backup_ContinueAnyway");
+    public static string Toolbar_CreateRestorePoint => Get("Toolbar_CreateRestorePoint");
+    public static string Toolbar_RestoreSystem => Get("Toolbar_RestoreSystem");
+    public static string Toolbar_DiskHealth => Get("Toolbar_DiskHealth");
+    public static string Toolbar_WindowsUpdate => Get("Toolbar_WindowsUpdate");
+    public static string Toolbar_AdvancedTools => Get("Toolbar_AdvancedTools");
+    public static string RestorePoints_Title => Get("RestorePoints_Title");
+    public static string RestorePoints_Intro => Get("RestorePoints_Intro");
+    public static string RestorePoints_CreateNew => Get("RestorePoints_CreateNew");
+    public static string RestorePoints_ManualDescription => Get("RestorePoints_ManualDescription");
+    public static string RestorePoints_CreateSucceeded => Get("RestorePoints_CreateSucceeded");
+    public static string RestorePoints_CreateFailed(string error) => string.Format(Get("RestorePoints_CreateFailed"), error);
+    public static string RestorePoints_Empty => Get("RestorePoints_Empty");
+    public static string RestorePoints_RestoreButton => Get("RestorePoints_RestoreButton");
+    public static string RestorePoints_ConfirmWarning(string description) => string.Format(Get("RestorePoints_ConfirmWarning"), description);
+    public static string RestorePoints_ConfirmButton => Get("RestorePoints_ConfirmButton");
+    public static string RestorePoints_RestoreSucceeded => Get("RestorePoints_RestoreSucceeded");
+    public static string RestorePoints_RestoreFailed => Get("RestorePoints_RestoreFailed");
 
     public static string Residue_Title => Get("Residue_Title");
     public static string Residue_Subtitle => Get("Residue_Subtitle");
