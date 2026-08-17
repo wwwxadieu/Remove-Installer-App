@@ -186,12 +186,15 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: Create GitHub Release (prerelease)
+      # Prerelease vs. stable is driven entirely by whether the version has a "-betaN" suffix,
+      # so this one workflow publishes both: a beta as always, or a real stable release (e.g.
+      # "1.0.0") by triggering manually with a plain version and no beta suffix.
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.tag }}
-          name: "Beta ${{ needs.version.outputs.version }}"
-          prerelease: true
+          name: "${{ contains(needs.version.outputs.version, '-beta') && format('Beta {0}', needs.version.outputs.version) || needs.version.outputs.version }}"
+          prerelease: ${{ contains(needs.version.outputs.version, '-beta') }}
           generate_release_notes: true
           files: artifacts/*.zip
         env:

@@ -43,6 +43,18 @@ public partial class App : Application
         // longer exists post-rename. Cheap no-op once migrated.
         Services.GetRequiredService<IShellIntegrationService>().MigrateLegacyVerbs();
 
+        // Registers this (unpackaged) app to show notifications. Best-effort: if it fails for any
+        // reason, MainWindow's storage-warning toast is skipped, but the in-app InfoBar it also
+        // shows never depends on this succeeding.
+        try
+        {
+            Microsoft.Windows.AppNotifications.AppNotificationManager.Default.Register();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn($"AppNotificationManager registration failed: {ex.Message}");
+        }
+
         // Without these, a XAML/UI exception kills the app with no trace, and a faulted
         // background task vanishes entirely — leaving symptoms (a tab that won't switch, a
         // frozen window) that can only be guessed at, since this app can only run on Windows.
@@ -164,6 +176,7 @@ public partial class App : Application
         collection.AddSingleton<IDiskCleanupService, DiskCleanupService>();
         collection.AddSingleton<ILicenseService, LicenseService>();
         collection.AddSingleton<IDeviceInfoService, DeviceInfoService>();
+        collection.AddSingleton<IStorageWarningService, StorageWarningService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();

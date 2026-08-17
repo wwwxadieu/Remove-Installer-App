@@ -246,6 +246,12 @@ public static class AppStrings
         ["Settings_ViewRelease"] = "View release",
         ["Settings_AutoCheckUpdate"] = "Automatically check for updates on launch",
         ["Settings_AutoCheckUpdateDescription"] = "Silently checks GitHub for a newer version each time the app starts. No data is sent besides the request itself.",
+        ["Settings_AutoCheckStorageWarnings"] = "Warn about low disk space on launch",
+        ["Settings_AutoCheckStorageWarningsDescription"] = "Checks the C: drive's free space and how much junk (temp/cache files) has built up each time the app starts, and shows a warning if either is high.",
+
+        ["StorageWarning_Title"] = "Low on storage",
+        ["StorageWarning_DriveFullMessage"] = "Drive C: only has {0}% free space left.",
+        ["StorageWarning_JunkExcessiveMessage"] = "There's {0} of temporary/cache files you could clean up.",
 
         ["Common_Yes"] = "Yes",
         ["Common_No"] = "No",
@@ -490,6 +496,12 @@ public static class AppStrings
         ["Settings_ViewRelease"] = "Xem trang phát hành",
         ["Settings_AutoCheckUpdate"] = "Tự động kiểm tra cập nhật khi khởi động",
         ["Settings_AutoCheckUpdateDescription"] = "Âm thầm kiểm tra GitHub xem có phiên bản mới hơn mỗi khi mở ứng dụng. Không gửi dữ liệu nào khác ngoài yêu cầu kiểm tra.",
+        ["Settings_AutoCheckStorageWarnings"] = "Cảnh báo khi ổ đĩa sắp đầy lúc khởi động",
+        ["Settings_AutoCheckStorageWarningsDescription"] = "Kiểm tra dung lượng trống của ổ C và lượng file rác (tạm/cache) đã tích luỹ mỗi khi mở ứng dụng, và cảnh báo nếu một trong hai vượt ngưỡng.",
+
+        ["StorageWarning_Title"] = "Sắp hết dung lượng",
+        ["StorageWarning_DriveFullMessage"] = "Ổ C chỉ còn {0}% dung lượng trống.",
+        ["StorageWarning_JunkExcessiveMessage"] = "Có {0} file tạm/cache có thể dọn dẹp.",
 
         ["Common_Yes"] = "Có",
         ["Common_No"] = "Không",
@@ -684,6 +696,11 @@ public static class AppStrings
     public static string Settings_ViewRelease => Get("Settings_ViewRelease");
     public static string Settings_AutoCheckUpdate => Get("Settings_AutoCheckUpdate");
     public static string Settings_AutoCheckUpdateDescription => Get("Settings_AutoCheckUpdateDescription");
+    public static string Settings_AutoCheckStorageWarnings => Get("Settings_AutoCheckStorageWarnings");
+    public static string Settings_AutoCheckStorageWarningsDescription => Get("Settings_AutoCheckStorageWarningsDescription");
+    public static string StorageWarning_Title => Get("StorageWarning_Title");
+    public static string StorageWarning_DriveFullMessage(string freePercent) => string.Format(Get("StorageWarning_DriveFullMessage"), freePercent);
+    public static string StorageWarning_JunkExcessiveMessage(string displayTotal) => string.Format(Get("StorageWarning_JunkExcessiveMessage"), displayTotal);
 
     public static string Common_Yes => Get("Common_Yes");
     public static string Common_No => Get("Common_No");

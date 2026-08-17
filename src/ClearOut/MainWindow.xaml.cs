@@ -4,7 +4,10 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
 using ClearOut.Helpers;
+using ClearOut.Models;
 using ClearOut.Services;
 using ClearOut.Strings;
 using ClearOut.Views;
@@ -62,6 +65,7 @@ public sealed partial class MainWindow : Window
         }
 
         _ = CheckForUpdateOnLaunchAsync();
+        _ = CheckForStorageWarningsOnLaunchAsync();
     }
 
     /// <summary>Re-applied after a language switch so nav labels refresh without restarting.</summary>
@@ -232,6 +236,79 @@ public sealed partial class MainWindow : Window
         {
             Process.Start(new ProcessStartInfo { FileName = _updateActionUrl, UseShellExecute = true });
         }
+    }
+
+    /// <summary>
+    /// Reuses IDiskCleanupService's existing drive-space/scan logic via IStorageWarningService,
+    /// so this only decides how to present a warning, not how to compute one. Runs alongside
+    /// CheckForUpdateOnLaunchAsync, not blocked by it - both are independent background checks.
+    /// </summary>
+    private async Task CheckForStorageWarningsOnLaunchAsync()
+    {
+        var settingsService = App.Services.GetRequiredService<ISettingsService>();
+        if (!settingsService.Current.AutoCheckStorageWarnings)
+        {
+            return;
+        }
+
+        var storageWarningService = App.Services.GetRequiredService<IStorageWarningService>();
+        var result = await storageWarningService.CheckAsync();
+
+        if (!result.HasAnyWarning)
+        {
+            return;
+        }
+
+        var message = BuildStorageWarningMessage(result);
+
+        StorageWarningInfoBar.Title = AppStrings.StorageWarning_Title;
+        StorageWarningInfoBar.Message = message;
+        StorageWarningActionButton.Content = AppStrings.DiskCleanup_Title;
+        StorageWarningInfoBar.IsOpen = true;
+
+        ShowStorageWarningToast(message);
+    }
+
+    private static string BuildStorageWarningMessage(StorageWarningResult result)
+    {
+        var lines = new List<string>();
+        if (result.IsDriveCNearFull)
+        {
+            lines.Add(AppStrings.StorageWarning_DriveFullMessage(result.DriveCFreePercent.ToString("0")));
+        }
+        if (result.IsJunkExcessive)
+        {
+            lines.Add(AppStrings.StorageWarning_JunkExcessiveMessage(result.DisplayJunkTotal));
+        }
+        return string.Join("\n", lines);
+    }
+
+    /// <summary>
+    /// Best-effort: unpackaged apps' notification support has more moving parts than a packaged
+    /// app's, so any failure here (registration never happened, an older Windows version, ...)
+    /// just means no toast - the InfoBar above already showed the same information regardless.
+    /// </summary>
+    private void ShowStorageWarningToast(string message)
+    {
+        try
+        {
+            var notification = new AppNotificationBuilder()
+                .AddText(AppStrings.StorageWarning_Title)
+                .AddText(message)
+                .BuildNotification();
+
+            AppNotificationManager.Default.Show(notification);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn($"Could not show storage warning toast: {ex.Message}");
+        }
+    }
+
+    private void StorageWarningActionButton_Click(object sender, RoutedEventArgs e)
+    {
+        RootNavigationView.SelectedItem = NavItemDiskCleanup;
+        NavigateTo(typeof(DiskCleanupPage));
     }
 
     /// <summary>Quick action: creates a restore point with a single click, without opening the

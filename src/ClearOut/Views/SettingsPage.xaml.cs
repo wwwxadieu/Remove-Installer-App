@@ -31,6 +31,7 @@ public sealed partial class SettingsPage : Page
         PermanentlyDeleteToggle.IsOn = ViewModel.PermanentlyDelete;
         ContextMenuToggle.IsOn = ViewModel.EnableContextMenuIntegration;
         AutoCheckUpdateToggle.IsOn = ViewModel.AutoCheckForUpdates;
+        AutoCheckStorageWarningsToggle.IsOn = ViewModel.AutoCheckStorageWarnings;
         CurrentVersionText.Text = AppStrings.Settings_CurrentVersion(ViewModel.CurrentVersionText);
         RefreshLicenseSection();
         _initializing = false;
@@ -128,6 +129,16 @@ public sealed partial class SettingsPage : Page
         }
 
         ViewModel.AutoCheckForUpdates = AutoCheckUpdateToggle.IsOn;
+    }
+
+    private void AutoCheckStorageWarningsToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        ViewModel.AutoCheckStorageWarnings = AutoCheckStorageWarningsToggle.IsOn;
     }
 
     private async void CheckForUpdateButton_Click(object sender, RoutedEventArgs e)

@@ -28,6 +28,9 @@ public sealed class AppSettings
     /// <summary>Silently check GitHub Releases for a newer version each time the app launches.</summary>
     public bool AutoCheckForUpdates { get; set; } = true;
 
+    /// <summary>Warn on launch if the C: drive is nearly full or there's a lot of junk to clean up.</summary>
+    public bool AutoCheckStorageWarnings { get; set; } = true;
+
     /// <summary>Show "Uninstall with ClearOut" on the right-click menu of .exe files and shortcuts.</summary>
     public bool EnableContextMenuIntegration { get; set; }
 
