@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using ClearOut.Helpers;
 using ClearOut.Models;
 using ClearOut.Services;
@@ -176,6 +177,43 @@ public sealed partial class AppListPage : Page
         }
 
         await UninstallFlowAsync(app);
+    }
+
+    /// <summary>
+    /// Lets clicking anywhere on a row toggle its selection, not just the narrow checkbox
+    /// column — without this, a row's Background defaulted to unset, which in WinUI means
+    /// only the pixels a child control actually covers are hit-testable, so most of the row
+    /// (and a right-click anywhere off those pixels) silently did nothing. Skips the checkbox
+    /// itself (it already toggles on its own click) and the Uninstall button (its Click starts
+    /// the uninstall flow, not a selection change).
+    /// </summary>
+    private void AppRow_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: InstalledAppInfo app } row)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is DependencyObject source &&
+            (IsWithin<CheckBox>(source, row) || IsWithin<Button>(source, row)))
+        {
+            return;
+        }
+
+        app.IsSelected = !app.IsSelected;
+    }
+
+    private static bool IsWithin<T>(DependencyObject? element, DependencyObject boundary) where T : DependencyObject
+    {
+        while (element is not null && element != boundary)
+        {
+            if (element is T)
+            {
+                return true;
+            }
+            element = VisualTreeHelper.GetParent(element);
+        }
+        return false;
     }
 
     /// <summary>Confirm → uninstall → result, shared by row buttons and the context-menu launch path.</summary>
