@@ -22,8 +22,8 @@
                             HorizontalAlignment="Left"
                             HorizontalContentAlignment="Left">
                     <!-- Grows to 5 buttons across Phần 1/2/3 of the toolbar rollout (see the plan):
-                         disk health, Windows Update, and advanced tools join here once their
-                         backing services exist, instead of shipping dead/placeholder buttons now. -->
+                         advanced tools joins here once its backing services exist, instead of
+                         shipping a dead/placeholder button now. -->
                     <CommandBar.PrimaryCommands>
                         <AppBarButton x:Name="CreateRestorePointButton" Click="CreateRestorePointButton_Click">
                             <AppBarButton.Icon>
@@ -33,6 +33,16 @@
                         <AppBarButton x:Name="RestoreSystemButton" Click="RestoreSystemButton_Click">
                             <AppBarButton.Icon>
                                 <FontIcon Glyph="&#xE81C;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton x:Name="DiskHealthButton" Click="DiskHealthButton_Click">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE90F;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton x:Name="WindowsUpdateButton" Click="WindowsUpdateButton_Click">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE895;" />
                             </AppBarButton.Icon>
                         </AppBarButton>
                     </CommandBar.PrimaryCommands>
