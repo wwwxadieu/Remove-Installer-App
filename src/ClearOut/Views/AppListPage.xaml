@@ -4,7 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:models="using:ClearOut.Models"
     xmlns:strings="using:ClearOut.Strings"
+    xmlns:converters="using:ClearOut.Converters"
     NavigationCacheMode="Enabled">
+
+    <Page.Resources>
+        <converters:BoolToRowHighlightConverter x:Key="BoolToRowHighlightConverter" />
+    </Page.Resources>
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
 
@@ -40,13 +45,16 @@
                       DoubleTapped="AppsListView_DoubleTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:InstalledAppInfo">
-                        <!-- Background="Transparent" (not left unset) is required for the whole row -
-                             including the gaps between columns - to be hit-testable at all; a Panel
-                             with no Background only receives pointer input where a child element
+                        <!-- Background must always be a real (even if transparent) brush, never unset -
+                             a Panel with no Background only receives pointer input where a child element
                              already covers the pixels, which is what silently broke both right-click
-                             (ContextFlyout) and row selection anywhere off the checkbox/text glyphs. -->
+                             (ContextFlyout) and row selection anywhere off the checkbox/text glyphs.
+                             BoolToRowHighlightConverter's "false" branch returns Colors.Transparent
+                             (not null) for exactly this reason, while also tinting the row when
+                             IsSelected is true so a selected app is visible at a glance. -->
                         <Grid ColumnDefinitions="Auto,Auto,3*,2*,1*,1*,Auto" Padding="12,8"
-                              Background="Transparent" Tapped="AppRow_Tapped">
+                              Background="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToRowHighlightConverter}}"
+                              Tapped="AppRow_Tapped">
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="{x:Bind strings:AppStrings.AppList_ContextMenuUninstall}"
