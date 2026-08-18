@@ -23,3 +23,7 @@ BundleArtifacts/
 ## OS
 .DS_Store
 Thumbs.db
+
+## Python (tools/generate_icon.py)
+__pycache__/
+*.pyc
