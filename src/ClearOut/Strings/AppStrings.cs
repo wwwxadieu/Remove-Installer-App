@@ -105,6 +105,33 @@ public static class AppStrings
         ["WindowsUpdate_ScanFailed"] = "Couldn't start the update scan.",
         ["WindowsUpdate_OpenSettings"] = "Open Windows Update settings",
 
+        ["AdvancedTools_Title"] = "Advanced Tools",
+        ["AdvancedTools_Subtitle"] = "Manage startup apps, Windows services, and running processes.",
+        ["AdvancedTools_TabStartupApps"] = "Startup Apps",
+        ["AdvancedTools_TabServices"] = "Services",
+        ["AdvancedTools_TabProcesses"] = "Processes",
+        ["AdvancedTools_Refresh"] = "Refresh",
+        ["AdvancedTools_StartupApps_Empty"] = "No startup apps found.",
+        ["AdvancedTools_StartupApps_LocationRunKey"] = "Registry",
+        ["AdvancedTools_StartupApps_LocationStartupFolder"] = "Startup folder",
+        ["AdvancedTools_Services_Empty"] = "No services found.",
+        ["AdvancedTools_Services_StartButton"] = "Start",
+        ["AdvancedTools_Services_StopButton"] = "Stop",
+        ["AdvancedTools_Processes_Empty"] = "No processes found.",
+        ["AdvancedTools_KillConfirmTitle"] = "End process?",
+        ["AdvancedTools_KillConfirmMessage"] = "End \"{0}\"? Any unsaved work in this process will be lost.",
+        ["AdvancedTools_KillButton"] = "End process",
+
+        ["Services_StatusRunning"] = "Running",
+        ["Services_StatusStopped"] = "Stopped",
+        ["Services_StatusStarting"] = "Starting…",
+        ["Services_StatusStopping"] = "Stopping…",
+        ["Services_StatusOther"] = "Other",
+        ["Services_StartTypeAutomatic"] = "Automatic",
+        ["Services_StartTypeManual"] = "Manual",
+        ["Services_StartTypeDisabled"] = "Disabled",
+        ["Services_StartTypeOther"] = "System",
+
         ["Residue_Title"] = "Leftover Cleaner",
         ["Residue_Subtitle"] = "Residue a specific app left behind: data folders, shortcuts, and registry entries that no longer match any installed app. For general Windows junk (temp files, Recycle Bin, Windows Update cache), use Disk Cleanup instead.",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
@@ -367,6 +394,33 @@ public static class AppStrings
         ["WindowsUpdate_ScanFailed"] = "Không thể bắt đầu quét cập nhật.",
         ["WindowsUpdate_OpenSettings"] = "Mở Cài đặt Windows Update",
 
+        ["AdvancedTools_Title"] = "Công cụ nâng cao",
+        ["AdvancedTools_Subtitle"] = "Quản lý ứng dụng khởi động cùng Windows, dịch vụ Windows, và tiến trình đang chạy.",
+        ["AdvancedTools_TabStartupApps"] = "Ứng dụng khởi động",
+        ["AdvancedTools_TabServices"] = "Dịch vụ",
+        ["AdvancedTools_TabProcesses"] = "Tiến trình",
+        ["AdvancedTools_Refresh"] = "Làm mới",
+        ["AdvancedTools_StartupApps_Empty"] = "Không tìm thấy ứng dụng khởi động nào.",
+        ["AdvancedTools_StartupApps_LocationRunKey"] = "Registry",
+        ["AdvancedTools_StartupApps_LocationStartupFolder"] = "Thư mục Startup",
+        ["AdvancedTools_Services_Empty"] = "Không tìm thấy dịch vụ nào.",
+        ["AdvancedTools_Services_StartButton"] = "Khởi động",
+        ["AdvancedTools_Services_StopButton"] = "Dừng",
+        ["AdvancedTools_Processes_Empty"] = "Không tìm thấy tiến trình nào.",
+        ["AdvancedTools_KillConfirmTitle"] = "Kết thúc tiến trình?",
+        ["AdvancedTools_KillConfirmMessage"] = "Kết thúc \"{0}\"? Mọi công việc chưa lưu trong tiến trình này sẽ bị mất.",
+        ["AdvancedTools_KillButton"] = "Kết thúc tiến trình",
+
+        ["Services_StatusRunning"] = "Đang chạy",
+        ["Services_StatusStopped"] = "Đã dừng",
+        ["Services_StatusStarting"] = "Đang khởi động…",
+        ["Services_StatusStopping"] = "Đang dừng…",
+        ["Services_StatusOther"] = "Khác",
+        ["Services_StartTypeAutomatic"] = "Tự động",
+        ["Services_StartTypeManual"] = "Thủ công",
+        ["Services_StartTypeDisabled"] = "Đã tắt",
+        ["Services_StartTypeOther"] = "Hệ thống",
+
         ["Residue_Title"] = "Dọn dẹp file rác",
         ["Residue_Subtitle"] = "Rác do một ứng dụng cụ thể để lại: thư mục dữ liệu, lối tắt, và mục registry không còn khớp với ứng dụng nào đã cài. Với rác chung của hệ điều hành (file tạm, Thùng rác, cache Windows Update), hãy dùng Dọn ổ đĩa.",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
@@ -622,6 +676,31 @@ public static class AppStrings
     public static string WindowsUpdate_ScanTriggered => Get("WindowsUpdate_ScanTriggered");
     public static string WindowsUpdate_ScanFailed => Get("WindowsUpdate_ScanFailed");
     public static string WindowsUpdate_OpenSettings => Get("WindowsUpdate_OpenSettings");
+    public static string AdvancedTools_Title => Get("AdvancedTools_Title");
+    public static string AdvancedTools_Subtitle => Get("AdvancedTools_Subtitle");
+    public static string AdvancedTools_TabStartupApps => Get("AdvancedTools_TabStartupApps");
+    public static string AdvancedTools_TabServices => Get("AdvancedTools_TabServices");
+    public static string AdvancedTools_TabProcesses => Get("AdvancedTools_TabProcesses");
+    public static string AdvancedTools_Refresh => Get("AdvancedTools_Refresh");
+    public static string AdvancedTools_StartupApps_Empty => Get("AdvancedTools_StartupApps_Empty");
+    public static string AdvancedTools_StartupApps_LocationRunKey => Get("AdvancedTools_StartupApps_LocationRunKey");
+    public static string AdvancedTools_StartupApps_LocationStartupFolder => Get("AdvancedTools_StartupApps_LocationStartupFolder");
+    public static string AdvancedTools_Services_Empty => Get("AdvancedTools_Services_Empty");
+    public static string AdvancedTools_Services_StartButton => Get("AdvancedTools_Services_StartButton");
+    public static string AdvancedTools_Services_StopButton => Get("AdvancedTools_Services_StopButton");
+    public static string AdvancedTools_Processes_Empty => Get("AdvancedTools_Processes_Empty");
+    public static string AdvancedTools_KillConfirmTitle => Get("AdvancedTools_KillConfirmTitle");
+    public static string AdvancedTools_KillConfirmMessage(string processName) => string.Format(Get("AdvancedTools_KillConfirmMessage"), processName);
+    public static string AdvancedTools_KillButton => Get("AdvancedTools_KillButton");
+    public static string Services_StatusRunning => Get("Services_StatusRunning");
+    public static string Services_StatusStopped => Get("Services_StatusStopped");
+    public static string Services_StatusStarting => Get("Services_StatusStarting");
+    public static string Services_StatusStopping => Get("Services_StatusStopping");
+    public static string Services_StatusOther => Get("Services_StatusOther");
+    public static string Services_StartTypeAutomatic => Get("Services_StartTypeAutomatic");
+    public static string Services_StartTypeManual => Get("Services_StartTypeManual");
+    public static string Services_StartTypeDisabled => Get("Services_StartTypeDisabled");
+    public static string Services_StartTypeOther => Get("Services_StartTypeOther");
 
     public static string Residue_Title => Get("Residue_Title");
     public static string Residue_Subtitle => Get("Residue_Subtitle");

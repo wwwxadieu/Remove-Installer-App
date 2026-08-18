@@ -50,6 +50,9 @@
          listing/restoring System Restore points - there is no fully-managed .NET API for either,
          unlike everywhere else in this app where WMI/P-Invoke is deliberately avoided. -->
     <PackageReference Include="System.Management" Version="8.0.0" />
+    <!-- ServiceController (fully-managed BCL API, not WMI/P-Invoke) used by WindowsServiceManager
+         to list/start/stop Windows services for the Advanced Tools page. -->
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
