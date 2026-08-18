@@ -78,6 +78,8 @@ public sealed partial class MainWindow : Window
         NavItemDeviceSpecs.Content = AppStrings.NavDeviceSpecs;
         CreateRestorePointButton.Label = AppStrings.Toolbar_CreateRestorePoint;
         RestoreSystemButton.Label = AppStrings.Toolbar_RestoreSystem;
+        DiskHealthButton.Label = AppStrings.Toolbar_DiskHealth;
+        WindowsUpdateButton.Label = AppStrings.Toolbar_WindowsUpdate;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -343,5 +345,39 @@ public sealed partial class MainWindow : Window
     {
         var dialog = new RestorePointsDialog { XamlRoot = RootNavigationView.XamlRoot };
         await dialog.ShowAsync();
+    }
+
+    private async void DiskHealthButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new DiskHealthDialog { XamlRoot = RootNavigationView.XamlRoot };
+        await dialog.ShowAsync();
+    }
+
+    private async void WindowsUpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        WindowsUpdateButton.IsEnabled = false;
+        try
+        {
+            var windowsUpdateService = App.Services.GetRequiredService<IWindowsUpdateService>();
+            var success = await windowsUpdateService.TriggerScanAsync();
+
+            var resultDialog = new ContentDialog
+            {
+                XamlRoot = RootNavigationView.XamlRoot,
+                Title = AppStrings.WindowsUpdate_Title,
+                Content = success ? AppStrings.WindowsUpdate_ScanTriggered : AppStrings.WindowsUpdate_ScanFailed,
+                PrimaryButtonText = AppStrings.WindowsUpdate_OpenSettings,
+                CloseButtonText = AppStrings.Common_Close,
+            };
+
+            if (await resultDialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                windowsUpdateService.OpenWindowsUpdateSettings();
+            }
+        }
+        finally
+        {
+            WindowsUpdateButton.IsEnabled = true;
+        }
     }
 }

@@ -93,6 +93,18 @@ public static class AppStrings
         ["RestorePoints_RestoreSucceeded"] = "Restore started. The computer will restart shortly to finish.",
         ["RestorePoints_RestoreFailed"] = "Couldn't start the restore. System Restore may be turned off for this drive.",
 
+        ["DiskHealth_Title"] = "Disk Health",
+        ["DiskHealth_Intro"] = "SMART status reported by each drive.",
+        ["DiskHealth_StatusOk"] = "Healthy",
+        ["DiskHealth_StatusWarning"] = "Warning",
+        ["DiskHealth_StatusUnknown"] = "Unknown",
+        ["DiskHealth_Empty"] = "No physical drives found.",
+
+        ["WindowsUpdate_Title"] = "Windows Update",
+        ["WindowsUpdate_ScanTriggered"] = "An update scan has been started. Check Windows Update settings for results.",
+        ["WindowsUpdate_ScanFailed"] = "Couldn't start the update scan.",
+        ["WindowsUpdate_OpenSettings"] = "Open Windows Update settings",
+
         ["Residue_Title"] = "Leftover Cleaner",
         ["Residue_Subtitle"] = "Residue a specific app left behind: data folders, shortcuts, and registry entries that no longer match any installed app. For general Windows junk (temp files, Recycle Bin, Windows Update cache), use Disk Cleanup instead.",
         ["Residue_ScanOrphans"] = "Scan for orphaned entries",
@@ -343,6 +355,18 @@ public static class AppStrings
         ["RestorePoints_RestoreSucceeded"] = "Đã bắt đầu khôi phục. Máy tính sẽ khởi động lại sau ít phút để hoàn tất.",
         ["RestorePoints_RestoreFailed"] = "Không thể bắt đầu khôi phục. System Restore có thể đang bị tắt cho ổ này.",
 
+        ["DiskHealth_Title"] = "Sức khoẻ ổ đĩa",
+        ["DiskHealth_Intro"] = "Trạng thái SMART do từng ổ đĩa báo cáo.",
+        ["DiskHealth_StatusOk"] = "Tốt",
+        ["DiskHealth_StatusWarning"] = "Cảnh báo",
+        ["DiskHealth_StatusUnknown"] = "Không xác định",
+        ["DiskHealth_Empty"] = "Không tìm thấy ổ đĩa vật lý nào.",
+
+        ["WindowsUpdate_Title"] = "Windows Update",
+        ["WindowsUpdate_ScanTriggered"] = "Đã bắt đầu quét cập nhật. Xem kết quả trong Cài đặt Windows Update.",
+        ["WindowsUpdate_ScanFailed"] = "Không thể bắt đầu quét cập nhật.",
+        ["WindowsUpdate_OpenSettings"] = "Mở Cài đặt Windows Update",
+
         ["Residue_Title"] = "Dọn dẹp file rác",
         ["Residue_Subtitle"] = "Rác do một ứng dụng cụ thể để lại: thư mục dữ liệu, lối tắt, và mục registry không còn khớp với ứng dụng nào đã cài. Với rác chung của hệ điều hành (file tạm, Thùng rác, cache Windows Update), hãy dùng Dọn ổ đĩa.",
         ["Residue_ScanOrphans"] = "Quét mục còn sót lại",
@@ -588,6 +612,16 @@ public static class AppStrings
     public static string RestorePoints_ConfirmButton => Get("RestorePoints_ConfirmButton");
     public static string RestorePoints_RestoreSucceeded => Get("RestorePoints_RestoreSucceeded");
     public static string RestorePoints_RestoreFailed => Get("RestorePoints_RestoreFailed");
+    public static string DiskHealth_Title => Get("DiskHealth_Title");
+    public static string DiskHealth_Intro => Get("DiskHealth_Intro");
+    public static string DiskHealth_StatusOk => Get("DiskHealth_StatusOk");
+    public static string DiskHealth_StatusWarning => Get("DiskHealth_StatusWarning");
+    public static string DiskHealth_StatusUnknown => Get("DiskHealth_StatusUnknown");
+    public static string DiskHealth_Empty => Get("DiskHealth_Empty");
+    public static string WindowsUpdate_Title => Get("WindowsUpdate_Title");
+    public static string WindowsUpdate_ScanTriggered => Get("WindowsUpdate_ScanTriggered");
+    public static string WindowsUpdate_ScanFailed => Get("WindowsUpdate_ScanFailed");
+    public static string WindowsUpdate_OpenSettings => Get("WindowsUpdate_OpenSettings");
 
     public static string Residue_Title => Get("Residue_Title");
     public static string Residue_Subtitle => Get("Residue_Subtitle");

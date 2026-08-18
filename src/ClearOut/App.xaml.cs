@@ -177,6 +177,8 @@ public partial class App : Application
         collection.AddSingleton<ILicenseService, LicenseService>();
         collection.AddSingleton<IDeviceInfoService, DeviceInfoService>();
         collection.AddSingleton<IStorageWarningService, StorageWarningService>();
+        collection.AddSingleton<IDiskHealthService, DiskHealthService>();
+        collection.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
