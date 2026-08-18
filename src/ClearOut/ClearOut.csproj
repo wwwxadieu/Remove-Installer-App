@@ -65,6 +65,18 @@
     <Content Include="Assets\app.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- Feature-tab icons referenced via ms-appx:///Assets/... in MainWindow.xaml. This app is
+         unpackaged, so resources must exist physically next to the .exe in the publish output -
+         an ImageIcon pointing at a file that isn't also declared as Content here silently
+         resolves to nothing at runtime. -->
+    <None Remove="Assets\icon-scan-cleanup.png" />
+    <Content Include="Assets\icon-scan-cleanup.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\icon-maintenance.png" />
+    <Content Include="Assets\icon-maintenance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!--

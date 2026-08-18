@@ -47,7 +47,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="NavItemResidue" Tag="residue">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEA99;" />
+                        <ImageIcon Source="ms-appx:///Assets/icon-scan-cleanup.png" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="NavItemForceDelete" Tag="forcedelete">
@@ -57,7 +57,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="NavItemDiskCleanup" Tag="diskcleanup">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE74A;" />
+                        <ImageIcon Source="ms-appx:///Assets/icon-maintenance.png" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="NavItemDeviceSpecs" Tag="devicespecs">
