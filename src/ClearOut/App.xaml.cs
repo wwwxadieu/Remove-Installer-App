@@ -179,6 +179,9 @@ public partial class App : Application
         collection.AddSingleton<IStorageWarningService, StorageWarningService>();
         collection.AddSingleton<IDiskHealthService, DiskHealthService>();
         collection.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
+        collection.AddSingleton<IStartupAppsService, StartupAppsService>();
+        collection.AddSingleton<IWindowsServiceManager, WindowsServiceManager>();
+        collection.AddSingleton<IProcessMonitorService, ProcessMonitorService>();
 
         collection.AddTransient<AppListViewModel>();
         collection.AddTransient<ResidueScanViewModel>();
@@ -186,6 +189,7 @@ public partial class App : Application
         collection.AddTransient<DiskCleanupViewModel>();
         collection.AddTransient<SettingsViewModel>();
         collection.AddTransient<DeviceSpecsViewModel>();
+        collection.AddTransient<AdvancedToolsViewModel>();
 
         return collection.BuildServiceProvider();
     }

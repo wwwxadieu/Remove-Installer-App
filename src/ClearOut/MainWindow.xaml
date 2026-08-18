@@ -21,9 +21,6 @@
                             IsOpen="False"
                             HorizontalAlignment="Left"
                             HorizontalContentAlignment="Left">
-                    <!-- Grows to 5 buttons across Phần 1/2/3 of the toolbar rollout (see the plan):
-                         advanced tools joins here once its backing services exist, instead of
-                         shipping a dead/placeholder button now. -->
                     <CommandBar.PrimaryCommands>
                         <AppBarButton x:Name="CreateRestorePointButton" Click="CreateRestorePointButton_Click">
                             <AppBarButton.Icon>
@@ -43,6 +40,11 @@
                         <AppBarButton x:Name="WindowsUpdateButton" Click="WindowsUpdateButton_Click">
                             <AppBarButton.Icon>
                                 <FontIcon Glyph="&#xE895;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton x:Name="AdvancedToolsButton" Click="AdvancedToolsButton_Click">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE713;" />
                             </AppBarButton.Icon>
                         </AppBarButton>
                     </CommandBar.PrimaryCommands>

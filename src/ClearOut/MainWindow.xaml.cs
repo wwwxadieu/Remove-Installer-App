@@ -80,6 +80,7 @@ public sealed partial class MainWindow : Window
         RestoreSystemButton.Label = AppStrings.Toolbar_RestoreSystem;
         DiskHealthButton.Label = AppStrings.Toolbar_DiskHealth;
         WindowsUpdateButton.Label = AppStrings.Toolbar_WindowsUpdate;
+        AdvancedToolsButton.Label = AppStrings.Toolbar_AdvancedTools;
         if (RootNavigationView.SettingsItem is NavigationViewItem settingsItem)
         {
             settingsItem.Content = AppStrings.NavSettings;
@@ -379,5 +380,12 @@ public sealed partial class MainWindow : Window
         {
             WindowsUpdateButton.IsEnabled = true;
         }
+    }
+
+    private void AdvancedToolsButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Not a left-nav tab - reuses the same Frame the nav items navigate, but deliberately
+        // leaves RootNavigationView.SelectedItem alone (there's no matching nav item to select).
+        NavigateTo(typeof(AdvancedToolsPage));
     }
 }
